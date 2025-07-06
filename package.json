@@ -1,0 +1,30 @@
+{
+  "name": "edu-ai-app",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:web": "yarn workspace web dev",
+    "dev:api": "yarn workspace api dev",
+    "dev": "concurrently \"yarn dev:web\" \"yarn dev:api\"",
+    "build": "yarn workspaces run build",
+    "lint": "yarn workspaces run lint",
+    "test": "yarn workspaces run test"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^3.0.0",
+    "@types/cors": "^2.8.19",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "^24.0.10",
+    "@types/swagger-ui-express": "^4.1.8",
+    "@types/yamljs": "^0.2.34",
+    "concurrently": "^8.2.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
+  },
+  "prisma": {
+    "seed": "ts-node prisma/seed.ts"
+  }
+}
