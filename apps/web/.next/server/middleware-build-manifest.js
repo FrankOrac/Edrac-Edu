@@ -19,30 +19,30 @@ self.__BUILD_MANIFEST = {
       "static/chunks/main.js",
       "static/chunks/pages/_error.js"
     ],
-    "/ai-chat": [
+    "/cbt-analytics": [
       "static/chunks/webpack.js",
       "static/chunks/main.js",
-      "static/chunks/pages/ai-chat.js"
+      "static/chunks/pages/cbt-analytics.js"
     ],
-    "/events": [
+    "/cbt-extra": [
       "static/chunks/webpack.js",
       "static/chunks/main.js",
-      "static/chunks/pages/events.js"
+      "static/chunks/pages/cbt-extra.js"
+    ],
+    "/exams": [
+      "static/chunks/webpack.js",
+      "static/chunks/main.js",
+      "static/chunks/pages/exams.js"
     ],
     "/forums": [
       "static/chunks/webpack.js",
       "static/chunks/main.js",
       "static/chunks/pages/forums.js"
     ],
-    "/payments": [
+    "/login": [
       "static/chunks/webpack.js",
       "static/chunks/main.js",
-      "static/chunks/pages/payments.js"
-    ],
-    "/plugins": [
-      "static/chunks/webpack.js",
-      "static/chunks/main.js",
-      "static/chunks/pages/plugins.js"
+      "static/chunks/pages/login.js"
     ],
     "/transcripts": [
       "static/chunks/webpack.js",

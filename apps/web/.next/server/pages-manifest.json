@@ -2,10 +2,10 @@
   "/_app": "pages/_app.js",
   "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
-  "/plugins": "pages/plugins.js",
-  "/ai-chat": "pages/ai-chat.js",
-  "/events": "pages/events.js",
   "/payments": "pages/payments.js",
   "/transcripts": "pages/transcripts.js",
-  "/forums": "pages/forums.js"
+  "/forums": "pages/forums.js",
+  "/cbt-extra": "pages/cbt-extra.js",
+  "/login": "pages/login.js",
+  "/exams": "pages/exams.js"
 }
