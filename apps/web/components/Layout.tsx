@@ -95,7 +95,7 @@ export default function Layout({ children, title }: LayoutProps) {
               </div>
 
               {/* Navigation */}
-              <nav className="flex-1 overflow-y-auto px-4 pb-4">
+              <nav className="flex-1 overflow-y-auto px-4 pb-4 scrollbar-thin scrollbar-thumb-blue-600 scrollbar-track-blue-800">
                 <ul className="space-y-1">
                   {filteredLinks.map((link, index) => (
                     <motion.li

@@ -8,22 +8,49 @@ const featureCards = [
       <svg className="w-14 h-14 text-blue-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M12 20l9 2-7-9 7-9-9 2-9-2 7 9-7 9z" /></svg>
     ),
     title: 'AI-Powered Dashboard',
-    desc: 'Personalized insights and analytics for every user role.'
+    desc: 'Personalized insights and analytics for every user role.',
+    features: ['Real-time analytics', 'Predictive modeling', 'Smart notifications']
   },
   {
     icon: (
       <svg className="w-14 h-14 text-purple-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><path d="M12 8v4l3 3" /></svg>
     ),
     title: 'CBT Extra',
-    desc: 'Advanced computer-based testing with time limits and analytics.'
+    desc: 'Advanced computer-based testing with time limits and analytics.',
+    features: ['Timed assessments', 'Auto-grading', 'Performance tracking']
   },
   {
     icon: (
       <svg className="w-14 h-14 text-yellow-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><rect width="20" height="14" x="2" y="5" rx="2" /><path d="M8 21h8" /></svg>
     ),
     title: 'Seamless Management',
-    desc: 'Effortlessly manage students, teachers, and school operations.'
+    desc: 'Effortlessly manage students, teachers, and school operations.',
+    features: ['Bulk Excel uploads', 'Automated workflows', 'Role-based access']
   },
+  {
+    icon: (
+      <svg className="w-14 h-14 text-green-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" /><rect width="8" height="4" x="8" y="2" rx="1" ry="1" /></svg>
+    ),
+    title: 'Smart Attendance',
+    desc: 'Automated attendance tracking with QR codes and analytics.',
+    features: ['QR code scanning', 'Biometric integration', 'Parent notifications']
+  },
+  {
+    icon: (
+      <svg className="w-14 h-14 text-red-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14,2 14,8 20,8" /></svg>
+    ),
+    title: 'Digital Transcripts',
+    desc: 'Secure, blockchain-verified academic records and certificates.',
+    features: ['Blockchain security', 'Instant verification', 'Digital signatures']
+  },
+  {
+    icon: (
+      <svg className="w-14 h-14 text-indigo-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M3 3h18v18H3zM9 9h6v6H9z" /></svg>
+    ),
+    title: 'Gamification',
+    desc: 'Engage students with points, badges, and achievement systems.',
+    features: ['Achievement badges', 'Leaderboards', 'Reward systems']
+  }
 ];
 
 export default function Home() {
@@ -87,7 +114,15 @@ export default function Home() {
           >
             <div className="mb-4">{feature.icon}</div>
             <h3 className="text-2xl font-bold mb-2 text-blue-900">{feature.title}</h3>
-            <p className="text-blue-700/80 text-lg">{feature.desc}</p>
+            <p className="text-blue-700/80 text-lg mb-4">{feature.desc}</p>
+            <ul className="space-y-2 text-sm text-blue-600">
+              {feature.features.map((item, index) => (
+                <li key={index} className="flex items-center gap-2">
+                  <span className="text-green-500">✓</span>
+                  {item}
+                </li>
+              ))}
+            </ul>
           </motion.div>
         ))}
       </motion.section>

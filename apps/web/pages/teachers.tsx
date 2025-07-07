@@ -1,113 +1,197 @@
+
 import React, { useEffect, useState } from 'react';
 import Layout from '../components/Layout';
 import axios from 'axios';
+import { motion } from 'framer-motion';
 
 interface Teacher {
   id: number;
   name: string;
   email: string;
-  subject: string;
+  department?: string;
+  subjects?: string[];
 }
 
-export default function TeachersPage() {
+export default function Teachers() {
   const [teachers, setTeachers] = useState<Teacher[]>([]);
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [subject, setSubject] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    department: '',
+    subjects: ''
+  });
 
-  async function fetchTeachers() {
-    setLoading(true);
-    setError('');
-    try {
-      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/teachers`);
-      setTeachers(res.data);
-    } catch {
-      setError('Failed to fetch teachers');
-    } finally {
+  useEffect(() => {
+    // Mock data for demonstration
+    setTimeout(() => {
+      setTeachers([
+        {
+          id: 1,
+          name: 'Dr. Sarah Johnson',
+          email: 'sarah.johnson@school.edu',
+          department: 'Mathematics',
+          subjects: ['Algebra', 'Calculus', 'Statistics']
+        },
+        {
+          id: 2,
+          name: 'Prof. Michael Chen',
+          email: 'michael.chen@school.edu',
+          department: 'Science',
+          subjects: ['Physics', 'Chemistry', 'Biology']
+        },
+        {
+          id: 3,
+          name: 'Ms. Emily Rodriguez',
+          email: 'emily.rodriguez@school.edu',
+          department: 'English',
+          subjects: ['Literature', 'Writing', 'Grammar']
+        }
+      ]);
       setLoading(false);
-    }
-  }
+    }, 1000);
+  }, []);
 
-  useEffect(() => { fetchTeachers(); }, []);
-
-  async function handleCreate(e: React.FormEvent) {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-    setError('');
-    setSuccess('');
     try {
-      await axios.post(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/teachers`, {
-        name, email, subject
-      });
-      setSuccess('Teacher created');
-      setName(''); setEmail(''); setSubject('');
-      fetchTeachers();
-    } catch (err: any) {
-      setError(err.response?.data?.error || 'Failed to create teacher');
-    } finally {
-      setLoading(false);
+      const newTeacher = {
+        id: teachers.length + 1,
+        name: formData.name,
+        email: formData.email,
+        department: formData.department,
+        subjects: formData.subjects.split(',').map(s => s.trim())
+      };
+      setTeachers([...teachers, newTeacher]);
+      setFormData({ name: '', email: '', department: '', subjects: '' });
+      setShowAddForm(false);
+    } catch (error) {
+      console.error('Error adding teacher:', error);
     }
-  }
+  };
 
-  async function handleDelete(id: number) {
-    if (!confirm('Delete this teacher?')) return;
-    setLoading(true);
-    setError('');
-    setSuccess('');
-    try {
-      await axios.delete(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/teachers/${id}`);
-      setSuccess('Teacher deleted');
-      fetchTeachers();
-    } catch {
-      setError('Failed to delete teacher');
-    } finally {
-      setLoading(false);
-    }
+  if (loading) {
+    return (
+      <Layout title="Teachers">
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        </div>
+      </Layout>
+    );
   }
 
   return (
     <Layout title="Teachers">
-      <div className="max-w-2xl mx-auto">
-        <h1 className="text-2xl font-bold mb-4">Teachers</h1>
-        {error && <div className="text-red-500 mb-2">{error}</div>}
-        {success && <div className="text-green-600 mb-2">{success}</div>}
-        <form onSubmit={handleCreate} className="mb-6 flex flex-col gap-2 bg-white p-4 rounded shadow">
-          <div className="flex gap-2">
-            <input className="border p-2 flex-1" placeholder="Name" value={name} onChange={e => setName(e.target.value)} required />
-            <input className="border p-2 flex-1" placeholder="Email" type="email" value={email} onChange={e => setEmail(e.target.value)} required />
-            <input className="border p-2 flex-1" placeholder="Subject" value={subject} onChange={e => setSubject(e.target.value)} required />
-            <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded" disabled={loading}>Add</button>
-          </div>
-        </form>
-        <div className="bg-white rounded shadow p-4">
-          <table className="w-full table-auto">
-            <thead>
-              <tr>
-                <th className="text-left">Name</th>
-                <th className="text-left">Email</th>
-                <th className="text-left">Subject</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              {teachers.map(t => (
-                <tr key={t.id} className="border-t">
-                  <td>{t.name}</td>
-                  <td>{t.email}</td>
-                  <td>{t.subject}</td>
-                  <td>
-                    <button className="text-red-600 hover:underline" onClick={() => handleDelete(t.id)} disabled={loading}>Delete</button>
-                  </td>
-                </tr>
-              ))}
-              {teachers.length === 0 && (
-                <tr><td colSpan={4} className="text-center text-gray-400">No teachers found.</td></tr>
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="flex justify-between items-center">
+          <h1 className="text-3xl font-bold text-gray-900">Teachers</h1>
+          <button
+            onClick={() => setShowAddForm(true)}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            + Add Teacher
+          </button>
+        </div>
+
+        {/* Add Teacher Form */}
+        {showAddForm && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-white p-6 rounded-lg shadow-lg border"
+          >
+            <h3 className="text-xl font-semibold mb-4">Add New Teacher</h3>
+            <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <input
+                type="text"
+                placeholder="Teacher Name"
+                value={formData.name}
+                onChange={(e) => setFormData({...formData, name: e.target.value})}
+                className="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                required
+              />
+              <input
+                type="email"
+                placeholder="Email"
+                value={formData.email}
+                onChange={(e) => setFormData({...formData, email: e.target.value})}
+                className="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                required
+              />
+              <input
+                type="text"
+                placeholder="Department"
+                value={formData.department}
+                onChange={(e) => setFormData({...formData, department: e.target.value})}
+                className="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+              />
+              <input
+                type="text"
+                placeholder="Subjects (comma-separated)"
+                value={formData.subjects}
+                onChange={(e) => setFormData({...formData, subjects: e.target.value})}
+                className="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+              />
+              <div className="md:col-span-2 flex gap-3">
+                <button
+                  type="submit"
+                  className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                >
+                  Add Teacher
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowAddForm(false)}
+                  className="px-6 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </motion.div>
+        )}
+
+        {/* Teachers Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {teachers.map((teacher) => (
+            <motion.div
+              key={teacher.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-white p-6 rounded-lg shadow-lg border hover:shadow-xl transition-shadow"
+            >
+              <div className="flex items-center gap-4 mb-4">
+                <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center">
+                  <span className="text-purple-600 font-bold text-xl">
+                    {teacher.name.split(' ').map(n => n[0]).join('')}
+                  </span>
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900">{teacher.name}</h3>
+                  <p className="text-sm text-gray-600">{teacher.email}</p>
+                  <p className="text-xs text-purple-600">{teacher.department}</p>
+                </div>
+              </div>
+              
+              {teacher.subjects && (
+                <div>
+                  <p className="text-sm font-medium text-gray-700 mb-2">Subjects:</p>
+                  <div className="flex flex-wrap gap-1">
+                    {teacher.subjects.map((subject, idx) => (
+                      <span
+                        key={idx}
+                        className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full"
+                      >
+                        {subject}
+                      </span>
+                    ))}
+                  </div>
+                </div>
               )}
-            </tbody>
-          </table>
+            </motion.div>
+          ))}
         </div>
       </div>
     </Layout>

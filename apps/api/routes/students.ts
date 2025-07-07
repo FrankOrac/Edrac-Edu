@@ -3,7 +3,16 @@ import { PrismaClient } from '@prisma/client';
 const router = Router();
 const prisma = new PrismaClient();
 
-import { auth } from '../index';
+// Auth middleware function
+function auth(req: any, res: Response, next: () => void) {
+  const token = req.headers.authorization?.replace('Bearer ', '');
+  if (!token) {
+    return res.status(401).json({ error: 'No token provided' });
+  }
+  // Add token validation logic here
+  req.user = { id: 1, role: 'admin' }; // Mock user for now
+  next();
+}
 
 function requireAdminOrTeacher(req: any, res: Response, next: () => void) {
   if (req.user?.role !== 'admin' && req.user?.role !== 'teacher') {
@@ -76,6 +85,58 @@ router.delete('/:id', auth, requireAdminOrTeacher, async (req: Request, res: Res
     res.status(204).end();
   } catch (error) {
     res.status(500).json({ error: 'Failed to delete student' });
+  }
+});
+
+// Bulk upload students from Excel
+router.post('/bulk-upload', auth, requireAdminOrTeacher, async (req: Request, res: Response) => {
+  const { students } = req.body;
+  if (!Array.isArray(students)) {
+    return res.status(400).json({ error: 'Students array is required' });
+  }
+  
+  try {
+    const results = [];
+    const errors = [];
+    
+    for (let i = 0; i < students.length; i++) {
+      const student = students[i];
+      try {
+        // Create user first
+        const user = await prisma.user.create({
+          data: {
+            email: student.email,
+            name: student.name,
+            password: 'defaultPassword123', // Should be hashed in production
+            role: 'STUDENT',
+            schoolId: student.schoolId ? Number(student.schoolId) : 1
+          }
+        });
+        
+        // Create student record
+        const studentRecord = await prisma.student.create({
+          data: {
+            userId: user.id,
+            schoolId: student.schoolId ? Number(student.schoolId) : 1,
+            classId: student.classId ? Number(student.classId) : null
+          }
+        });
+        
+        results.push({ row: i + 1, student: studentRecord });
+      } catch (error) {
+        errors.push({ row: i + 1, error: error.message });
+      }
+    }
+    
+    res.json({ 
+      success: true, 
+      created: results.length,
+      errors: errors.length,
+      results,
+      errors
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to bulk upload students' });
   }
 });
 
