@@ -4,6 +4,13 @@ import { useRouter } from 'next/router';
 import { motion } from 'framer-motion';
 import { login, isLoggedIn } from '../lib/auth';
 
+interface TestCredential {
+  role: string;
+  email: string;
+  password: string;
+  highlight?: boolean;
+}
+
 const Login = () => {
   const router = useRouter();
   const [formData, setFormData] = useState({
@@ -46,7 +53,8 @@ const Login = () => {
     });
   };
 
-  const testCredentials = [
+  const testCredentials: TestCredential[] = [
+    { role: 'Guest Demo', email: 'guest@demo.com', password: 'demo', highlight: true },
     { role: 'Admin', email: 'admin@edrac.edu', password: 'password123' },
     { role: 'Teacher', email: 'teacher@edrac.edu', password: 'password123' },
     { role: 'Student', email: 'student@edrac.edu', password: 'password123' },
@@ -164,10 +172,18 @@ const Login = () => {
                 <button
                   key={index}
                   onClick={() => fillCredentials(cred.email, cred.password)}
-                  className="w-full text-left p-2 text-xs bg-white rounded border hover:bg-blue-50 transition-colors"
+                  className={`w-full text-left p-2 text-xs rounded border transition-colors ${
+                    cred.highlight 
+                      ? 'bg-green-50 border-green-300 hover:bg-green-100' 
+                      : 'bg-white hover:bg-blue-50'
+                  }`}
                 >
-                  <div className="font-medium text-gray-900">{cred.role}</div>
-                  <div className="text-gray-600">{cred.email}</div>
+                  <div className={`font-medium ${cred.highlight ? 'text-green-900' : 'text-gray-900'}`}>
+                    {cred.role} {cred.highlight && '✨ (Works offline)'}
+                  </div>
+                  <div className={cred.highlight ? 'text-green-600' : 'text-gray-600'}>
+                    {cred.email}
+                  </div>
                 </button>
               ))}
             </div>

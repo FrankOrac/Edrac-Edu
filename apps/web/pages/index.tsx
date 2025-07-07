@@ -252,25 +252,39 @@ const LandingPage = () => {
                 Try our demo accounts to explore all features. No registration required.
               </p>
               
-              <div className="grid md:grid-cols-3 lg:grid-cols-5 gap-4 max-w-4xl mx-auto">
+              <div className="grid md:grid-cols-3 lg:grid-cols-6 gap-4 max-w-5xl mx-auto">
                 {[
-                  { role: 'Admin', email: 'admin@edrac.edu', icon: '👨‍💼' },
-                  { role: 'Teacher', email: 'teacher@edrac.edu', icon: '👨‍🏫' },
-                  { role: 'Student', email: 'student@edrac.edu', icon: '👨‍🎓' },
-                  { role: 'Parent', email: 'parent@edrac.edu', icon: '👨‍👩‍👧‍👦' },
-                  { role: 'Super Admin', email: 'superadmin@edrac.edu', icon: '🛡️' }
+                  { role: 'Guest Demo', email: 'guest@demo.com', icon: '✨', password: 'demo', highlight: true },
+                  { role: 'Admin', email: 'admin@edrac.edu', icon: '👨‍💼', password: 'password123' },
+                  { role: 'Teacher', email: 'teacher@edrac.edu', icon: '👨‍🏫', password: 'password123' },
+                  { role: 'Student', email: 'student@edrac.edu', icon: '👨‍🎓', password: 'password123' },
+                  { role: 'Parent', email: 'parent@edrac.edu', icon: '👨‍👩‍👧‍👦', password: 'password123' },
+                  { role: 'Super Admin', email: 'superadmin@edrac.edu', icon: '🛡️', password: 'password123' }
                 ].map((account, index) => (
                   <motion.div
                     key={account.role}
                     initial={{ opacity: 0, scale: 0.8 }}
                     whileInView={{ opacity: 1, scale: 1 }}
                     transition={{ duration: 0.5, delay: index * 0.1 }}
-                    className="bg-white/80 p-4 rounded-xl shadow-lg border border-white/20"
+                    className={`p-4 rounded-xl shadow-lg border ${
+                      account.highlight 
+                        ? 'bg-gradient-to-br from-green-50 to-emerald-50 border-green-200' 
+                        : 'bg-white/80 border-white/20'
+                    }`}
                   >
                     <div className="text-3xl mb-2">{account.icon}</div>
-                    <h4 className="font-bold text-gray-900">{account.role}</h4>
-                    <p className="text-sm text-gray-600">{account.email}</p>
-                    <p className="text-xs text-gray-500 mt-1">password123</p>
+                    <h4 className={`font-bold ${account.highlight ? 'text-green-900' : 'text-gray-900'}`}>
+                      {account.role}
+                    </h4>
+                    <p className={`text-sm ${account.highlight ? 'text-green-700' : 'text-gray-600'}`}>
+                      {account.email}
+                    </p>
+                    <p className={`text-xs mt-1 ${account.highlight ? 'text-green-600' : 'text-gray-500'}`}>
+                      {account.password}
+                    </p>
+                    {account.highlight && (
+                      <p className="text-xs text-green-600 mt-1 font-medium">Works offline! 🚀</p>
+                    )}
                   </motion.div>
                 ))}
               </div>
