@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { isLoggedIn } from '../lib/auth';
+import GoogleAuth from '../components/GoogleAuth';
 
 const Register = () => {
   const router = useRouter();
@@ -222,6 +223,25 @@ const Register = () => {
               'Create Account'
             )}
           </motion.button>
+
+              <div className="relative my-6">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-gray-300" />
+                </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="px-2 bg-white text-gray-500">Or continue with</span>
+                </div>
+              </div>
+
+              <GoogleAuth
+                onSuccess={(userData) => {
+                  console.log('Google registration success:', userData);
+                  router.push('/dashboard');
+                }}
+                onError={(error) => {
+                  setError(error);
+                }}
+              />
         </form>
 
         <div className="mt-8 text-center">

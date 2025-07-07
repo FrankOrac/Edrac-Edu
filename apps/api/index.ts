@@ -39,6 +39,8 @@ import seoRouter from './routes/seo';
 import advertisingRouter from './routes/advertising';
 import webAnalyticsRouter from './routes/web-analytics';
 import notificationSettingsRouter from './routes/notification-settings';
+import errorLogsRouter from './routes/error-logs';
+import googleAuthRouter from './routes/google-auth';
 
 const app = express();
 const prisma = new PrismaClient();
@@ -105,6 +107,8 @@ app.use('/api/seo', seoRouter);
 app.use('/api/advertising', advertisingRouter);
 app.use('/api/web-analytics', webAnalyticsRouter);
 app.use('/api/notification-settings', notificationSettingsRouter);
+app.use('/api/error-logs', errorLogsRouter);
+app.use('/api/auth', googleAuthRouter);
 
 // Health check
 app.get('/health', (req, res) => {
