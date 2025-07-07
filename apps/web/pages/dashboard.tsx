@@ -1,36 +1,38 @@
 import React, { useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
 import axios from 'axios';
 import { useRouter } from 'next/router';
+import Link from 'next/link';
 import Layout from '../components/Layout';
 
-const roleWidgets: Record<string, JSX.Element[]> = {
+const roleWidgets: Record<string, { text: string; href: string }[]> = {
   admin: [
-    <a key="students" href="/students" className="dashboard-link">Manage Students</a>,
-    <a key="teachers" href="/teachers" className="dashboard-link">Manage Teachers</a>,
-    <a key="analytics" href="/analytics" className="dashboard-link">View Analytics</a>,
-    <a key="payments" href="/payments" className="dashboard-link">Payments</a>,
+    { text: 'Manage Students', href: '/students' },
+    { text: 'Manage Teachers', href: '/teachers' },
+    { text: 'View Analytics', href: '/cbt-analytics' },
+    { text: 'CBT Content', href: '/cbt-extra' },
   ],
   teacher: [
-    <a key="classes" href="/groups" className="dashboard-link">My Classes</a>,
-    <a key="assignments" href="/assignments" className="dashboard-link">Assignments</a>,
-    <a key="attendance" href="/attendance" className="dashboard-link">Attendance</a>,
-    <a key="results" href="/results" className="dashboard-link">Results</a>,
+    { text: 'My Classes', href: '/groups' },
+    { text: 'Assignments', href: '/assignments' },
+    { text: 'Attendance', href: '/attendance' },
+    { text: 'Results', href: '/results' },
   ],
   student: [
-    <a key="my-assignments" href="/assignments" className="dashboard-link">My Assignments</a>,
-    <a key="my-results" href="/results" className="dashboard-link">My Results</a>,
-    <a key="library" href="/library" className="dashboard-link">Library</a>,
-    <a key="ai-chat" href="/ai-chat" className="dashboard-link">AI Chat</a>,
+    { text: 'Take CBT Test', href: '/cbt-test' },
+    { text: 'My Results', href: '/cbt-analytics' },
+    { text: 'Library', href: '/library' },
+    { text: 'AI Chat', href: '/ai-chat' },
   ],
   parent: [
-    <a key="child-progress" href="/results" className="dashboard-link">Child Progress</a>,
-    <a key="attendance" href="/attendance" className="dashboard-link">Attendance</a>,
-    <a key="notifications" href="/notifications" className="dashboard-link">Notifications</a>,
+    { text: 'Child Progress', href: '/results' },
+    { text: 'Attendance', href: '/attendance' },
+    { text: 'Notifications', href: '/notifications' },
   ],
   alumni: [
-    <a key="alumni-forum" href="/forums" className="dashboard-link">Alumni Forum</a>,
-    <a key="certificates" href="/certificates" className="dashboard-link">Certificates</a>,
-    <a key="groups" href="/groups" className="dashboard-link">Groups</a>,
+    { text: 'Alumni Forum', href: '/forums' },
+    { text: 'Certificates', href: '/certificates' },
+    { text: 'Groups', href: '/groups' },
   ]
 };
 
@@ -41,7 +43,10 @@ export default function Dashboard() {
 
   useEffect(() => {
     const token = localStorage.getItem('token');
-    if (!token) return router.push('/login');
+    if (!token) {
+      router.push('/login');
+      return;
+    }
     axios.get(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/user/me`, {
       headers: { Authorization: `Bearer ${token}` }
     })
@@ -51,26 +56,67 @@ export default function Dashboard() {
         localStorage.removeItem('token');
         router.push('/login');
       });
-  }, []);
+  }, [router]);
 
-  if (error) return <Layout title="Dashboard"><div className="text-red-500">{error}</div></Layout>;
-  if (!user) return <Layout title="Dashboard"><div>Loading...</div></Layout>;
+  if (error) return <Layout title="Dashboard"><div className="text-red-500 p-8 text-center">{error}</div></Layout>;
+  if (!user) return <Layout title="Dashboard"><div className="p-8 text-center">Loading dashboard...</div></Layout>;
 
-  const widgets = roleWidgets[user.role] || [<span key="default">No widgets for this role.</span>];
+  const widgets = roleWidgets[user.role.toLowerCase()] || [];
 
   return (
     <Layout title="Dashboard">
-      <div className="flex flex-col items-center justify-center">
-        <h1 className="text-2xl font-bold mb-4">Welcome, {user.name || user.email}!</h1>
-        <p className="mb-2">Role: {user.role}</p>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 my-6 w-full max-w-xl">
-          {widgets.map((widget, i) => (
-            <div key={i} className="bg-white rounded shadow p-6 text-center hover:bg-blue-50 transition-colors">
-              {widget}
-            </div>
-          ))}
+      <div className="flex flex-col items-center justify-center min-h-[80vh] px-4 py-8">
+        <motion.h1
+          initial={{ opacity: 0, y: -40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7 }}
+          className="text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-gray-700 via-gray-900 to-black mb-4 text-center"
+        >
+          Welcome, {user.name || user.email}!
+        </motion.h1>
+        <motion.p
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, delay: 0.2 }}
+          className="mb-2 text-lg text-gray-600 font-semibold"
+        >
+          Role: <span className="font-bold uppercase tracking-wider">{user.role}</span>
+        </motion.p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 my-8 w-full max-w-4xl">
+          {widgets.length > 0 ? (
+            widgets.map((widget, i) => (
+              <Link href={widget.href} key={i} passHref>
+                <motion.a
+                  initial={{ opacity: 0, y: 40 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: 0.4 + i * 0.1 }}
+                  whileHover={{ scale: 1.03, boxShadow: "0 10px 30px -15px rgba(0, 0, 0, 0.3)" }}
+                  className="block backdrop-blur-md bg-slate-100/30 border border-slate-200/50 rounded-2xl shadow-lg p-6 flex items-center justify-center text-center cursor-pointer transition-all hover:bg-slate-50/50 hover:shadow-xl h-36 focus:outline-none focus:ring-4 focus:ring-blue-300"
+                >
+                  <span className="text-xl font-semibold text-gray-800">{widget.text}</span>
+                </motion.a>
+              </Link>
+            ))
+          ) : (
+            <motion.div
+              initial={{ opacity: 0, y: 40 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.4 }}
+              className="md:col-span-2 text-center text-gray-500 font-semibold p-8 bg-white/20 rounded-3xl"
+            >
+              No widgets available for your role.
+            </motion.div>
+          )}
         </div>
-        <button className="bg-gray-200 px-4 py-2 rounded" onClick={() => { localStorage.removeItem('token'); router.push('/login'); }}>Logout</button>
+        <motion.button
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5, delay: 1 }}
+          className="mt-4 px-8 py-3 bg-gradient-to-r from-slate-600 to-slate-800 hover:from-slate-700 hover:to-slate-900 text-white rounded-xl font-bold shadow-lg transition-transform transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-slate-300"
+          onClick={() => { localStorage.removeItem('token'); router.push('/login'); }}
+        >
+          Logout
+        </motion.button>
       </div>
     </Layout>
   );

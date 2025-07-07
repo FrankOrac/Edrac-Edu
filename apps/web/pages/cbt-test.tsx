@@ -115,20 +115,35 @@ export default function CbtTestPage() {
 
   if(finished) return (
     <Layout title="CBT Test Result">
-      <h1 className="text-2xl font-bold mb-4">Test Result</h1>
-      <div aria-live="polite" className="mb-2">
-        {success && <p className="text-green-600">{success}</p>}
-        {error && <p className="text-red-500">{error}</p>}
-      </div>
-      <ul>
-        {result.map((r:any,i:number)=>(
-          <li key={i} className={r.correct?'text-green-700':'text-red-700'}>
-            <span className="font-semibold">Q:</span> {r.question.text} <br/>
-            <span className="font-semibold">Your answer:</span> {r.selected} <br/>
-            {r.correct ? <span className="font-semibold">Correct</span> : <span className="font-semibold">Incorrect</span>}
-          </li>
-        ))}
-      </ul>
+      <motion.div
+        initial={{ opacity: 0, y: 40 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.7 }}
+        className="backdrop-blur-xl bg-white/40 border border-white/50 rounded-3xl shadow-2xl p-8 my-8 max-w-2xl mx-auto"
+      >
+        <h1 className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-green-700 via-blue-700 to-green-400 drop-shadow mb-4">
+          Test Result
+        </h1>
+        <div aria-live="polite" className="mb-4">
+          {success && <p className="text-green-600 font-semibold">{success}</p>}
+          {error && <p className="text-red-500 font-semibold">{error}</p>}
+        </div>
+        <ul className="space-y-4">
+          {result.map((r:any,i:number)=>(
+            <motion.li
+              key={i}
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 * i }}
+              className={`rounded-xl px-6 py-4 shadow font-semibold ${r.correct ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-red-50 text-red-700 border border-red-200'}`}
+            >
+              <span className="">Q:</span> {r.question.text} <br/>
+              <span className="">Your answer:</span> {r.selected} <br/>
+              {r.correct ? <span className="">Correct</span> : <span className="">Incorrect</span>}
+            </motion.li>
+          ))}
+        </ul>
+      </motion.div>
     </Layout>
   );
 
@@ -138,50 +153,79 @@ export default function CbtTestPage() {
 
   return (
     <Layout title="CBT Test">
-      <div className="flex items-center justify-between mb-4">
-        <h1 className="text-2xl font-bold">CBT Test</h1>
-        {user && (
-          <span className="text-sm text-gray-600">{user.name} ({user.role})</span>
-        )}
-      </div>
-      <div className="mb-2">Time left: {Math.floor(timer/60)}:{(timer%60).toString().padStart(2,'0')}</div>
-      <div className="mb-4">
-        <div className="font-semibold">Q{current+1}: {q.text}</div>
-        <div className="mt-2">
-          {q.options.map((opt, i) => (
-            <button
-              key={i}
-              className={`block w-full text-left px-4 py-2 mb-2 rounded border ${answers[q.id]===opt?'bg-blue-100 border-blue-500':'border-gray-300 hover:bg-gray-100'}`}
-              onClick={()=>handleSelect(q.id,opt)}
-              disabled={finished || loading}
-              aria-pressed={answers[q.id]===opt}
-              tabIndex={0}
-              onKeyDown={e => {
-                if ((e.key === 'Enter' || e.key === ' ') && !(finished || loading)) {
-                  handleSelect(q.id, opt);
-                }
-              }}
-              role="option"
-              aria-selected={answers[q.id]===opt}
-            >
-              {opt}
-            </button>
-          ))}
+      <motion.div
+        initial={{ opacity: 0, y: 40 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.7 }}
+        className="backdrop-blur-xl bg-white/40 border border-white/50 rounded-3xl shadow-2xl p-8 my-8 max-w-2xl mx-auto"
+      >
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-800 via-purple-700 to-blue-400 drop-shadow">
+            CBT Test
+          </h1>
+          {user && (
+            <span className="text-sm text-gray-600 font-semibold ml-4">{user.name} ({user.role})</span>
+          )}
         </div>
-      </div>
-      <div className="flex gap-2 mb-4">
-        <button onClick={handlePrev} disabled={current===0 || finished || loading} className="px-3 py-1 border rounded">Prev</button>
-        <button onClick={handleNext} disabled={current===questions.length-1 || finished || loading} className="px-3 py-1 border rounded">Next</button>
-      </div>
-      <div className="mb-4">
-        <button
-          onClick={handleFinish}
-          disabled={finished || loading}
-          className="px-4 py-2 bg-green-600 text-white rounded disabled:bg-gray-300"
-        >
-          {loading ? 'Submitting...' : 'Finish'}
-        </button>
-      </div>
+        <div className="mb-4 text-lg font-semibold text-blue-900">Time left: <span className="font-mono">{Math.floor(timer/60)}:{(timer%60).toString().padStart(2,'0')}</span></div>
+        <div className="mb-8">
+          <div className="font-semibold text-xl mb-4">Q{current+1}: {q.text}</div>
+          <div className="grid gap-3">
+            {q.options.map((opt, i) => (
+              <motion.button
+                key={i}
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
+                className={`block w-full text-left px-6 py-3 rounded-xl border font-semibold transition-all shadow-inner focus:outline-none focus:ring-2 focus:ring-blue-300 ${answers[q.id]===opt?'bg-blue-100 border-blue-500':'border-gray-300 hover:bg-blue-50'}`}
+                onClick={()=>handleSelect(q.id,opt)}
+                disabled={finished || loading}
+                aria-pressed={answers[q.id]===opt}
+                tabIndex={0}
+                onKeyDown={e => {
+                  if ((e.key === 'Enter' || e.key === ' ') && !(finished || loading)) {
+                    handleSelect(q.id, opt);
+                  }
+                }}
+                role="option"
+                aria-selected={answers[q.id]===opt}
+              >
+                {opt}
+              </motion.button>
+            ))}
+          </div>
+        </div>
+        <div className="flex gap-4 mb-6 justify-center">
+          <motion.button
+            whileHover={{ scale: current!==0 && !finished && !loading ? 1.08 : 1 }}
+            whileTap={{ scale: 0.96 }}
+            onClick={handlePrev}
+            disabled={current===0 || finished || loading}
+            className="px-5 py-2 rounded-xl border font-semibold bg-gradient-to-r from-gray-200 to-gray-100 text-gray-700 shadow disabled:opacity-50"
+          >
+            Prev
+          </motion.button>
+          <motion.button
+            whileHover={{ scale: current!==questions.length-1 && !finished && !loading ? 1.08 : 1 }}
+            whileTap={{ scale: 0.96 }}
+            onClick={handleNext}
+            disabled={current===questions.length-1 || finished || loading}
+            className="px-5 py-2 rounded-xl border font-semibold bg-gradient-to-r from-gray-200 to-gray-100 text-gray-700 shadow disabled:opacity-50"
+          >
+            Next
+          </motion.button>
+        </div>
+        <div className="mb-2 flex justify-center">
+          <motion.button
+            whileHover={{ scale: !finished && !loading ? 1.08 : 1 }}
+            whileTap={{ scale: 0.96 }}
+            onClick={handleFinish}
+            disabled={finished || loading}
+            className="px-8 py-3 bg-gradient-to-r from-green-600 to-blue-600 hover:from-blue-600 hover:to-green-600 text-white rounded-2xl font-bold shadow-lg transition-transform disabled:bg-gray-300 disabled:opacity-60"
+          >
+            {loading ? 'Submitting...' : 'Finish'}
+          </motion.button>
+        </div>
+      </motion.div>
     </Layout>
   );
   );

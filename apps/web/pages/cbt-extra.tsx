@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
+import { isLoggedIn } from '../lib/auth';
 import { useRouter } from 'next/router';
 import Layout from '../components/Layout';
 import axios from 'axios';
@@ -215,96 +217,150 @@ export default function CbtExtraDashboard() {
       </div>
       {error && <p className="text-red-500">{error}</p>}
       {success && <p className="text-green-600">{success}</p>}
-      <div className="mb-8">
-        <h2 className="font-semibold">Add Subject</h2>
-        <form onSubmit={handleAddSubject} className="flex gap-2 my-2">
-          <input value={subjectName} onChange={e=>setSubjectName(e.target.value)} required placeholder="Subject name" className="border px-2 py-1"/>
-          <button type="submit" className="bg-blue-600 text-white px-4 py-1 rounded">Add</button>
-        </form>
-      </div>
-      <div className="mb-8">
-        <h2 className="font-semibold">Subjects</h2>
-        <ul className="mb-2">
+      {user && (user.role === 'admin' || user.role === 'teacher') ? (
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, delay: 0.3 }}
+          className="backdrop-blur-xl bg-white/40 border border-white/50 rounded-3xl shadow-2xl p-8 mb-8"
+        >
+          <h2 className="font-semibold text-blue-900 text-xl mb-3">Add Subject</h2>
+          <form onSubmit={handleAddSubject} className="flex gap-2 my-2 items-center">
+            <input value={subjectName} onChange={e=>setSubjectName(e.target.value)} required placeholder="Subject name" className="border px-4 py-2 rounded-lg shadow-inner focus:outline-none focus:ring-2 focus:ring-blue-200 transition w-2/3"/>
+            <button type="submit" className="px-6 py-2 bg-gradient-to-r from-blue-700 to-purple-700 hover:from-purple-700 hover:to-blue-700 text-white rounded-xl font-semibold shadow transition-transform transform hover:scale-105">Add</button>
+          </form>
+        </motion.div>
+      ) : user && (
+        <div className="mb-8 text-center text-gray-500 font-semibold">You do not have permission to add subjects.</div>
+      )}
+
+      <motion.div
+        initial={{ opacity: 0, y: 40 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.7, delay: 0.4 }}
+        className="backdrop-blur-xl bg-white/40 border border-white/50 rounded-3xl shadow-2xl p-8 mb-8"
+      >
+        <h2 className="font-semibold text-blue-900 text-xl mb-3">Subjects</h2>
+        <ul className="mb-2 space-y-2">
           {subjects.map(subj => (
-            <li key={subj.id} className="flex items-center gap-2">
+            <motion.li
+              key={subj.id}
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5, delay: 0.15 * subj.id }}
+              className="flex items-center gap-2 bg-white/70 rounded-xl px-4 py-2 shadow hover:shadow-lg transition cursor-pointer"
+            >
               {editingSubject && editingSubject.id===subj.id ? (
-                <form onSubmit={handleUpdateSubject} className="flex gap-2 items-center">
-                  <input value={editSubjectName} onChange={e=>setEditSubjectName(e.target.value)} className="border px-2 py-1" required />
-                  <button type="submit" className="text-xs text-green-700">Save</button>
-                  <button type="button" onClick={()=>setEditingSubject(null)} className="text-xs">Cancel</button>
-                </form>
+                user && (user.role === 'admin' || user.role === 'teacher') ? (
+                  <form onSubmit={handleUpdateSubject} className="flex gap-2 items-center w-full">
+                    <input value={editSubjectName} onChange={e=>setEditSubjectName(e.target.value)} className="border px-2 py-1 rounded-lg w-2/3" required />
+                    <button type="submit" className="text-xs text-green-700 font-semibold">Save</button>
+                    <button type="button" onClick={()=>setEditingSubject(null)} className="text-xs">Cancel</button>
+                  </form>
+                ) : (
+                  <span className="text-gray-400 text-xs">No permission to edit.</span>
+                )
               ) : (
                 <>
                   <button
                     className={`underline ${selectedSubject===subj.id?'font-bold text-blue-700':''}`}
-                    onClick={()=>setSelectedSubject(subj.id)}>
+                    onClick={()=>setSelectedSubject(subj.id)}
+                  >
                     {subj.name}
                   </button>
-                  <button onClick={()=>handleEditSubject(subj)} className="text-xs text-green-700">Edit</button>
-                  <button onClick={()=>handleDeleteSubject(subj.id)} className="text-xs text-red-600">Delete</button>
+                  {user && (user.role === 'admin' || user.role === 'teacher') && (
+                    <>
+                      <button onClick={()=>handleEditSubject(subj)} className="text-xs text-green-700 font-semibold">Edit</button>
+                      <button onClick={()=>handleDeleteSubject(subj.id)} className="text-xs text-red-600 font-semibold">Delete</button>
+                    </>
+                  )}
                 </>
               )}
-            </li>
+            </motion.li>
           ))}
         </ul>
-      </div>
+      </motion.div>
       {selectedSubject && (
-        <div className="mb-8">
-          <h2 className="font-semibold">Add Question</h2>
-          <form onSubmit={handleAddQuestion} className="space-y-2">
-            <input value={question} onChange={e=>setQuestion(e.target.value)} required placeholder="Question text" className="border px-2 py-1 w-full"/>
-            <div className="flex flex-col gap-1">
-              {options.map((opt,i)=>(
-                <input key={i} value={opt} onChange={e=>{
-                  const newOpts = [...options]; newOpts[i]=e.target.value; setOptions(newOpts);
-                }} required placeholder={`Option ${i+1}`} className="border px-2 py-1"/>
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, delay: 0.5 }}
+          className="backdrop-blur-xl bg-white/40 border border-white/50 rounded-3xl shadow-2xl p-8 mb-8"
+        >
+          <h2 className="font-semibold text-blue-900 text-xl mb-3">Add Question</h2>
+          {user && (user.role === 'admin' || user.role === 'teacher') ? (
+            <form onSubmit={handleAddQuestion} className="space-y-3">
+              <input value={question} onChange={e=>setQuestion(e.target.value)} required placeholder="Question text" className="border px-4 py-2 rounded-lg shadow-inner focus:outline-none focus:ring-2 focus:ring-blue-200 transition w-full"/>
+              <div className="flex flex-col gap-2">
+                {options.map((opt,i)=>(
+                  <input key={i} value={opt} onChange={e=>{
+                    const newOpts = [...options]; newOpts[i]=e.target.value; setOptions(newOpts);
+                  }} required placeholder={`Option ${i+1}`} className="border px-4 py-2 rounded-lg shadow-inner focus:outline-none focus:ring-2 focus:ring-purple-200 transition"/>
+                ))}
+              </div>
+              <input value={answer} onChange={e=>setAnswer(e.target.value)} required placeholder="Correct answer" className="border px-4 py-2 rounded-lg shadow-inner focus:outline-none focus:ring-2 focus:ring-green-200 transition w-full"/>
+              <input type="number" value={marks} min={1} onChange={e=>setMarks(Number(e.target.value))} required placeholder="Marks" className="border px-4 py-2 rounded-lg shadow-inner focus:outline-none focus:ring-2 focus:ring-yellow-200 transition w-full"/>
+              <input value={explanation} onChange={e=>setExplanation(e.target.value)} placeholder="Explanation (optional)" className="border px-4 py-2 rounded-lg shadow-inner focus:outline-none focus:ring-2 focus:ring-blue-100 transition w-full"/>
+              <button type="submit" className="px-6 py-2 bg-gradient-to-r from-green-600 to-blue-600 hover:from-blue-600 hover:to-green-600 text-white rounded-xl font-semibold shadow transition-transform transform hover:scale-105">Add Question</button>
+            </form>
+          ) : (
+            <div className="text-center text-gray-500 font-semibold">You do not have permission to add questions.</div>
+          )}
+        </motion.div>
+      )}
+      {selectedSubject && (
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.6 }}
+            className="backdrop-blur-xl bg-white/40 border border-white/50 rounded-3xl shadow-2xl p-8 mb-8"
+          >
+            <h2 className="font-semibold text-blue-900 text-xl mb-3">Questions</h2>
+            <ul className="space-y-4">
+              {questions.map(q=>(
+                <motion.li
+                  key={q.id}
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.5, delay: 0.1 * q.id }}
+                  className="bg-white/70 rounded-xl px-6 py-4 shadow hover:shadow-lg transition cursor-pointer"
+                >
+                  {editingQuestion && editingQuestion.id===q.id ? (
+                    <form onSubmit={handleUpdateQuestion} className="space-y-2">
+                      <input value={editQuestion} onChange={e=>setEditQuestion(e.target.value)} required className="border px-4 py-2 rounded-lg w-full"/>
+                      <div className="flex flex-col gap-2">
+                        {editOptions.map((opt,i)=>(
+                          <input key={i} value={opt} onChange={e=>{
+                            const newOpts = [...editOptions]; newOpts[i]=e.target.value; setEditOptions(newOpts);
+                          }} required className="border px-4 py-2 rounded-lg"/>
+                        ))}
+                      </div>
+                      <input value={editAnswer} onChange={e=>setEditAnswer(e.target.value)} required className="border px-4 py-2 rounded-lg w-full"/>
+                      <input type="number" value={editMarks} min={1} onChange={e=>setEditMarks(Number(e.target.value))} required className="border px-4 py-2 rounded-lg w-full"/>
+                      <input value={editExplanation} onChange={e=>setEditExplanation(e.target.value)} className="border px-4 py-2 rounded-lg w-full"/>
+                      <button type="submit" className="text-xs text-green-700 font-bold mr-2">Save</button>
+                      <button type="button" onClick={()=>setEditingQuestion(null)} className="text-xs">Cancel</button>
+                    </form>
+                  ) : (
+                    <>
+                      <div className="mb-1"><b>Q:</b> {q.text}</div>
+                      <div className="mb-1"><b>Options:</b> {q.options.join(', ')}</div>
+                      <div className="mb-1"><b>Answer:</b> {q.answer}</div>
+                      <div className="mb-1"><b>Marks:</b> {q.marks}</div>
+                      {q.explanation && <div className="mb-1"><b>Explanation:</b> {q.explanation}</div>}
+                      {user && (user.role === 'admin' || user.role === 'teacher') && (
+                        <>
+                          <button onClick={()=>handleEditQuestion(q)} className="text-xs text-green-700 font-bold mr-2">Edit</button>
+                          <button onClick={()=>handleDeleteQuestion(q.id)} className="text-xs text-red-600 font-bold">Delete</button>
+                        </>
+                      )}
+                    </>
+                  )}
+                </motion.li>
               ))}
-            </div>
-            <input value={answer} onChange={e=>setAnswer(e.target.value)} required placeholder="Correct answer" className="border px-2 py-1 w-full"/>
-            <input type="number" value={marks} min={1} onChange={e=>setMarks(Number(e.target.value))} required placeholder="Marks" className="border px-2 py-1 w-full"/>
-            <input value={explanation} onChange={e=>setExplanation(e.target.value)} placeholder="Explanation (optional)" className="border px-2 py-1 w-full"/>
-            <button type="submit" className="bg-green-600 text-white px-4 py-1 rounded">Add Question</button>
-          </form>
-        </div>
-      )}
-      {selectedSubject && (
-        <div>
-          <h2 className="font-semibold">Questions</h2>
-          <ul>
-            {questions.map(q=>(
-  <li key={q.id} className="mb-2 border p-2">
-    {editingQuestion && editingQuestion.id===q.id ? (
-      <form onSubmit={handleUpdateQuestion} className="space-y-2">
-        <input value={editQuestion} onChange={e=>setEditQuestion(e.target.value)} required className="border px-2 py-1 w-full"/>
-        <div className="flex flex-col gap-1">
-          {editOptions.map((opt,i)=>(
-            <input key={i} value={opt} onChange={e=>{
-              const newOpts = [...editOptions]; newOpts[i]=e.target.value; setEditOptions(newOpts);
-            }} required className="border px-2 py-1"/>
-          ))}
-        </div>
-        <input value={editAnswer} onChange={e=>setEditAnswer(e.target.value)} required className="border px-2 py-1 w-full"/>
-        <input type="number" value={editMarks} min={1} onChange={e=>setEditMarks(Number(e.target.value))} required className="border px-2 py-1 w-full"/>
-        <input value={editExplanation} onChange={e=>setEditExplanation(e.target.value)} className="border px-2 py-1 w-full"/>
-        <button type="submit" className="text-xs text-green-700 mr-2">Save</button>
-        <button type="button" onClick={()=>setEditingQuestion(null)} className="text-xs">Cancel</button>
-      </form>
-    ) : (
-      <>
-        <div><b>Q:</b> {q.text}</div>
-        <div><b>Options:</b> {q.options.join(', ')}</div>
-        <div><b>Answer:</b> {q.answer}</div>
-        <div><b>Marks:</b> {q.marks}</div>
-        {q.explanation && <div><b>Explanation:</b> {q.explanation}</div>}
-        <button onClick={()=>handleEditQuestion(q)} className="text-xs text-green-700 mr-2">Edit</button>
-        <button onClick={()=>handleDeleteQuestion(q.id)} className="text-xs text-red-600">Delete</button>
-      </>
-    )}
-  </li>
-))}
-          </ul>
-        </div>
-      )}
+            </ul>
+          </motion.div>
+        )}
     </Layout>
   );
 }

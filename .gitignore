@@ -1,1 +1,26 @@
-node_modules
+# Dependencies
+/node_modules
+
+# Next.js build output
+/.next/
+/out/
+
+# Production build
+/build
+
+# Miscellaneous
+.DS_Store
+*.pem
+
+# Log files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Local environment variables
+.env*.local
+.env
+
+# Turborepo
+.turbo
+

@@ -1,0 +1,11 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom styles (optional) */
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  @apply font-sans text-gray-900;
+  background-color: #e2e8f0; /* slate-200 fallback */
+  background-image: linear-gradient(to top, #f1f5f9 0%, #e2e8f0 100%);
+}

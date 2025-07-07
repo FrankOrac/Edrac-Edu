@@ -20,6 +20,7 @@
     "@types/node": "^24.0.10",
     "@types/swagger-ui-express": "^4.1.8",
     "@types/yamljs": "^0.2.34",
+    "autoprefixer": "^10.4.21",
     "concurrently": "^8.2.2",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.3"
