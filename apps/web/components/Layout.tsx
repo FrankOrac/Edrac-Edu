@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
+import { motion, AnimatePresence } from 'framer-motion';
 import Analytics from './Analytics';
 import AdComponent from './AdComponent';
 import { getUser, logout, isLoggedIn } from '../lib/auth';
