@@ -13,10 +13,12 @@ interface AuthResponse {
   user: User;
 }
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://0.0.0.0:5000';
 
 export const login = async (email: string, password: string): Promise<boolean> => {
   try {
+    console.log('Attempting login with:', { email, API_BASE_URL });
+    
     const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
       method: 'POST',
       headers: {
@@ -25,12 +27,21 @@ export const login = async (email: string, password: string): Promise<boolean> =
       body: JSON.stringify({ email, password }),
     });
 
+    console.log('Response status:', response.status);
+
     if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || 'Login failed');
+      let errorMessage = 'Login failed';
+      try {
+        const errorData = await response.json();
+        errorMessage = errorData.error || errorMessage;
+      } catch (e) {
+        console.error('Error parsing error response:', e);
+      }
+      throw new Error(errorMessage);
     }
 
     const data: AuthResponse = await response.json();
+    console.log('Login successful');
     
     // Store token and user info
     localStorage.setItem('token', data.token);
@@ -39,6 +50,9 @@ export const login = async (email: string, password: string): Promise<boolean> =
     return true;
   } catch (error) {
     console.error('Login error:', error);
+    if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
+      throw new Error('Unable to connect to server. Please check if the API server is running.');
+    }
     throw error;
   }
 };

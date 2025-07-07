@@ -1,153 +1,350 @@
-import React from 'react';
-import { motion } from 'framer-motion';
+
+import React, { useState } from 'react';
 import Link from 'next/link';
+import { motion, AnimatePresence } from 'framer-motion';
+import Head from 'next/head';
 
-const featureCards = [
-  {
-    icon: (
-      <svg className="w-14 h-14 text-blue-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M12 20l9 2-7-9 7-9-9 2-9-2 7 9-7 9z" /></svg>
-    ),
-    title: 'AI-Powered Dashboard',
-    desc: 'Personalized insights and analytics for every user role.',
-    features: ['Real-time analytics', 'Predictive modeling', 'Smart notifications']
-  },
-  {
-    icon: (
-      <svg className="w-14 h-14 text-purple-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><path d="M12 8v4l3 3" /></svg>
-    ),
-    title: 'CBT Extra',
-    desc: 'Advanced computer-based testing with time limits and analytics.',
-    features: ['Timed assessments', 'Auto-grading', 'Performance tracking']
-  },
-  {
-    icon: (
-      <svg className="w-14 h-14 text-yellow-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><rect width="20" height="14" x="2" y="5" rx="2" /><path d="M8 21h8" /></svg>
-    ),
-    title: 'Seamless Management',
-    desc: 'Effortlessly manage students, teachers, and school operations.',
-    features: ['Bulk Excel uploads', 'Automated workflows', 'Role-based access']
-  },
-  {
-    icon: (
-      <svg className="w-14 h-14 text-green-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" /><rect width="8" height="4" x="8" y="2" rx="1" ry="1" /></svg>
-    ),
-    title: 'Smart Attendance',
-    desc: 'Automated attendance tracking with QR codes and analytics.',
-    features: ['QR code scanning', 'Biometric integration', 'Parent notifications']
-  },
-  {
-    icon: (
-      <svg className="w-14 h-14 text-red-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14,2 14,8 20,8" /></svg>
-    ),
-    title: 'Digital Transcripts',
-    desc: 'Secure, blockchain-verified academic records and certificates.',
-    features: ['Blockchain security', 'Instant verification', 'Digital signatures']
-  },
-  {
-    icon: (
-      <svg className="w-14 h-14 text-indigo-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M3 3h18v18H3zM9 9h6v6H9z" /></svg>
-    ),
-    title: 'Gamification',
-    desc: 'Engage students with points, badges, and achievement systems.',
-    features: ['Achievement badges', 'Leaderboards', 'Reward systems']
-  }
-];
+const LandingPage = () => {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-export default function Home() {
+  const features = [
+    {
+      icon: '🎓',
+      title: 'Student Management',
+      description: 'Comprehensive student profiles, enrollment tracking, and academic progress monitoring.',
+      demo: '/students'
+    },
+    {
+      icon: '👨‍🏫',
+      title: 'Teacher Portal',
+      description: 'Teacher profiles, class management, and student progress tracking tools.',
+      demo: '/teachers'
+    },
+    {
+      icon: '💻',
+      title: 'CBT Testing',
+      description: 'Computer-based testing with real-time analytics and automated grading.',
+      demo: '/cbt-test'
+    },
+    {
+      icon: '🤖',
+      title: 'AI Integration',
+      description: 'AI-powered question generation, chat assistance, and learning analytics.',
+      demo: '/ai-chat'
+    },
+    {
+      icon: '📊',
+      title: 'Analytics Dashboard',
+      description: 'Real-time insights into student performance and institutional metrics.',
+      demo: '/dashboard'
+    },
+    {
+      icon: '📚',
+      title: 'Learning Management',
+      description: 'Course management, assignments, and educational resource organization.',
+      demo: '/library'
+    },
+    {
+      icon: '💳',
+      title: 'Payment System',
+      description: 'Integrated payment processing for fees, registrations, and services.',
+      demo: '/payments'
+    },
+    {
+      icon: '🎮',
+      title: 'Gamification',
+      description: 'Engagement through points, badges, and achievement systems.',
+      demo: '/gamification'
+    }
+  ];
+
+  const navigation = [
+    { name: 'Features', href: '#features' },
+    { name: 'About', href: '#about' },
+    { name: 'Demo', href: '#demo' },
+    { name: 'Contact', href: '#contact' },
+  ];
+
   return (
-    <main className="relative min-h-screen w-full flex flex-col items-center justify-center bg-gradient-to-br from-blue-700 via-purple-600 to-blue-300 overflow-hidden font-sans">
-      {/* Glassmorphic Card */}
-      <motion.section
-        initial={{ opacity: 0, y: 60 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 1 }}
-        className="relative z-20 mt-20 mb-8 w-full max-w-3xl px-6"
-      >
-        <div className="backdrop-blur-xl bg-white/30 border border-white/40 rounded-3xl shadow-2xl p-12 flex flex-col items-center text-center">
-          <motion.h1
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 1, delay: 0.3 }}
-            className="text-5xl md:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-800 via-purple-700 to-blue-400 drop-shadow mb-4"
-          >
-            Edu AI Platform
-          </motion.h1>
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, delay: 0.7 }}
-            className="text-2xl md:text-3xl text-blue-900/90 mb-8 font-medium"
-          >
-            The future of education. AI-powered, beautiful, and interactive.
-          </motion.p>
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, delay: 1 }}
-            className="flex flex-col md:flex-row gap-4 justify-center"
-          >
-            <Link href="/login" legacyBehavior>
-              <a className="px-10 py-4 bg-gradient-to-r from-blue-700 to-purple-700 hover:from-purple-700 hover:to-blue-700 text-white rounded-2xl text-xl font-bold shadow-lg transition-transform transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-blue-200">Get Started</a>
-            </Link>
-            <Link href="/cbt-extra" legacyBehavior>
-              <a className="px-10 py-4 bg-gradient-to-r from-purple-700 to-blue-700 hover:from-blue-700 hover:to-purple-700 text-white rounded-2xl text-xl font-bold shadow-lg transition-transform transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-purple-200">Try CBT Extra</a>
-            </Link>
-          </motion.div>
-        </div>
-      </motion.section>
-      {/* Feature Cards */}
-      <motion.section
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, amount: 0.3 }}
-        variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.25 } } }}
-        className="relative z-10 grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl w-full px-8 mb-24"
-      >
-        {featureCards.map((feature, idx) => (
-          <motion.div
-            key={feature.title}
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 + idx * 0.2 }}
-            className="bg-white/70 backdrop-blur-lg border border-white/30 rounded-2xl shadow-xl p-8 flex flex-col items-center text-center hover:shadow-2xl hover:-translate-y-2 transition-all cursor-pointer"
-            whileHover={{ scale: 1.05 }}
-          >
-            <div className="mb-4">{feature.icon}</div>
-            <h3 className="text-2xl font-bold mb-2 text-blue-900">{feature.title}</h3>
-            <p className="text-blue-700/80 text-lg mb-4">{feature.desc}</p>
-            <ul className="space-y-2 text-sm text-blue-600">
-              {feature.features.map((item, index) => (
-                <li key={index} className="flex items-center gap-2">
-                  <span className="text-green-500">✓</span>
-                  {item}
-                </li>
+    <>
+      <Head>
+        <title>EduAI Platform - Next Generation Education Management System</title>
+        <meta name="description" content="Complete education management platform with AI integration, CBT testing, and comprehensive analytics." />
+      </Head>
+
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+        {/* Navigation Header */}
+        <nav className="bg-white/90 backdrop-blur-xl border-b border-white/20 shadow-lg sticky top-0 z-50">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between items-center py-4">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl flex items-center justify-center text-white font-bold text-xl">
+                  E
+                </div>
+                <div>
+                  <h1 className="text-xl font-bold text-gray-900">EduAI Platform</h1>
+                  <p className="text-sm text-gray-600">Education Management</p>
+                </div>
+              </div>
+
+              {/* Desktop Navigation */}
+              <div className="hidden md:flex items-center space-x-8">
+                {navigation.map((item) => (
+                  <a
+                    key={item.name}
+                    href={item.href}
+                    className="text-gray-700 hover:text-blue-600 font-medium transition-colors"
+                  >
+                    {item.name}
+                  </a>
+                ))}
+                <Link href="/login">
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-2 rounded-lg font-medium shadow-lg hover:shadow-xl transition-all"
+                  >
+                    Login
+                  </motion.button>
+                </Link>
+              </div>
+
+              {/* Mobile menu button */}
+              <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
+              >
+                <div className="w-6 h-6 flex flex-col justify-center gap-1">
+                  <div className="w-full h-0.5 bg-gray-600 rounded"></div>
+                  <div className="w-full h-0.5 bg-gray-600 rounded"></div>
+                  <div className="w-full h-0.5 bg-gray-600 rounded"></div>
+                </div>
+              </button>
+            </div>
+          </div>
+
+          {/* Mobile Navigation */}
+          <AnimatePresence>
+            {mobileMenuOpen && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                className="md:hidden border-t border-gray-200 bg-white"
+              >
+                <div className="px-4 py-4 space-y-3">
+                  {navigation.map((item) => (
+                    <a
+                      key={item.name}
+                      href={item.href}
+                      className="block text-gray-700 hover:text-blue-600 font-medium py-2"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      {item.name}
+                    </a>
+                  ))}
+                  <Link href="/login">
+                    <button className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-2 rounded-lg font-medium mt-4">
+                      Login
+                    </button>
+                  </Link>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </nav>
+
+        {/* Hero Section */}
+        <section className="relative py-20 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto text-center">
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8 }}
+            >
+              <h1 className="text-5xl md:text-7xl font-bold text-gray-900 mb-6">
+                Next Generation
+                <span className="block bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                  Education Platform
+                </span>
+              </h1>
+              <p className="text-xl md:text-2xl text-gray-600 mb-8 max-w-3xl mx-auto">
+                Comprehensive education management system with AI integration, computer-based testing, 
+                and real-time analytics to transform your educational institution.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Link href="/login">
+                  <motion.button
+                    whileHover={{ scale: 1.05, y: -2 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-xl font-semibold text-lg shadow-2xl hover:shadow-3xl transition-all"
+                  >
+                    Get Started Free
+                  </motion.button>
+                </Link>
+                <motion.button
+                  whileHover={{ scale: 1.05, y: -2 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="border-2 border-gray-300 text-gray-700 px-8 py-4 rounded-xl font-semibold text-lg hover:bg-white hover:shadow-lg transition-all"
+                  onClick={() => document.getElementById('demo')?.scrollIntoView({ behavior: 'smooth' })}
+                >
+                  View Demo
+                </motion.button>
+              </div>
+            </motion.div>
+          </div>
+        </section>
+
+        {/* Features Section */}
+        <section id="features" className="py-20 px-4 sm:px-6 lg:px-8 bg-white/50">
+          <div className="max-w-7xl mx-auto">
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8 }}
+              className="text-center mb-16"
+            >
+              <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+                Powerful Features
+              </h2>
+              <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+                Everything you need to manage your educational institution efficiently and effectively.
+              </p>
+            </motion.div>
+
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+              {features.map((feature, index) => (
+                <motion.div
+                  key={feature.title}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                  whileHover={{ y: -5, scale: 1.02 }}
+                  className="bg-white/80 backdrop-blur-sm p-6 rounded-2xl shadow-xl hover:shadow-2xl transition-all border border-white/20"
+                >
+                  <div className="text-4xl mb-4">{feature.icon}</div>
+                  <h3 className="text-xl font-bold text-gray-900 mb-3">{feature.title}</h3>
+                  <p className="text-gray-600 mb-4">{feature.description}</p>
+                  <Link href={feature.demo}>
+                    <button className="text-blue-600 hover:text-purple-600 font-semibold transition-colors">
+                      Try Demo →
+                    </button>
+                  </Link>
+                </motion.div>
               ))}
-            </ul>
-          </motion.div>
-        ))}
-      </motion.section>
-      {/* Decorative Premium SVG Illustration */}
-      <motion.img
-        src="https://cdn.jsdelivr.net/gh/edent/SuperTinyIcons/images/svg/graduation-cap.svg"
-        alt="Premium Education Illustration"
-        initial={{ opacity: 0, y: 60 }}
-        animate={{ opacity: 0.8, y: 0 }}
-        transition={{ duration: 1.5, delay: 1.2 }}
-        className="absolute bottom-10 right-10 w-40 md:w-60 z-0 select-none drop-shadow-2xl opacity-80"
-      />
-      {/* Animated Gradient Blobs for Depth */}
-      <motion.div
-        initial={{ scale: 0, opacity: 0 }}
-        animate={{ scale: 1, opacity: 0.18 }}
-        transition={{ duration: 1.8, delay: 0.2 }}
-        className="absolute top-[-15%] left-[-10%] w-[500px] h-[500px] bg-gradient-to-br from-purple-400 via-blue-300 to-blue-100 rounded-full blur-3xl z-0"
-      />
-      <motion.div
-        initial={{ scale: 0, opacity: 0 }}
-        animate={{ scale: 1, opacity: 0.13 }}
-        transition={{ duration: 2.2, delay: 0.5 }}
-        className="absolute bottom-[-10%] right-[-10%] w-[400px] h-[400px] bg-gradient-to-tr from-blue-300 via-purple-200 to-blue-50 rounded-full blur-2xl z-0"
-      />
-    </main>
+            </div>
+          </div>
+        </section>
+
+        {/* Demo Section */}
+        <section id="demo" className="py-20 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto">
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8 }}
+              className="text-center mb-16"
+            >
+              <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+                Experience the Platform
+              </h2>
+              <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-8">
+                Try our demo accounts to explore all features. No registration required.
+              </p>
+              
+              <div className="grid md:grid-cols-3 lg:grid-cols-5 gap-4 max-w-4xl mx-auto">
+                {[
+                  { role: 'Admin', email: 'admin@edrac.edu', icon: '👨‍💼' },
+                  { role: 'Teacher', email: 'teacher@edrac.edu', icon: '👨‍🏫' },
+                  { role: 'Student', email: 'student@edrac.edu', icon: '👨‍🎓' },
+                  { role: 'Parent', email: 'parent@edrac.edu', icon: '👨‍👩‍👧‍👦' },
+                  { role: 'Super Admin', email: 'superadmin@edrac.edu', icon: '🛡️' }
+                ].map((account, index) => (
+                  <motion.div
+                    key={account.role}
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.5, delay: index * 0.1 }}
+                    className="bg-white/80 p-4 rounded-xl shadow-lg border border-white/20"
+                  >
+                    <div className="text-3xl mb-2">{account.icon}</div>
+                    <h4 className="font-bold text-gray-900">{account.role}</h4>
+                    <p className="text-sm text-gray-600">{account.email}</p>
+                    <p className="text-xs text-gray-500 mt-1">password123</p>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
+          </div>
+        </section>
+
+        {/* Footer */}
+        <footer className="bg-gray-900 text-white py-16 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto">
+            <div className="grid md:grid-cols-4 gap-8">
+              <div className="col-span-2">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl flex items-center justify-center text-white font-bold text-xl">
+                    E
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold">EduAI Platform</h3>
+                    <p className="text-gray-400">Education Management System</p>
+                  </div>
+                </div>
+                <p className="text-gray-400 mb-6 max-w-md">
+                  Transforming education through technology. Comprehensive management solutions 
+                  for modern educational institutions.
+                </p>
+                <div className="flex space-x-4">
+                  <button className="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-gray-700 transition-colors">
+                    📧
+                  </button>
+                  <button className="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-gray-700 transition-colors">
+                    📱
+                  </button>
+                  <button className="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-gray-700 transition-colors">
+                    🌐
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <h4 className="font-bold mb-4">Features</h4>
+                <ul className="space-y-2 text-gray-400">
+                  <li><a href="#" className="hover:text-white transition-colors">Student Management</a></li>
+                  <li><a href="#" className="hover:text-white transition-colors">CBT Testing</a></li>
+                  <li><a href="#" className="hover:text-white transition-colors">AI Integration</a></li>
+                  <li><a href="#" className="hover:text-white transition-colors">Analytics</a></li>
+                </ul>
+              </div>
+
+              <div>
+                <h4 className="font-bold mb-4">Support</h4>
+                <ul className="space-y-2 text-gray-400">
+                  <li><a href="#" className="hover:text-white transition-colors">Documentation</a></li>
+                  <li><a href="#" className="hover:text-white transition-colors">API Reference</a></li>
+                  <li><a href="#" className="hover:text-white transition-colors">Help Center</a></li>
+                  <li><a href="#" className="hover:text-white transition-colors">Contact Us</a></li>
+                </ul>
+              </div>
+            </div>
+
+            <div className="border-t border-gray-800 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center">
+              <p className="text-gray-400">
+                © 2024 EduAI Platform. All rights reserved.
+              </p>
+              <div className="flex space-x-6 mt-4 md:mt-0">
+                <a href="#" className="text-gray-400 hover:text-white transition-colors">Privacy Policy</a>
+                <a href="#" className="text-gray-400 hover:text-white transition-colors">Terms of Service</a>
+                <a href="#" className="text-gray-400 hover:text-white transition-colors">Cookie Policy</a>
+              </div>
+            </div>
+          </div>
+        </footer>
+      </div>
+    </>
   );
-}
+};
+
+export default LandingPage;

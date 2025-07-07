@@ -17,6 +17,7 @@ router.get('/', auth, async (req: Request, res: Response) => {
     const parents = await prisma.parent.findMany();
     res.json(parents);
   } catch (error) {
+    console.error("Failed to fetch parents:", error);
     res.status(500).json({ error: 'Failed to fetch parents' });
   }
 });
@@ -33,6 +34,7 @@ router.post('/', auth, requireAdmin, async (req: Request, res: Response) => {
     });
     res.status(201).json(parent);
   } catch (error) {
+    console.error("Failed to create parent:", error);
     res.status(500).json({ error: 'Failed to create parent' });
   }
 });
@@ -46,6 +48,7 @@ router.get('/:id', auth, async (req: Request, res: Response) => {
     if (!parent) return res.status(404).json({ error: 'Parent not found' });
     res.json(parent);
   } catch (error) {
+    console.error("Failed to fetch parent:", error);
     res.status(500).json({ error: 'Failed to fetch parent' });
   }
 });
@@ -62,6 +65,7 @@ router.put('/:id', auth, requireAdmin, async (req: Request, res: Response) => {
     });
     res.json(parent);
   } catch (error) {
+    console.error("Failed to update parent:", error);
     res.status(500).json({ error: 'Failed to update parent' });
   }
 });
@@ -74,6 +78,7 @@ router.delete('/:id', auth, requireAdmin, async (req: Request, res: Response) =>
     await prisma.parent.delete({ where: { id } });
     res.status(204).end();
   } catch (error) {
+    console.error("Failed to delete parent:", error);
     res.status(500).json({ error: 'Failed to delete parent' });
   }
 });

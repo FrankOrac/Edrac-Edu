@@ -101,30 +101,87 @@ app.get('/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() });
 });
 
-// Login endpoint
+// Auth routes
 app.post('/api/auth/login', async (req, res) => {
   try {
+    console.log('Login request received:', req.body);
     const { email, password } = req.body;
-    const user = await prisma.user.findUnique({ where: { email } });
 
-    if (!user || !await bcrypt.compare(password, user.password)) {
-      return res.status(401).json({ error: 'Invalid credentials' });
+    if (!email || !password) {
+      return res.status(400).json({ error: 'Email and password are required' });
     }
 
+    // In a real app, you'd hash the password and check against database
+    // For demo purposes, we'll use hardcoded users
+    const users = [
+      { id: 1, email: 'admin@edrac.edu', password: 'password123', name: 'Admin User', role: 'admin' },
+      { id: 2, email: 'teacher@edrac.edu', password: 'password123', name: 'John Teacher', role: 'teacher' },
+      { id: 3, email: 'student@edrac.edu', password: 'password123', name: 'Jane Student', role: 'student' },
+      { id: 4, email: 'parent@edrac.edu', password: 'password123', name: 'Parent User', role: 'parent' },
+      { id: 5, email: 'superadmin@edrac.edu', password: 'password123', name: 'Super Admin', role: 'superadmin' }
+    ];
+
+    const user = users.find(u => u.email === email && u.password === password);
+
+    if (!user) {
+      console.log('User not found for email:', email);
+      return res.status(401).json({ error: 'Invalid email or password' });
+    }
+
+    console.log('User found:', user.email);
+
+    // Create JWT token
     const token = jwt.sign(
-      { id: user.id, email: user.email, role: user.role },
+      { userId: user.id, email: user.email, role: user.role },
       JWT_SECRET,
       { expiresIn: '24h' }
     );
 
-    res.json({ token, user: { id: user.id, email: user.email, name: user.name, role: user.role } });
+    // Return user data without password
+    const { password: _, ...userWithoutPassword } = user;
+
+    console.log('Sending response with token');
+    res.json({
+      token,
+      user: userWithoutPassword
+    });
   } catch (error) {
-    res.status(500).json({ error: 'Login failed' });
+    console.error('Login error:', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
 });
 
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`🚀 API Server running on port ${PORT}`);
+app.post('/api/auth/register', async (req, res) => {
+  try {
+    const { email, password, name, role = 'student' } = req.body;
+
+    if (!email || !password || !name) {
+      return res.status(400).json({ error: 'Email, password, and name are required' });
+    }
+
+    // Create JWT token
+    const token = jwt.sign(
+      { userId: Date.now(), email, role },
+      JWT_SECRET,
+      { expiresIn: '24h' }
+    );
+
+    const user = { id: Date.now(), email, name, role };
+
+    res.status(201).json({
+      token,
+      user
+    });
+  } catch (error) {
+    console.error('Register error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+const HOST = '0.0.0.0';
+
+app.listen(PORT, HOST, () => {
+  console.log(`🚀 API Server running on http://${HOST}:${PORT}`);
 });
 
 export default app;
