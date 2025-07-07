@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -21,7 +22,7 @@ const Layout: React.FC<LayoutProps> = ({ children, title = 'EduAI Platform' }) =
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [expandedGroups, setExpandedGroups] = useState<string[]>([]);
+  const [expandedGroups, setExpandedGroups] = useState<string[]>(['Dashboard', 'Academic', 'Assessment']);
 
   useEffect(() => {
     if (isLoggedIn()) {
@@ -34,12 +35,34 @@ const Layout: React.FC<LayoutProps> = ({ children, title = 'EduAI Platform' }) =
     router.push('/login');
   };
 
+  const handleBack = () => {
+    router.back();
+  };
+
   const toggleGroup = (groupName: string) => {
     setExpandedGroups(prev => 
       prev.includes(groupName) 
         ? prev.filter(g => g !== groupName)
         : [...prev, groupName]
     );
+  };
+
+  const getBreadcrumbs = () => {
+    const path = router.pathname;
+    const segments = path.split('/').filter(segment => segment);
+    
+    const breadcrumbs = [
+      { name: 'Home', href: '/' }
+    ];
+
+    let currentPath = '';
+    segments.forEach(segment => {
+      currentPath += `/${segment}`;
+      const name = segment.charAt(0).toUpperCase() + segment.slice(1).replace('-', ' ');
+      breadcrumbs.push({ name, href: currentPath });
+    });
+
+    return breadcrumbs;
   };
 
   const navGroups = [
@@ -87,6 +110,7 @@ const Layout: React.FC<LayoutProps> = ({ children, title = 'EduAI Platform' }) =
         { name: 'Notifications', href: '/notifications', icon: '🔔', badge: 5 },
         { name: 'Forums', href: '/forums', icon: '💬' },
         { name: 'AI Chat', href: '/ai-chat', icon: '🤖' },
+        { name: 'AI Question Generator', href: '/ai-question-generator', icon: '🎯' },
         { name: 'AI Endpoints', href: '/ai-endpoints', icon: '🔗' },
       ]
     },
@@ -137,15 +161,17 @@ const Layout: React.FC<LayoutProps> = ({ children, title = 'EduAI Platform' }) =
       >
         {/* Sidebar Header */}
         <div className="p-6 border-b border-gray-200/50">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl flex items-center justify-center text-white font-bold text-xl">
-              E
+          <Link href="/">
+            <div className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity">
+              <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl flex items-center justify-center text-white font-bold text-xl">
+                E
+              </div>
+              <div>
+                <h1 className="text-xl font-bold text-gray-900">EduAI Platform</h1>
+                <p className="text-sm text-gray-600">Management System</p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-xl font-bold text-gray-900">EduAI Platform</h1>
-              <p className="text-sm text-gray-600">Management System</p>
-            </div>
-          </div>
+          </Link>
         </div>
 
         {/* User Profile Section */}
@@ -259,6 +285,26 @@ const Layout: React.FC<LayoutProps> = ({ children, title = 'EduAI Platform' }) =
                     <div className="w-full h-0.5 bg-gray-600 rounded"></div>
                   </div>
                 </button>
+
+                {/* Navigation Buttons */}
+                <div className="flex items-center gap-2">
+                  <Link href="/">
+                    <button className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                      <span>🏠</span>
+                      <span className="hidden sm:inline">Home</span>
+                    </button>
+                  </Link>
+                  {router.pathname !== '/' && router.pathname !== '/login' && router.pathname !== '/register' && (
+                    <button
+                      onClick={handleBack}
+                      className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                    >
+                      <span>←</span>
+                      <span className="hidden sm:inline">Back</span>
+                    </button>
+                  )}
+                </div>
+
                 <h1 className="text-2xl font-bold text-gray-900">{title}</h1>
               </div>
 
@@ -274,6 +320,24 @@ const Layout: React.FC<LayoutProps> = ({ children, title = 'EduAI Platform' }) =
                 )}
               </div>
             </div>
+
+            {/* Breadcrumbs */}
+            {router.pathname !== '/' && (
+              <div className="mt-2 flex items-center gap-2 text-sm text-gray-500">
+                {getBreadcrumbs().map((crumb, index) => (
+                  <React.Fragment key={crumb.href}>
+                    {index > 0 && <span>/</span>}
+                    <Link href={crumb.href}>
+                      <span className={`hover:text-blue-600 transition-colors ${
+                        index === getBreadcrumbs().length - 1 ? 'text-gray-900 font-medium' : 'cursor-pointer'
+                      }`}>
+                        {crumb.name}
+                      </span>
+                    </Link>
+                  </React.Fragment>
+                ))}
+              </div>
+            )}
           </div>
         </header>
 
@@ -287,6 +351,63 @@ const Layout: React.FC<LayoutProps> = ({ children, title = 'EduAI Platform' }) =
             {children}
           </motion.div>
         </main>
+
+        {/* Footer */}
+        <footer className="bg-white/80 backdrop-blur-xl border-t border-white/20 mt-12">
+          <div className="px-6 py-8">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+              <div>
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center text-white font-bold text-sm">
+                    E
+                  </div>
+                  <span className="font-bold text-gray-900">EduAI Platform</span>
+                </div>
+                <p className="text-sm text-gray-600">
+                  Next generation education management platform.
+                </p>
+              </div>
+              <div>
+                <h4 className="font-semibold text-gray-900 mb-3">Quick Links</h4>
+                <div className="space-y-2">
+                  <Link href="/dashboard" className="block text-sm text-gray-600 hover:text-blue-600 transition-colors">
+                    Dashboard
+                  </Link>
+                  <Link href="/cbt-test" className="block text-sm text-gray-600 hover:text-blue-600 transition-colors">
+                    CBT Test
+                  </Link>
+                  <Link href="/ai-chat" className="block text-sm text-gray-600 hover:text-blue-600 transition-colors">
+                    AI Assistant
+                  </Link>
+                </div>
+              </div>
+              <div>
+                <h4 className="font-semibold text-gray-900 mb-3">Support</h4>
+                <div className="space-y-2">
+                  <a href="#" className="block text-sm text-gray-600 hover:text-blue-600 transition-colors">
+                    Documentation
+                  </a>
+                  <a href="#" className="block text-sm text-gray-600 hover:text-blue-600 transition-colors">
+                    Help Center
+                  </a>
+                  <a href="#" className="block text-sm text-gray-600 hover:text-blue-600 transition-colors">
+                    Contact Support
+                  </a>
+                </div>
+              </div>
+              <div>
+                <h4 className="font-semibold text-gray-900 mb-3">System Status</h4>
+                <div className="flex items-center gap-2 text-sm">
+                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                  <span className="text-gray-600">All systems operational</span>
+                </div>
+              </div>
+            </div>
+            <div className="border-t border-gray-200 mt-8 pt-6 text-center text-sm text-gray-600">
+              <p>&copy; 2024 EduAI Platform. All rights reserved.</p>
+            </div>
+          </div>
+        </footer>
       </div>
 
       <style jsx>{`
