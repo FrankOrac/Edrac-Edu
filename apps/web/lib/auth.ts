@@ -85,10 +85,33 @@ export const login = async (email: string, password: string): Promise<boolean> =
   }
 };
 
-export const logout = (): void => {
-  localStorage.removeItem('token');
-  localStorage.removeItem('user');
-  window.location.href = '/login';
+export const logout = () => {
+  if (typeof window !== 'undefined') {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    window.location.href = '/login';
+  }
+};
+
+export const hasActiveSubscription = (): boolean => {
+  const user = getUser();
+
+  // Admin and superadmin have full access
+  if (user?.role === 'admin' || user?.role === 'superadmin') {
+    return true;
+  }
+
+  // Check subscription status
+  return user?.subscription?.status === 'active' && 
+         new Date(user.subscription.expiresAt) > new Date();
+};
+
+export const requireSubscription = (callback: () => void) => {
+  if (!hasActiveSubscription()) {
+    window.location.href = '/payments';
+    return;
+  }
+  callback();
 };
 
 export const isLoggedIn = (): boolean => {

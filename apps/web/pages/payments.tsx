@@ -1,8 +1,9 @@
 
 import React, { useEffect, useState } from 'react';
 import Layout from '../components/Layout';
+import PaymentModal from '../components/PaymentModal';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CreditCard, DollarSign, TrendingUp, Calendar, Users, Crown, Check, X, AlertCircle } from 'lucide-react';
+import { CreditCard, DollarSign, TrendingUp, Calendar, Users, Crown, Check, X, AlertCircle, Smartphone } from 'lucide-react';
 
 interface Subscription {
   id: number;
@@ -58,6 +59,8 @@ export default function PaymentsPage() {
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
   const [payments, setPayments] = useState<Payment[]>([]);
   const [loading, setLoading] = useState(false);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<any>(null);
   const [stats, setStats] = useState({
     totalRevenue: 284750,
     monthlyRecurring: 89250,
@@ -181,6 +184,10 @@ export default function PaymentsPage() {
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
+          onClick={() => {
+            setSelectedPlan(plan);
+            setShowPaymentModal(true);
+          }}
           className={`w-full py-3 rounded-xl font-semibold transition-all ${
             plan.popular
               ? 'bg-gradient-to-r from-purple-500 to-purple-600 text-white hover:shadow-lg'
@@ -377,6 +384,25 @@ export default function PaymentsPage() {
                 </div>
               </div>
             </div>
+
+            {/* Payment Providers */}
+            <div className="bg-white rounded-2xl p-8 shadow-lg">
+              <h3 className="text-2xl font-bold text-gray-900 mb-6">Supported Payment Methods</h3>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {[
+                  { name: 'Stripe', icon: CreditCard, description: 'Credit/Debit Cards' },
+                  { name: 'Paystack', icon: CreditCard, description: 'Nigerian Payments' },
+                  { name: 'Flutterwave', icon: Smartphone, description: 'African Payments' },
+                  { name: 'Offline', icon: DollarSign, description: 'Bank Transfer' }
+                ].map((provider, index) => (
+                  <div key={index} className="p-4 border border-gray-200 rounded-xl text-center">
+                    <provider.icon className="mx-auto mb-2 text-blue-600" size={24} />
+                    <h4 className="font-semibold text-gray-900 text-sm">{provider.name}</h4>
+                    <p className="text-xs text-gray-600">{provider.description}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         );
     }
@@ -428,6 +454,18 @@ export default function PaymentsPage() {
           </motion.div>
         </AnimatePresence>
       </div>
+
+      {/* Payment Modal */}
+      {selectedPlan && (
+        <PaymentModal
+          isOpen={showPaymentModal}
+          onClose={() => {
+            setShowPaymentModal(false);
+            setSelectedPlan(null);
+          }}
+          plan={selectedPlan}
+        />
+      )}
     </Layout>
   );
 }

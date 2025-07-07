@@ -1,9 +1,9 @@
-
 import React, { useState } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ArrowRight, BookOpen, Users, BarChart3, Brain, Star, Menu, X, Home, ArrowLeft, CheckCircle } from 'lucide-react';
 
 const LandingPage = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -115,7 +115,7 @@ const LandingPage = () => {
                     Get Started
                   </button>
                 </Link>
-                
+
                 {/* Mobile menu button */}
                 <button
                   onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -207,6 +207,92 @@ const LandingPage = () => {
                   </motion.div>
                 ))}
               </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Subscription Plans Section */}
+        <section className="py-20 px-4 bg-gradient-to-r from-blue-50 to-purple-50">
+          <div className="max-w-7xl mx-auto">
+            <div className="text-center mb-16">
+              <h2 className="text-4xl font-bold text-gray-900 mb-4">
+                Choose Your <span className="text-blue-600">Perfect Plan</span>
+              </h2>
+              <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+                Scale your educational institution with our flexible pricing options
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20">
+              {[
+                {
+                  name: 'Starter',
+                  price: 29,
+                  features: ['Basic Analytics', 'Email Support', 'Core Features', '5GB Storage', 'Up to 100 Users'],
+                  popular: false,
+                  description: 'Perfect for small schools'
+                },
+                {
+                  name: 'Professional',
+                  price: 99,
+                  features: ['Advanced Analytics', 'Priority Support', 'All Features', '50GB Storage', 'API Access', 'Up to 500 Users'],
+                  popular: true,
+                  description: 'Ideal for medium institutions'
+                },
+                {
+                  name: 'Enterprise',
+                  price: 299,
+                  features: ['Custom Analytics', '24/7 Support', 'White Label', 'Unlimited Storage', 'Custom Integrations', 'Up to 2000 Users'],
+                  popular: false,
+                  description: 'Comprehensive enterprise solution'
+                }
+              ].map((plan, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                  className={`relative bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all border-2 ${
+                    plan.popular ? 'border-purple-500 scale-105' : 'border-gray-200'
+                  }`}
+                >
+                  {plan.popular && (
+                    <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                      <div className="bg-gradient-to-r from-purple-500 to-purple-600 text-white px-6 py-2 rounded-full text-sm font-semibold">
+                        Most Popular
+                      </div>
+                    </div>
+                  )}
+                  <div className="text-center">
+                    <h3 className="text-2xl font-bold text-gray-900 mb-2">{plan.name}</h3>
+                    <p className="text-gray-600 mb-4">{plan.description}</p>
+                    <div className="mb-6">
+                      <span className="text-4xl font-bold text-gray-900">${plan.price}</span>
+                      <span className="text-gray-600">/month</span>
+                    </div>
+                    <div className="space-y-3 mb-8">
+                      {plan.features.map((feature, featureIndex) => (
+                        <div key={featureIndex} className="flex items-center text-gray-600">
+                          <CheckCircle className="mr-2 text-green-600" size={16} />
+                          {feature}
+                        </div>
+                      ))}
+                    </div>
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => router.push('/register')}
+                      className={`w-full py-3 rounded-xl font-semibold transition-all ${
+                        plan.popular
+                          ? 'bg-gradient-to-r from-purple-500 to-purple-600 text-white hover:shadow-lg'
+                          : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
+                      }`}
+                    >
+                      Get Started
+                    </motion.button>
+                  </div>
+                </motion.div>
+              ))}
             </div>
           </div>
         </section>
