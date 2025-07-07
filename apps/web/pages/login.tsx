@@ -96,80 +96,80 @@ const Login = () => {
 
       {/* Main Content */}
       <div className="flex-1 flex items-center justify-center p-4">
-        <div className="w-full max-w-6xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-            {/* Welcome Section - Left on large screens, top on mobile */}
+        <div className="w-full max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center min-h-[600px]">
+            {/* Welcome Section - Left side on large screens, top on mobile */}
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6 }}
-              className="text-white space-y-6 order-2 lg:order-1"
+              className="text-white space-y-6 order-2 lg:order-1 lg:col-span-2"
             >
               <div className="text-center lg:text-left">
-                <h1 className="text-4xl lg:text-6xl font-bold mb-4">
+                <h1 className="text-3xl lg:text-5xl xl:text-6xl font-bold mb-4">
                   Welcome Back to
                   <span className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">
                     EduAI Platform
                   </span>
                 </h1>
-                <p className="text-xl text-blue-100 mb-8">
+                <p className="text-lg lg:text-xl text-blue-100 mb-6">
                   Your comprehensive education management system powered by AI
                 </p>
               </div>
 
-              <div className="space-y-4">
+              <div className="space-y-3">
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
-                    <span className="text-white text-sm">✓</span>
+                  <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
+                    <span className="text-white text-xs">✓</span>
                   </div>
-                  <span className="text-blue-100">Advanced CBT Testing System</span>
+                  <span className="text-blue-100 text-sm lg:text-base">Advanced CBT Testing System</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
-                    <span className="text-white text-sm">✓</span>
+                  <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
+                    <span className="text-white text-xs">✓</span>
                   </div>
-                  <span className="text-blue-100">AI-Powered Learning Analytics</span>
+                  <span className="text-blue-100 text-sm lg:text-base">AI-Powered Learning Analytics</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
-                    <span className="text-white text-sm">✓</span>
+                  <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
+                    <span className="text-white text-xs">✓</span>
                   </div>
-                  <span className="text-blue-100">Comprehensive Student Management</span>
+                  <span className="text-blue-100 text-sm lg:text-base">Comprehensive Student Management</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
-                    <span className="text-white text-sm">✓</span>
+                  <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
+                    <span className="text-white text-xs">✓</span>
                   </div>
-                  <span className="text-blue-100">Real-time Performance Tracking</span>
+                  <span className="text-blue-100 text-sm lg:text-base">Real-time Performance Tracking</span>
                 </div>
               </div>
 
-              <div className="p-6 bg-white/10 backdrop-blur-sm rounded-2xl border border-white/20">
-                <h3 className="text-lg font-semibold mb-2">🚀 What's New</h3>
+              <div className="p-4 lg:p-6 bg-white/10 backdrop-blur-sm rounded-xl border border-white/20">
+                <h3 className="text-base lg:text-lg font-semibold mb-2">🚀 What's New</h3>
                 <p className="text-blue-100 text-sm">
                   Experience our latest AI-powered question generation and advanced analytics dashboard
                 </p>
               </div>
             </motion.div>
 
-            {/* Login Form - Right on large screens, bottom on mobile */}
+            {/* Login Form - Right side on large screens, bottom on mobile */}
             <motion.div
               initial={{ opacity: 0, y: 20, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               transition={{ duration: 0.6 }}
-              className="bg-white/95 backdrop-blur-sm rounded-3xl shadow-2xl p-8 order-1 lg:order-2"
+              className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl p-6 order-1 lg:order-2 w-full max-w-md mx-auto lg:mx-0"
             >
-              <div className="text-center mb-8">
+              <div className="text-center mb-6">
                 <motion.div
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
                   transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-                  className="mx-auto w-20 h-20 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center mb-4"
+                  className="mx-auto w-16 h-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center mb-3"
                 >
-                  <span className="text-3xl text-white">🎓</span>
+                  <span className="text-2xl text-white">🎓</span>
                 </motion.div>
-                <h2 className="text-3xl font-bold text-gray-900 mb-2">Sign In</h2>
-                <p className="text-gray-600">Access your account to continue</p>
+                <h2 className="text-2xl font-bold text-gray-900 mb-1">Sign In</h2>
+                <p className="text-gray-600 text-sm">Access your account to continue</p>
               </div>
 
               {error && (
@@ -182,9 +182,9 @@ const Login = () => {
                 </motion.div>
               )}
 
-              <form onSubmit={handleSubmit} className="space-y-6">
+              <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
                     Email Address
                   </label>
                   <input
@@ -193,14 +193,14 @@ const Login = () => {
                     name="email"
                     value={formData.email}
                     onChange={handleChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                    className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-sm"
                     placeholder="Enter your email"
                     required
                   />
                 </div>
 
                 <div>
-                  <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
                     Password
                   </label>
                   <input
@@ -209,7 +209,7 @@ const Login = () => {
                     name="password"
                     value={formData.password}
                     onChange={handleChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                    className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-sm"
                     placeholder="Enter your password"
                     required
                   />
@@ -220,11 +220,11 @@ const Login = () => {
                   disabled={loading}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 rounded-xl font-medium hover:from-blue-700 hover:to-purple-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-2.5 rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
                 >
                   {loading ? (
                     <div className="flex items-center justify-center">
-                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
                       Signing in...
                     </div>
                   ) : (
@@ -233,10 +233,10 @@ const Login = () => {
                 </motion.button>
               </form>
 
-              <div className="mt-6 text-center">
+              <div className="mt-4 text-center">
                 <button
                   onClick={() => setShowCredentials(!showCredentials)}
-                  className="text-sm text-blue-600 hover:text-blue-700 transition-colors"
+                  className="text-xs text-blue-600 hover:text-blue-700 transition-colors"
                 >
                   {showCredentials ? 'Hide' : 'Show'} Test Credentials
                 </button>
@@ -247,24 +247,24 @@ const Login = () => {
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: 'auto' }}
                   exit={{ opacity: 0, height: 0 }}
-                  className="mt-4 p-4 bg-gray-50 rounded-xl"
+                  className="mt-3 p-3 bg-gray-50 rounded-lg max-h-40 overflow-y-auto"
                 >
-                  <h3 className="text-sm font-medium text-gray-700 mb-3">Test Accounts:</h3>
-                  <div className="space-y-2">
+                  <h3 className="text-xs font-medium text-gray-700 mb-2">Test Accounts:</h3>
+                  <div className="space-y-1">
                     {testCredentials.map((cred, index) => (
                       <button
                         key={index}
                         onClick={() => fillCredentials(cred.email, cred.password)}
-                        className={`w-full text-left p-2 text-xs rounded border transition-colors ${
+                        className={`w-full text-left p-1.5 text-xs rounded border transition-colors ${
                           cred.highlight 
                             ? 'bg-green-50 border-green-300 hover:bg-green-100' 
                             : 'bg-white hover:bg-blue-50'
                         }`}
                       >
                         <div className={`font-medium ${cred.highlight ? 'text-green-900' : 'text-gray-900'}`}>
-                          {cred.role} {cred.highlight && '✨ (Works offline)'}
+                          {cred.role} {cred.highlight && '✨'}
                         </div>
-                        <div className={cred.highlight ? 'text-green-600' : 'text-gray-600'}>
+                        <div className={`truncate ${cred.highlight ? 'text-green-600' : 'text-gray-600'}`}>
                           {cred.email}
                         </div>
                       </button>
@@ -273,8 +273,8 @@ const Login = () => {
                 </motion.div>
               )}
 
-              <div className="mt-8 text-center">
-                <p className="text-sm text-gray-600">
+              <div className="mt-6 text-center">
+                <p className="text-xs text-gray-600">
                   Don't have an account?{' '}
                   <Link href="/register" className="text-blue-600 hover:text-blue-700 font-medium transition-colors">
                     Register here
