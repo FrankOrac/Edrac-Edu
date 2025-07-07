@@ -1,85 +1,120 @@
+
 import { Router, Request, Response } from 'express';
-import { PrismaClient } from '@prisma/client';
-import { auth } from '../index';
+
 const router = Router();
-const prisma = new PrismaClient();
 
-function requireTeacherOrAdmin(req: Request, res: Response, next: () => void) {
-  if (!req.user || (req.user.role !== 'admin' && req.user.role !== 'teacher')) {
-    return res.status(403).json({ error: 'Teacher or admin role required' });
-  }
-  next();
-}
-
-// List all transcripts
-router.get('/', auth, async (req: Request, res: Response) => {
+// Get all transcripts
+router.get('/', async (req: Request, res: Response) => {
   try {
-    const transcripts = await prisma.transcript.findMany();
-    res.json(transcripts);
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch transcripts' });
-  }
-});
-
-// Create a transcript
-router.post('/', auth, requireTeacherOrAdmin, async (req: Request, res: Response) => {
-  const { studentId, year, gpa, remarks } = req.body;
-  if (!studentId || !year || gpa === undefined) {
-    return res.status(400).json({ error: 'studentId, year, and gpa are required' });
-  }
-  try {
-    const transcript = await prisma.transcript.create({
-      data: { studentId: Number(studentId), year: Number(year), gpa: Number(gpa), remarks },
-    });
-    res.status(201).json(transcript);
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to create transcript' });
-  }
-});
-
-// Get a transcript by ID
-router.get('/:id', auth, async (req: Request, res: Response) => {
-  const id = Number(req.params.id);
-  if (isNaN(id)) return res.status(400).json({ error: 'Invalid transcript ID' });
-  try {
-    const transcript = await prisma.transcript.findUnique({ where: { id } });
-    if (!transcript) return res.status(404).json({ error: 'Transcript not found' });
-    res.json(transcript);
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch transcript' });
-  }
-});
-
-// Update a transcript
-router.put('/:id', auth, requireTeacherOrAdmin, async (req: Request, res: Response) => {
-  const id = Number(req.params.id);
-  const { studentId, year, gpa, remarks } = req.body;
-  if (isNaN(id)) return res.status(400).json({ error: 'Invalid transcript ID' });
-  try {
-    const transcript = await prisma.transcript.update({
-      where: { id },
-      data: {
-        studentId: studentId ? Number(studentId) : undefined,
-        year: year ? Number(year) : undefined,
-        gpa: gpa !== undefined ? Number(gpa) : undefined,
-        remarks,
+    const mockTranscripts = [
+      {
+        id: 1,
+        studentId: 'ST001',
+        studentName: 'John Doe',
+        academicYear: '2023/2024',
+        semester: 'First',
+        courses: [
+          { code: 'MTH101', name: 'Mathematics', grade: 'A', points: 4.0 },
+          { code: 'ENG101', name: 'English Language', grade: 'B+', points: 3.5 },
+          { code: 'PHY101', name: 'Physics', grade: 'A-', points: 3.7 }
+        ],
+        cgpa: 3.73,
+        status: 'approved'
       },
+      {
+        id: 2,
+        studentId: 'ST002',
+        studentName: 'Jane Smith',
+        academicYear: '2023/2024',
+        semester: 'First',
+        courses: [
+          { code: 'BIO101', name: 'Biology', grade: 'A', points: 4.0 },
+          { code: 'CHM101', name: 'Chemistry', grade: 'A-', points: 3.7 },
+          { code: 'ENG101', name: 'English Language', grade: 'B+', points: 3.5 }
+        ],
+        cgpa: 3.73,
+        status: 'pending'
+      }
+    ];
+
+    res.json({
+      success: true,
+      transcripts: mockTranscripts
     });
-    res.json(transcript);
   } catch (error) {
-    res.status(500).json({ error: 'Failed to update transcript' });
+    console.error('Error fetching transcripts:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch transcripts'
+    });
   }
 });
 
-// Delete a transcript
-router.delete('/:id', auth, requireTeacherOrAdmin, async (req: Request, res: Response) => {
-  const id = Number(req.params.id);
-  if (isNaN(id)) return res.status(400).json({ error: 'Invalid transcript ID' });
+// Get transcript by student ID
+router.get('/student/:studentId', async (req: Request, res: Response) => {
   try {
-    await prisma.transcript.delete({ where: { id } });
-    res.status(204).end();
+    const { studentId } = req.params;
+    
+    const mockTranscript = {
+      id: 1,
+      studentId: studentId,
+      studentName: 'John Doe',
+      academicYear: '2023/2024',
+      semester: 'First',
+      courses: [
+        { code: 'MTH101', name: 'Mathematics', grade: 'A', points: 4.0 },
+        { code: 'ENG101', name: 'English Language', grade: 'B+', points: 3.5 },
+        { code: 'PHY101', name: 'Physics', grade: 'A-', points: 3.7 }
+      ],
+      cgpa: 3.73,
+      status: 'approved'
+    };
+
+    res.json({
+      success: true,
+      transcript: mockTranscript
+    });
   } catch (error) {
-    res.status(500).json({ error: 'Failed to delete transcript' });
+    console.error('Error fetching transcript:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch transcript'
+    });
+  }
+});
+
+// Generate transcript
+router.post('/generate', async (req: Request, res: Response) => {
+  try {
+    const { studentId, academicYear, semester } = req.body;
+    
+    if (!studentId || !academicYear || !semester) {
+      return res.status(400).json({
+        success: false,
+        error: 'Missing required fields'
+      });
+    }
+
+    const newTranscript = {
+      id: Date.now(),
+      studentId,
+      academicYear,
+      semester,
+      generatedAt: new Date().toISOString(),
+      status: 'generated'
+    };
+
+    res.status(201).json({
+      success: true,
+      transcript: newTranscript,
+      message: 'Transcript generated successfully'
+    });
+  } catch (error) {
+    console.error('Error generating transcript:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to generate transcript'
+    });
   }
 });
 

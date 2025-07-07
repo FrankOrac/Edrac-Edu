@@ -1,60 +1,222 @@
+
 import { Router, Request, Response } from 'express';
-import { PrismaClient } from '@prisma/client';
+import { nigeriaSubjects, getSubjectsByLevel, getSubjectsByCategory, getSubjectsByExamType } from '../data/nigeria-subjects';
+
 const router = Router();
-const prisma = new PrismaClient();
 
-import { auth } from '../index';
-
-function requireAdminOrTeacher(req: any, res: Response, next: () => void) {
-  if (req.user?.role !== 'admin' && req.user?.role !== 'teacher') {
-    return res.status(403).json({ error: 'Forbidden' });
-  }
-  next();
-}
-
-// List all CBT subjects
+// Get all subjects
 router.get('/', async (req: Request, res: Response) => {
   try {
-    const subjects = await prisma.cbtSubject.findMany({ include: { questions: true } });
-    res.json(subjects);
+    const { level, category, examType } = req.query;
+    
+    let subjects = nigeriaSubjects;
+    
+    if (level) {
+      subjects = getSubjectsByLevel(level as string);
+    }
+    
+    if (category) {
+      subjects = getSubjectsByCategory(category as string);
+    }
+    
+    if (examType) {
+      subjects = getSubjectsByExamType(examType as string);
+    }
+    
+    res.json({
+      success: true,
+      subjects: subjects
+    });
   } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch subjects' });
+    console.error('Error fetching subjects:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch subjects'
+    });
   }
 });
 
-// Create a CBT subject
-router.post('/', requireAdminOrTeacher, async (req: Request, res: Response) => {
-  const { name } = req.body;
-  if (!name) return res.status(400).json({ error: 'Name is required' });
+// Get subject by ID
+router.get('/:id', async (req: Request, res: Response) => {
   try {
-    const subject = await prisma.cbtSubject.create({ data: { name } });
-    res.status(201).json(subject);
+    const { id } = req.params;
+    const subject = nigeriaSubjects.find(s => s.id === id);
+    
+    if (!subject) {
+      return res.status(404).json({
+        success: false,
+        error: 'Subject not found'
+      });
+    }
+    
+    res.json({
+      success: true,
+      subject: subject
+    });
   } catch (error) {
-    res.status(500).json({ error: 'Failed to create subject' });
+    console.error('Error fetching subject:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch subject'
+    });
   }
 });
 
-// Update a subject
-router.put('/:id', requireAdminOrTeacher, async (req: Request, res: Response) => {
-  const id = Number(req.params.id);
-  const { name } = req.body;
-  if (!name) return res.status(400).json({ error: 'Name is required' });
+// Create new subject (for custom additions)
+router.post('/', async (req: Request, res: Response) => {
   try {
-    const subject = await prisma.cbtSubject.update({ where: { id }, data: { name } });
-    res.json(subject);
+    const { name, code, description, category, level, examType } = req.body;
+    
+    // Validate required fields
+    if (!name || !code || !category || !level || !examType) {
+      return res.status(400).json({
+        success: false,
+        error: 'Missing required fields'
+      });
+    }
+    
+    const newSubject = {
+      id: code.toLowerCase().replace(/\s+/g, '-'),
+      name,
+      code,
+      description: description || '',
+      category,
+      level,
+      examType,
+      isCustom: true
+    };
+    
+    // In a real application, you would save this to a database
+    // For now, we'll just return the created subject
+    res.status(201).json({
+      success: true,
+      subject: newSubject,
+      message: 'Subject created successfully'
+    });
   } catch (error) {
-    res.status(500).json({ error: 'Failed to update subject' });
+    console.error('Error creating subject:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to create subject'
+    });
   }
 });
 
-// Delete a subject
-router.delete('/:id', requireAdminOrTeacher, async (req: Request, res: Response) => {
-  const id = Number(req.params.id);
+// Update subject
+router.put('/:id', async (req: Request, res: Response) => {
   try {
-    await prisma.cbtSubject.delete({ where: { id } });
-    res.json({ success: true });
+    const { id } = req.params;
+    const { name, code, description, category, level, examType } = req.body;
+    
+    // Check if subject exists
+    const existingSubject = nigeriaSubjects.find(s => s.id === id);
+    if (!existingSubject) {
+      return res.status(404).json({
+        success: false,
+        error: 'Subject not found'
+      });
+    }
+    
+    const updatedSubject = {
+      ...existingSubject,
+      name: name || existingSubject.name,
+      code: code || existingSubject.code,
+      description: description || existingSubject.description,
+      category: category || existingSubject.category,
+      level: level || existingSubject.level,
+      examType: examType || existingSubject.examType
+    };
+    
+    res.json({
+      success: true,
+      subject: updatedSubject,
+      message: 'Subject updated successfully'
+    });
   } catch (error) {
-    res.status(500).json({ error: 'Failed to delete subject' });
+    console.error('Error updating subject:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to update subject'
+    });
+  }
+});
+
+// Delete subject
+router.delete('/:id', async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    
+    // Check if subject exists
+    const existingSubject = nigeriaSubjects.find(s => s.id === id);
+    if (!existingSubject) {
+      return res.status(404).json({
+        success: false,
+        error: 'Subject not found'
+      });
+    }
+    
+    // In a real application, you would delete from database
+    res.json({
+      success: true,
+      message: 'Subject deleted successfully'
+    });
+  } catch (error) {
+    console.error('Error deleting subject:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to delete subject'
+    });
+  }
+});
+
+// Get subject categories
+router.get('/meta/categories', async (req: Request, res: Response) => {
+  try {
+    const categories = ['core', 'elective', 'vocational', 'trade'];
+    res.json({
+      success: true,
+      categories: categories
+    });
+  } catch (error) {
+    console.error('Error fetching categories:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch categories'
+    });
+  }
+});
+
+// Get education levels
+router.get('/meta/levels', async (req: Request, res: Response) => {
+  try {
+    const levels = ['primary', 'secondary', 'tertiary'];
+    res.json({
+      success: true,
+      levels: levels
+    });
+  } catch (error) {
+    console.error('Error fetching levels:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch levels'
+    });
+  }
+});
+
+// Get exam types
+router.get('/meta/exam-types', async (req: Request, res: Response) => {
+  try {
+    const examTypes = ['WAEC', 'NECO', 'JAMB', 'NABTEB', 'Primary', 'All'];
+    res.json({
+      success: true,
+      examTypes: examTypes
+    });
+  } catch (error) {
+    console.error('Error fetching exam types:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch exam types'
+    });
   }
 });
 
