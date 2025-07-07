@@ -2,7 +2,8 @@
   "/_app": "pages/_app.js",
   "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
-  "/cbt-extra": "pages/cbt-extra.js",
   "/": "pages/index.js",
-  "/attendance": "pages/attendance.js"
+  "/login": "pages/login.js",
+  "/cbt-extra": "pages/cbt-extra.js",
+  "/dashboard": "pages/dashboard.js"
 }
