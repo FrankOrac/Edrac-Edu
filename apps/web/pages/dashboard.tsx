@@ -1,123 +1,178 @@
-import React, { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
-import axios from 'axios';
-import { useRouter } from 'next/router';
-import Link from 'next/link';
+
+import React, { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
+import { motion } from 'framer-motion';
 
-const roleWidgets: Record<string, { text: string; href: string }[]> = {
-  admin: [
-    { text: 'Manage Students', href: '/students' },
-    { text: 'Manage Teachers', href: '/teachers' },
-    { text: 'View Analytics', href: '/cbt-analytics' },
-    { text: 'CBT Content', href: '/cbt-extra' },
-  ],
-  teacher: [
-    { text: 'My Classes', href: '/groups' },
-    { text: 'Assignments', href: '/assignments' },
-    { text: 'Attendance', href: '/attendance' },
-    { text: 'Results', href: '/results' },
-  ],
-  student: [
-    { text: 'Take CBT Test', href: '/cbt-test' },
-    { text: 'My Results', href: '/cbt-analytics' },
-    { text: 'Library', href: '/library' },
-    { text: 'AI Chat', href: '/ai-chat' },
-  ],
-  parent: [
-    { text: 'Child Progress', href: '/results' },
-    { text: 'Attendance', href: '/attendance' },
-    { text: 'Notifications', href: '/notifications' },
-  ],
-  alumni: [
-    { text: 'Alumni Forum', href: '/forums' },
-    { text: 'Certificates', href: '/certificates' },
-    { text: 'Groups', href: '/groups' },
-  ]
-};
+interface DashboardStats {
+  totalStudents: number;
+  totalTeachers: number;
+  totalParents: number;
+  attendanceRate: number;
+  upcomingExams: number;
+  pendingAssignments: number;
+}
 
-export default function Dashboard() {
-  const [user, setUser] = useState<any>(null);
-  const [error, setError] = useState('');
-  const router = useRouter();
+const Dashboard = () => {
+  const [stats, setStats] = useState<DashboardStats>({
+    totalStudents: 0,
+    totalTeachers: 0,
+    totalParents: 0,
+    attendanceRate: 0,
+    upcomingExams: 0,
+    pendingAssignments: 0,
+  });
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      router.push('/login');
-      return;
-    }
-    axios.get(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/user/me`, {
-      headers: { Authorization: `Bearer ${token}` }
-    })
-      .then(res => setUser(res.data))
-      .catch(() => {
-        setError('Session expired. Please login again.');
-        localStorage.removeItem('token');
-        router.push('/login');
+    // Simulate API call
+    setTimeout(() => {
+      setStats({
+        totalStudents: 1247,
+        totalTeachers: 86,
+        totalParents: 1156,
+        attendanceRate: 94.2,
+        upcomingExams: 5,
+        pendingAssignments: 23,
       });
-  }, [router]);
+      setLoading(false);
+    }, 1000);
+  }, []);
 
-  if (error) return <Layout title="Dashboard"><div className="text-red-500 p-8 text-center">{error}</div></Layout>;
-  if (!user) return <Layout title="Dashboard"><div className="p-8 text-center">Loading dashboard...</div></Layout>;
+  const quickActions = [
+    { name: 'Add Student', icon: '👥', href: '/students', color: 'bg-blue-500' },
+    { name: 'Create Exam', icon: '📝', href: '/exams', color: 'bg-green-500' },
+    { name: 'CBT Test', icon: '💻', href: '/cbt-test', color: 'bg-purple-500' },
+    { name: 'View Analytics', icon: '📊', href: '/analytics', color: 'bg-orange-500' },
+    { name: 'Send Notification', icon: '🔔', href: '/notifications', color: 'bg-red-500' },
+    { name: 'AI Chat', icon: '🤖', href: '/ai-chat', color: 'bg-indigo-500' },
+  ];
 
-  const widgets = roleWidgets[user.role.toLowerCase()] || [];
+  const recentActivities = [
+    { action: 'New student registered', time: '2 minutes ago', icon: '👤' },
+    { action: 'Exam results published', time: '15 minutes ago', icon: '📊' },
+    { action: 'Assignment submitted', time: '1 hour ago', icon: '📋' },
+    { action: 'Parent meeting scheduled', time: '2 hours ago', icon: '📅' },
+  ];
+
+  if (loading) {
+    return (
+      <Layout title="Dashboard">
+        <div className="flex items-center justify-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout title="Dashboard">
-      <div className="flex flex-col items-center justify-center min-h-[80vh] px-4 py-8">
-        <motion.h1
-          initial={{ opacity: 0, y: -40 }}
+      <div className="space-y-6">
+        {/* Welcome Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7 }}
-          className="text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-gray-700 via-gray-900 to-black mb-4 text-center"
+          className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-8 text-white"
         >
-          Welcome, {user.name || user.email}!
-        </motion.h1>
-        <motion.p
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.2 }}
-          className="mb-2 text-lg text-gray-600 font-semibold"
-        >
-          Role: <span className="font-bold uppercase tracking-wider">{user.role}</span>
-        </motion.p>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 my-8 w-full max-w-4xl">
-          {widgets.length > 0 ? (
-            widgets.map((widget, i) => (
-              <Link href={widget.href} key={i} passHref>
-                <motion.a
-                  initial={{ opacity: 0, y: 40 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.4 + i * 0.1 }}
-                  whileHover={{ scale: 1.03, boxShadow: "0 10px 30px -15px rgba(0, 0, 0, 0.3)" }}
-                  className="block backdrop-blur-md bg-slate-100/30 border border-slate-200/50 rounded-2xl shadow-lg p-6 flex items-center justify-center text-center cursor-pointer transition-all hover:bg-slate-50/50 hover:shadow-xl h-36 focus:outline-none focus:ring-4 focus:ring-blue-300"
-                >
-                  <span className="text-xl font-semibold text-gray-800">{widget.text}</span>
-                </motion.a>
-              </Link>
-            ))
-          ) : (
+          <h2 className="text-3xl font-bold mb-2">Welcome back!</h2>
+          <p className="text-blue-100">Here's what's happening at your school today.</p>
+        </motion.div>
+
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6">
+          {[
+            { label: 'Total Students', value: stats.totalStudents, icon: '👥', color: 'bg-blue-500' },
+            { label: 'Teachers', value: stats.totalTeachers, icon: '👨‍🏫', color: 'bg-green-500' },
+            { label: 'Parents', value: stats.totalParents, icon: '👨‍👩‍👧‍👦', color: 'bg-purple-500' },
+            { label: 'Attendance Rate', value: `${stats.attendanceRate}%`, icon: '✅', color: 'bg-orange-500' },
+            { label: 'Upcoming Exams', value: stats.upcomingExams, icon: '📝', color: 'bg-red-500' },
+            { label: 'Pending Tasks', value: stats.pendingAssignments, icon: '📋', color: 'bg-indigo-500' },
+          ].map((stat, index) => (
             <motion.div
-              initial={{ opacity: 0, y: 40 }}
+              key={stat.label}
+              initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.4 }}
-              className="md:col-span-2 text-center text-gray-500 font-semibold p-8 bg-white/20 rounded-3xl"
+              transition={{ delay: index * 0.1 }}
+              className="bg-white rounded-xl p-6 shadow-sm border border-gray-200 hover:shadow-md transition-shadow"
             >
-              No widgets available for your role.
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">{stat.label}</p>
+                  <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
+                </div>
+                <div className={`${stat.color} p-3 rounded-lg text-white text-xl`}>
+                  {stat.icon}
+                </div>
+              </div>
             </motion.div>
-          )}
+          ))}
         </div>
-        <motion.button
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5, delay: 1 }}
-          className="mt-4 px-8 py-3 bg-gradient-to-r from-slate-600 to-slate-800 hover:from-slate-700 hover:to-slate-900 text-white rounded-xl font-bold shadow-lg transition-transform transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-slate-300"
-          onClick={() => { localStorage.removeItem('token'); router.push('/login'); }}
+
+        {/* Quick Actions */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="bg-white rounded-xl p-6 shadow-sm border border-gray-200"
         >
-          Logout
-        </motion.button>
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            {quickActions.map((action, index) => (
+              <motion.a
+                key={action.name}
+                href={action.href}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className={`${action.color} p-4 rounded-lg text-white text-center hover:opacity-90 transition-opacity`}
+              >
+                <div className="text-2xl mb-2">{action.icon}</div>
+                <div className="text-sm font-medium">{action.name}</div>
+              </motion.a>
+            ))}
+          </div>
+        </motion.div>
+
+        {/* Recent Activities and Charts */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Recent Activities */}
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.4 }}
+            className="bg-white rounded-xl p-6 shadow-sm border border-gray-200"
+          >
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Activities</h3>
+            <div className="space-y-4">
+              {recentActivities.map((activity, index) => (
+                <div key={index} className="flex items-center gap-4 p-3 bg-gray-50 rounded-lg">
+                  <div className="text-xl">{activity.icon}</div>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-gray-900">{activity.action}</p>
+                    <p className="text-xs text-gray-500">{activity.time}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+
+          {/* Performance Chart Placeholder */}
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.5 }}
+            className="bg-white rounded-xl p-6 shadow-sm border border-gray-200"
+          >
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Performance Overview</h3>
+            <div className="h-64 bg-gradient-to-br from-blue-50 to-purple-50 rounded-lg flex items-center justify-center">
+              <div className="text-center">
+                <div className="text-4xl mb-2">📈</div>
+                <p className="text-gray-600">Chart visualization coming soon</p>
+              </div>
+            </div>
+          </motion.div>
+        </div>
       </div>
     </Layout>
   );
-}
+};
+
+export default Dashboard;

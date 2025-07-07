@@ -1,366 +1,458 @@
-import React, { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
-import { isLoggedIn } from '../lib/auth';
-import { useRouter } from 'next/router';
-import Layout from '../components/Layout';
-import axios from 'axios';
 
-interface CbtSubject {
+import React, { useState, useEffect } from 'react';
+import Layout from '../components/Layout';
+import { motion, AnimatePresence } from 'framer-motion';
+
+interface Question {
   id: number;
-  name: string;
-}
-interface CbtQuestion {
-  id: number;
-  subjectId: number;
   text: string;
   options: string[];
-  answer: string;
-  marks: number;
-  explanation?: string;
+  correctAnswer: number;
+  subject: string;
+  difficulty: 'easy' | 'medium' | 'hard';
 }
 
-export default function CbtExtraDashboard() {
-  const [user, setUser] = useState<{name:string,role:string,email:string}|null>(null);
-  const router = useRouter();
+interface Subject {
+  id: number;
+  name: string;
+  questionCount: number;
+}
+
+const CBTExtra = () => {
+  const [questions, setQuestions] = useState<Question[]>([]);
+  const [subjects, setSubjects] = useState<Subject[]>([]);
+  const [activeTab, setActiveTab] = useState<'questions' | 'subjects'>('questions');
+  const [showModal, setShowModal] = useState(false);
+  const [modalType, setModalType] = useState<'question' | 'subject'>('question');
+  const [editingItem, setEditingItem] = useState<Question | Subject | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  // Form states
+  const [questionForm, setQuestionForm] = useState({
+    text: '',
+    options: ['', '', '', ''],
+    correctAnswer: 0,
+    subject: '',
+    difficulty: 'medium' as const,
+  });
+
+  const [subjectForm, setSubjectForm] = useState({
+    name: '',
+  });
+
   useEffect(() => {
-    if (!isLoggedIn()) {
-      router.replace('/login');
-    }
-    // TODO: Fetch user info and check role (admin/teacher)
+    // Mock data loading
+    setTimeout(() => {
+      setQuestions([
+        {
+          id: 1,
+          text: 'What is the capital of Nigeria?',
+          options: ['Lagos', 'Abuja', 'Kano', 'Port Harcourt'],
+          correctAnswer: 1,
+          subject: 'Geography',
+          difficulty: 'easy',
+        },
+        {
+          id: 2,
+          text: 'Which of the following is a programming language?',
+          options: ['HTML', 'CSS', 'JavaScript', 'All of the above'],
+          correctAnswer: 2,
+          subject: 'Computer Science',
+          difficulty: 'medium',
+        },
+      ]);
+
+      setSubjects([
+        { id: 1, name: 'Geography', questionCount: 25 },
+        { id: 2, name: 'Computer Science', questionCount: 18 },
+        { id: 3, name: 'Mathematics', questionCount: 32 },
+      ]);
+
+      setLoading(false);
+    }, 1000);
   }, []);
 
-  // Edit state
-  const [editingSubject, setEditingSubject] = useState<CbtSubject|null>(null);
-  const [editSubjectName, setEditSubjectName] = useState('');
-  const [editingQuestion, setEditingQuestion] = useState<CbtQuestion|null>(null);
-  const [editQuestion, setEditQuestion] = useState('');
-  const [editOptions, setEditOptions] = useState<string[]>(['','','','']);
-  const [editAnswer, setEditAnswer] = useState('');
-  const [editMarks, setEditMarks] = useState(1);
-  const [editExplanation, setEditExplanation] = useState('');
-
-  // Edit subject handlers
-  const handleEditSubject = (subj: CbtSubject) => {
-    setEditingSubject(subj);
-    setEditSubjectName(subj.name);
-  };
-  const handleUpdateSubject = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if(!editingSubject) return;
-    setLoading(true);
-    try {
-      await axios.put(`/api/cbt-subjects/${editingSubject.id}`, { name: editSubjectName });
-      setEditingSubject(null);
-      setEditSubjectName('');
-      fetchSubjects();
-      setSuccess('Subject updated');
-    } catch {
-      setError('Failed to update subject');
-    } finally {
-      setLoading(false);
-    }
-  };
-  const handleDeleteSubject = async (id: number) => {
-    if(!window.confirm('Delete this subject?')) return;
-    setLoading(true);
-    try {
-      await axios.delete(`/api/cbt-subjects/${id}`);
-      if(selectedSubject===id) setSelectedSubject(null);
-      fetchSubjects();
-      setSuccess('Subject deleted');
-    } catch {
-      setError('Failed to delete subject');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Edit question handlers
-  const handleEditQuestion = (q: CbtQuestion) => {
-    setEditingQuestion(q);
-    setEditQuestion(q.text);
-    setEditOptions([...q.options]);
-    setEditAnswer(q.answer);
-    setEditMarks(q.marks);
-    setEditExplanation(q.explanation || '');
-  };
-  const handleUpdateQuestion = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if(!editingQuestion) return;
-    setLoading(true);
-    try {
-      await axios.put(`/api/cbt-questions/${editingQuestion.id}`, {
-        text: editQuestion,
-        options: editOptions,
-        answer: editAnswer,
-        marks: editMarks,
-        explanation: editExplanation,
+  const openModal = (type: 'question' | 'subject', item?: Question | Subject) => {
+    setModalType(type);
+    setEditingItem(item || null);
+    
+    if (type === 'question' && item) {
+      const q = item as Question;
+      setQuestionForm({
+        text: q.text,
+        options: q.options,
+        correctAnswer: q.correctAnswer,
+        subject: q.subject,
+        difficulty: q.difficulty,
       });
-      setEditingQuestion(null);
-      setEditQuestion('');
-      setEditOptions(['','','','']);
-      setEditAnswer('');
-      setEditMarks(1);
-      setEditExplanation('');
-      if(selectedSubject) fetchQuestions(selectedSubject);
-      setSuccess('Question updated');
-    } catch {
-      setError('Failed to update question');
-    } finally {
-      setLoading(false);
-    }
-  };
-  const handleDeleteQuestion = async (id: number) => {
-    if(!window.confirm('Delete this question?')) return;
-    setLoading(true);
-    try {
-      await axios.delete(`/api/cbt-questions/${id}`);
-      if(selectedSubject) fetchQuestions(selectedSubject);
-      setSuccess('Question deleted');
-    } catch {
-      setError('Failed to delete question');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const [subjects, setSubjects] = useState<CbtSubject[]>([]);
-  const [questions, setQuestions] = useState<CbtQuestion[]>([]);
-  const [selectedSubject, setSelectedSubject] = useState<number|null>(null);
-  const [subjectName, setSubjectName] = useState('');
-  const [question, setQuestion] = useState('');
-  const [options, setOptions] = useState<string[]>(['','','','']);
-  const [answer, setAnswer] = useState('');
-  const [marks, setMarks] = useState(1);
-  const [explanation, setExplanation] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
-
-  // Fetch all subjects
-  const fetchSubjects = async () => {
-    setLoading(true);
-    try {
-      const res = await axios.get(`/api/cbt-subjects`);
-      setSubjects(res.data);
-    } catch {
-      setError('Failed to fetch subjects');
-    } finally {
-      setLoading(false);
-    }
-  };
-  // Fetch questions for selected subject
-  const fetchQuestions = async (subjectId: number) => {
-    setLoading(true);
-    try {
-      const res = await axios.get(`/api/cbt-questions?subjectId=${subjectId}`);
-      setQuestions(res.data.map((q: any) => ({...q, options: JSON.parse(q.options)})));
-    } catch {
-      setError('Failed to fetch questions');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => { fetchSubjects(); }, []);
-  useEffect(() => { if(selectedSubject) fetchQuestions(selectedSubject); }, [selectedSubject]);
-
-  // Add new subject
-  const handleAddSubject = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    try {
-      await axios.post('/api/cbt-subjects', { name: subjectName });
-      setSubjectName('');
-      fetchSubjects();
-      setSuccess('Subject added');
-    } catch {
-      setError('Failed to add subject');
-    } finally {
-      setLoading(false);
-    }
-  };
-  // Add new question
-  const handleAddQuestion = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if(!selectedSubject) return setError('Select a subject');
-    setLoading(true);
-    try {
-      await axios.post('/api/cbt-questions', {
-        subjectId: selectedSubject,
-        text: question,
-        options,
-        answer,
-        marks,
-        explanation,
+    } else if (type === 'subject' && item) {
+      const s = item as Subject;
+      setSubjectForm({ name: s.name });
+    } else {
+      // Reset forms
+      setQuestionForm({
+        text: '',
+        options: ['', '', '', ''],
+        correctAnswer: 0,
+        subject: '',
+        difficulty: 'medium',
       });
-      setQuestion('');
-      setOptions(['','','','']);
-      setAnswer('');
-      setExplanation('');
-      fetchQuestions(selectedSubject);
-      setSuccess('Question added');
-    } catch {
-      setError('Failed to add question');
-    } finally {
-      setLoading(false);
+      setSubjectForm({ name: '' });
+    }
+    
+    setShowModal(true);
+  };
+
+  const handleSave = () => {
+    if (modalType === 'question') {
+      if (editingItem) {
+        // Update existing question
+        setQuestions(prev => prev.map(q => 
+          q.id === editingItem.id 
+            ? { ...q, ...questionForm, id: editingItem.id }
+            : q
+        ));
+      } else {
+        // Add new question
+        const newQuestion: Question = {
+          id: Date.now(),
+          ...questionForm,
+        };
+        setQuestions(prev => [...prev, newQuestion]);
+      }
+    } else {
+      if (editingItem) {
+        // Update existing subject
+        setSubjects(prev => prev.map(s => 
+          s.id === editingItem.id 
+            ? { ...s, name: subjectForm.name }
+            : s
+        ));
+      } else {
+        // Add new subject
+        const newSubject: Subject = {
+          id: Date.now(),
+          name: subjectForm.name,
+          questionCount: 0,
+        };
+        setSubjects(prev => [...prev, newSubject]);
+      }
+    }
+    
+    setShowModal(false);
+  };
+
+  const handleDelete = (type: 'question' | 'subject', id: number) => {
+    if (confirm('Are you sure you want to delete this item?')) {
+      if (type === 'question') {
+        setQuestions(prev => prev.filter(q => q.id !== id));
+      } else {
+        setSubjects(prev => prev.filter(s => s.id !== id));
+      }
     }
   };
+
+  const getDifficultyColor = (difficulty: string) => {
+    switch (difficulty) {
+      case 'easy': return 'bg-green-100 text-green-800';
+      case 'medium': return 'bg-yellow-100 text-yellow-800';
+      case 'hard': return 'bg-red-100 text-red-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  if (loading) {
+    return (
+      <Layout title="CBT Extra">
+        <div className="flex items-center justify-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
-    <Layout title="CBT Extra Dashboard">
-      <div className="flex items-center justify-between mb-4">
-        <h1 className="text-2xl font-bold">CBT Extra Admin Dashboard</h1>
-        {user && (
-          <span className="text-sm text-gray-600">{user.name} ({user.role})</span>
-        )}
-      </div>
-      {error && <p className="text-red-500">{error}</p>}
-      {success && <p className="text-green-600">{success}</p>}
-      {user && (user.role === 'admin' || user.role === 'teacher') ? (
-        <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.3 }}
-          className="backdrop-blur-xl bg-white/40 border border-white/50 rounded-3xl shadow-2xl p-8 mb-8"
-        >
-          <h2 className="font-semibold text-blue-900 text-xl mb-3">Add Subject</h2>
-          <form onSubmit={handleAddSubject} className="flex gap-2 my-2 items-center">
-            <input value={subjectName} onChange={e=>setSubjectName(e.target.value)} required placeholder="Subject name" className="border px-4 py-2 rounded-lg shadow-inner focus:outline-none focus:ring-2 focus:ring-blue-200 transition w-2/3"/>
-            <button type="submit" className="px-6 py-2 bg-gradient-to-r from-blue-700 to-purple-700 hover:from-purple-700 hover:to-blue-700 text-white rounded-xl font-semibold shadow transition-transform transform hover:scale-105">Add</button>
-          </form>
-        </motion.div>
-      ) : user && (
-        <div className="mb-8 text-center text-gray-500 font-semibold">You do not have permission to add subjects.</div>
-      )}
+    <Layout title="CBT Extra">
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-6 text-white">
+          <h2 className="text-2xl font-bold mb-2">CBT Extra Management</h2>
+          <p className="text-blue-100">Manage questions and subjects for advanced CBT testing</p>
+        </div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 40 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.7, delay: 0.4 }}
-        className="backdrop-blur-xl bg-white/40 border border-white/50 rounded-3xl shadow-2xl p-8 mb-8"
-      >
-        <h2 className="font-semibold text-blue-900 text-xl mb-3">Subjects</h2>
-        <ul className="mb-2 space-y-2">
-          {subjects.map(subj => (
-            <motion.li
-              key={subj.id}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5, delay: 0.15 * subj.id }}
-              className="flex items-center gap-2 bg-white/70 rounded-xl px-4 py-2 shadow hover:shadow-lg transition cursor-pointer"
-            >
-              {editingSubject && editingSubject.id===subj.id ? (
-                user && (user.role === 'admin' || user.role === 'teacher') ? (
-                  <form onSubmit={handleUpdateSubject} className="flex gap-2 items-center w-full">
-                    <input value={editSubjectName} onChange={e=>setEditSubjectName(e.target.value)} className="border px-2 py-1 rounded-lg w-2/3" required />
-                    <button type="submit" className="text-xs text-green-700 font-semibold">Save</button>
-                    <button type="button" onClick={()=>setEditingSubject(null)} className="text-xs">Cancel</button>
-                  </form>
-                ) : (
-                  <span className="text-gray-400 text-xs">No permission to edit.</span>
-                )
-              ) : (
-                <>
-                  <button
-                    className={`underline ${selectedSubject===subj.id?'font-bold text-blue-700':''}`}
-                    onClick={()=>setSelectedSubject(subj.id)}
-                  >
-                    {subj.name}
-                  </button>
-                  {user && (user.role === 'admin' || user.role === 'teacher') && (
-                    <>
-                      <button onClick={()=>handleEditSubject(subj)} className="text-xs text-green-700 font-semibold">Edit</button>
-                      <button onClick={()=>handleDeleteSubject(subj.id)} className="text-xs text-red-600 font-semibold">Delete</button>
-                    </>
-                  )}
-                </>
-              )}
-            </motion.li>
-          ))}
-        </ul>
-      </motion.div>
-      {selectedSubject && (
-        <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.5 }}
-          className="backdrop-blur-xl bg-white/40 border border-white/50 rounded-3xl shadow-2xl p-8 mb-8"
-        >
-          <h2 className="font-semibold text-blue-900 text-xl mb-3">Add Question</h2>
-          {user && (user.role === 'admin' || user.role === 'teacher') ? (
-            <form onSubmit={handleAddQuestion} className="space-y-3">
-              <input value={question} onChange={e=>setQuestion(e.target.value)} required placeholder="Question text" className="border px-4 py-2 rounded-lg shadow-inner focus:outline-none focus:ring-2 focus:ring-blue-200 transition w-full"/>
-              <div className="flex flex-col gap-2">
-                {options.map((opt,i)=>(
-                  <input key={i} value={opt} onChange={e=>{
-                    const newOpts = [...options]; newOpts[i]=e.target.value; setOptions(newOpts);
-                  }} required placeholder={`Option ${i+1}`} className="border px-4 py-2 rounded-lg shadow-inner focus:outline-none focus:ring-2 focus:ring-purple-200 transition"/>
-                ))}
-              </div>
-              <input value={answer} onChange={e=>setAnswer(e.target.value)} required placeholder="Correct answer" className="border px-4 py-2 rounded-lg shadow-inner focus:outline-none focus:ring-2 focus:ring-green-200 transition w-full"/>
-              <input type="number" value={marks} min={1} onChange={e=>setMarks(Number(e.target.value))} required placeholder="Marks" className="border px-4 py-2 rounded-lg shadow-inner focus:outline-none focus:ring-2 focus:ring-yellow-200 transition w-full"/>
-              <input value={explanation} onChange={e=>setExplanation(e.target.value)} placeholder="Explanation (optional)" className="border px-4 py-2 rounded-lg shadow-inner focus:outline-none focus:ring-2 focus:ring-blue-100 transition w-full"/>
-              <button type="submit" className="px-6 py-2 bg-gradient-to-r from-green-600 to-blue-600 hover:from-blue-600 hover:to-green-600 text-white rounded-xl font-semibold shadow transition-transform transform hover:scale-105">Add Question</button>
-            </form>
-          ) : (
-            <div className="text-center text-gray-500 font-semibold">You do not have permission to add questions.</div>
-          )}
-        </motion.div>
-      )}
-      {selectedSubject && (
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.6 }}
-            className="backdrop-blur-xl bg-white/40 border border-white/50 rounded-3xl shadow-2xl p-8 mb-8"
-          >
-            <h2 className="font-semibold text-blue-900 text-xl mb-3">Questions</h2>
-            <ul className="space-y-4">
-              {questions.map(q=>(
-                <motion.li
-                  key={q.id}
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.5, delay: 0.1 * q.id }}
-                  className="bg-white/70 rounded-xl px-6 py-4 shadow hover:shadow-lg transition cursor-pointer"
+        {/* Tabs */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+          <div className="border-b border-gray-200">
+            <nav className="flex space-x-8 px-6">
+              {[
+                { key: 'questions', label: 'Questions', count: questions.length },
+                { key: 'subjects', label: 'Subjects', count: subjects.length },
+              ].map((tab) => (
+                <button
+                  key={tab.key}
+                  onClick={() => setActiveTab(tab.key as any)}
+                  className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                    activeTab === tab.key
+                      ? 'border-blue-500 text-blue-600'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  }`}
                 >
-                  {editingQuestion && editingQuestion.id===q.id ? (
-                    <form onSubmit={handleUpdateQuestion} className="space-y-2">
-                      <input value={editQuestion} onChange={e=>setEditQuestion(e.target.value)} required className="border px-4 py-2 rounded-lg w-full"/>
-                      <div className="flex flex-col gap-2">
-                        {editOptions.map((opt,i)=>(
-                          <input key={i} value={opt} onChange={e=>{
-                            const newOpts = [...editOptions]; newOpts[i]=e.target.value; setEditOptions(newOpts);
-                          }} required className="border px-4 py-2 rounded-lg"/>
+                  {tab.label} ({tab.count})
+                </button>
+              ))}
+            </nav>
+          </div>
+
+          <div className="p-6">
+            {/* Questions Tab */}
+            {activeTab === 'questions' && (
+              <div className="space-y-6">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-lg font-semibold">Questions</h3>
+                  <button
+                    onClick={() => openModal('question')}
+                    className="btn-primary"
+                  >
+                    + Add Question
+                  </button>
+                </div>
+
+                <div className="grid gap-4">
+                  {questions.map((question, index) => (
+                    <motion.div
+                      key={question.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                      className="bg-gray-50 rounded-lg p-4 border border-gray-200 hover:shadow-md transition-shadow"
+                    >
+                      <div className="flex justify-between items-start mb-3">
+                        <div className="flex-1">
+                          <p className="font-medium text-gray-900 mb-2">{question.text}</p>
+                          <div className="flex gap-2 text-sm text-gray-600">
+                            <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                              {question.subject}
+                            </span>
+                            <span className={`px-2 py-1 rounded ${getDifficultyColor(question.difficulty)}`}>
+                              {question.difficulty}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="flex gap-2 ml-4">
+                          <button
+                            onClick={() => openModal('question', question)}
+                            className="text-blue-600 hover:text-blue-800 p-2"
+                          >
+                            ✏️
+                          </button>
+                          <button
+                            onClick={() => handleDelete('question', question.id)}
+                            className="text-red-600 hover:text-red-800 p-2"
+                          >
+                            🗑️
+                          </button>
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2 text-sm">
+                        {question.options.map((option, idx) => (
+                          <div
+                            key={idx}
+                            className={`p-2 rounded ${
+                              idx === question.correctAnswer
+                                ? 'bg-green-100 text-green-800 font-medium'
+                                : 'bg-white text-gray-700'
+                            }`}
+                          >
+                            {String.fromCharCode(65 + idx)}. {option}
+                          </div>
                         ))}
                       </div>
-                      <input value={editAnswer} onChange={e=>setEditAnswer(e.target.value)} required className="border px-4 py-2 rounded-lg w-full"/>
-                      <input type="number" value={editMarks} min={1} onChange={e=>setEditMarks(Number(e.target.value))} required className="border px-4 py-2 rounded-lg w-full"/>
-                      <input value={editExplanation} onChange={e=>setEditExplanation(e.target.value)} className="border px-4 py-2 rounded-lg w-full"/>
-                      <button type="submit" className="text-xs text-green-700 font-bold mr-2">Save</button>
-                      <button type="button" onClick={()=>setEditingQuestion(null)} className="text-xs">Cancel</button>
-                    </form>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Subjects Tab */}
+            {activeTab === 'subjects' && (
+              <div className="space-y-6">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-lg font-semibold">Subjects</h3>
+                  <button
+                    onClick={() => openModal('subject')}
+                    className="btn-primary"
+                  >
+                    + Add Subject
+                  </button>
+                </div>
+
+                <div className="grid gap-4">
+                  {subjects.map((subject, index) => (
+                    <motion.div
+                      key={subject.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                      className="bg-gray-50 rounded-lg p-4 border border-gray-200 hover:shadow-md transition-shadow"
+                    >
+                      <div className="flex justify-between items-center">
+                        <div>
+                          <h4 className="font-medium text-gray-900">{subject.name}</h4>
+                          <p className="text-sm text-gray-600">{subject.questionCount} questions</p>
+                        </div>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => openModal('subject', subject)}
+                            className="text-blue-600 hover:text-blue-800 p-2"
+                          >
+                            ✏️
+                          </button>
+                          <button
+                            onClick={() => handleDelete('subject', subject.id)}
+                            className="text-red-600 hover:text-red-800 p-2"
+                          >
+                            🗑️
+                          </button>
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Modal */}
+        <AnimatePresence>
+          {showModal && (
+            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                className="bg-white rounded-xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto"
+              >
+                <div className="p-6">
+                  <h3 className="text-lg font-semibold mb-4">
+                    {editingItem ? 'Edit' : 'Add'} {modalType === 'question' ? 'Question' : 'Subject'}
+                  </h3>
+
+                  {modalType === 'question' ? (
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Question Text
+                        </label>
+                        <textarea
+                          value={questionForm.text}
+                          onChange={(e) => setQuestionForm(prev => ({ ...prev, text: e.target.value }))}
+                          className="form-input"
+                          rows={3}
+                          placeholder="Enter question text..."
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Options
+                        </label>
+                        {questionForm.options.map((option, index) => (
+                          <div key={index} className="flex gap-2 mb-2">
+                            <input
+                              type="radio"
+                              name="correctAnswer"
+                              checked={questionForm.correctAnswer === index}
+                              onChange={() => setQuestionForm(prev => ({ ...prev, correctAnswer: index }))}
+                              className="mt-1"
+                            />
+                            <input
+                              type="text"
+                              value={option}
+                              onChange={(e) => {
+                                const newOptions = [...questionForm.options];
+                                newOptions[index] = e.target.value;
+                                setQuestionForm(prev => ({ ...prev, options: newOptions }));
+                              }}
+                              className="form-input flex-1"
+                              placeholder={`Option ${String.fromCharCode(65 + index)}`}
+                            />
+                          </div>
+                        ))}
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Subject
+                          </label>
+                          <select
+                            value={questionForm.subject}
+                            onChange={(e) => setQuestionForm(prev => ({ ...prev, subject: e.target.value }))}
+                            className="form-input"
+                          >
+                            <option value="">Select subject</option>
+                            {subjects.map(subject => (
+                              <option key={subject.id} value={subject.name}>
+                                {subject.name}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Difficulty
+                          </label>
+                          <select
+                            value={questionForm.difficulty}
+                            onChange={(e) => setQuestionForm(prev => ({ ...prev, difficulty: e.target.value as any }))}
+                            className="form-input"
+                          >
+                            <option value="easy">Easy</option>
+                            <option value="medium">Medium</option>
+                            <option value="hard">Hard</option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
                   ) : (
-                    <>
-                      <div className="mb-1"><b>Q:</b> {q.text}</div>
-                      <div className="mb-1"><b>Options:</b> {q.options.join(', ')}</div>
-                      <div className="mb-1"><b>Answer:</b> {q.answer}</div>
-                      <div className="mb-1"><b>Marks:</b> {q.marks}</div>
-                      {q.explanation && <div className="mb-1"><b>Explanation:</b> {q.explanation}</div>}
-                      {user && (user.role === 'admin' || user.role === 'teacher') && (
-                        <>
-                          <button onClick={()=>handleEditQuestion(q)} className="text-xs text-green-700 font-bold mr-2">Edit</button>
-                          <button onClick={()=>handleDeleteQuestion(q.id)} className="text-xs text-red-600 font-bold">Delete</button>
-                        </>
-                      )}
-                    </>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Subject Name
+                      </label>
+                      <input
+                        type="text"
+                        value={subjectForm.name}
+                        onChange={(e) => setSubjectForm(prev => ({ ...prev, name: e.target.value }))}
+                        className="form-input"
+                        placeholder="Enter subject name..."
+                      />
+                    </div>
                   )}
-                </motion.li>
-              ))}
-            </ul>
-          </motion.div>
-        )}
+
+                  <div className="flex gap-3 mt-6">
+                    <button
+                      onClick={handleSave}
+                      className="btn-primary flex-1"
+                    >
+                      {editingItem ? 'Update' : 'Save'}
+                    </button>
+                    <button
+                      onClick={() => setShowModal(false)}
+                      className="btn-secondary flex-1"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
+      </div>
     </Layout>
   );
-}
+};
+
+export default CBTExtra;
