@@ -35,6 +35,10 @@ import pluginsRoutes from './routes/plugins';
 import aiRoutes from './routes/ai';
 import schoolsRoutes from './routes/schools';
 import cbtCommentsRoutes from './routes/cbt-comments';
+import seoRouter from './routes/seo';
+import advertisingRouter from './routes/advertising';
+import webAnalyticsRouter from './routes/web-analytics';
+import notificationSettingsRouter from './routes/notification-settings';
 
 const app = express();
 const prisma = new PrismaClient();
@@ -97,6 +101,10 @@ app.use('/api/plugins', pluginsRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/schools', schoolsRoutes);
 app.use('/api/cbt-comments', cbtCommentsRoutes);
+app.use('/api/seo', seoRouter);
+app.use('/api/advertising', advertisingRouter);
+app.use('/api/web-analytics', webAnalyticsRouter);
+app.use('/api/notification-settings', notificationSettingsRouter);
 
 // Health check
 app.get('/health', (req, res) => {

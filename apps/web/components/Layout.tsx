@@ -1,8 +1,8 @@
-
 import React, { useState, useEffect } from 'react';
-import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { motion, AnimatePresence } from 'framer-motion';
+import Link from 'next/link';
+import Analytics from './Analytics';
+import AdComponent from './AdComponent';
 import { getUser, logout, isLoggedIn } from '../lib/auth';
 
 interface LayoutProps {
@@ -19,9 +19,19 @@ interface NavItem {
 }
 
 const Layout: React.FC<LayoutProps> = ({ children, title = 'EduAI Platform' }) => {
-  const router = useRouter();
-  const [user, setUser] = useState<any>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [analyticsSettings, setAnalyticsSettings] = useState<any>({});
+  const router = useRouter();
+
+  useEffect(() => {
+    // Fetch analytics settings
+    fetch('/api/web-analytics/settings')
+      .then(res => res.json())
+      .then(data => setAnalyticsSettings(data))
+      .catch(console.error);
+  }, []);
+
+  const [user, setUser] = useState<any>(null);
   const [expandedGroups, setExpandedGroups] = useState<string[]>(['Dashboard', 'Academic', 'Assessment']);
 
   useEffect(() => {
@@ -50,7 +60,7 @@ const Layout: React.FC<LayoutProps> = ({ children, title = 'EduAI Platform' }) =
   const getBreadcrumbs = () => {
     const path = router.pathname;
     const segments = path.split('/').filter(segment => segment);
-    
+
     const breadcrumbs = [
       { name: 'Home', href: '/' }
     ];
@@ -426,6 +436,9 @@ const Layout: React.FC<LayoutProps> = ({ children, title = 'EduAI Platform' }) =
           background: #94a3b8;
         }
       `}</style>
+
+      {/* Analytics tracking */}
+      <Analytics settings={analyticsSettings} />
     </div>
   );
 };
