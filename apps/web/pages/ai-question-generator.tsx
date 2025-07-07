@@ -21,6 +21,7 @@ interface GeneratedQuestion {
 const AiQuestionGenerator = () => {
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [selectedSubject, setSelectedSubject] = useState('');
+  const [selectedTopic, setSelectedTopic] = useState('');
   const [difficulty, setDifficulty] = useState('medium');
   const [questionCount, setQuestionCount] = useState(5);
   const [saveToDatabase, setSaveToDatabase] = useState(true);
@@ -40,6 +41,13 @@ const AiQuestionGenerator = () => {
     } catch (error) {
       console.error('Error fetching subjects:', error);
     }
+  };
+
+  const subjectTopics = {
+    Mathematics: ['Algebra', 'Geometry', 'Calculus', 'Statistics', 'Trigonometry'],
+    Science: ['Physics', 'Chemistry', 'Biology', 'Earth Science'],
+    English: ['Grammar', 'Literature', 'Writing', 'Reading Comprehension'],
+    History: ['Ancient History', 'Modern History', 'Contemporary History', 'World Wars']
   };
 
   const generateQuestions = async () => {
@@ -68,6 +76,7 @@ const AiQuestionGenerator = () => {
           method: 'POST',
           body: JSON.stringify({
             subject: selectedSubject,
+            topic: selectedTopic,
             difficulty,
             count: questionCount,
             saveToDatabase
@@ -119,25 +128,56 @@ const AiQuestionGenerator = () => {
 
         {/* Generation Form */}
         <div className="bg-white rounded-xl p-6 shadow-lg">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
             {!bulkMode ? (
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Subject</label>
-                <select
-                  value={selectedSubject}
-                  onChange={(e) => setSelectedSubject(e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="">Select Subject</option>
-                  {subjects.map(subject => (
-                    <option key={subject.id} value={subject.name}>{subject.name}</option>
-                  ))}
-                  <option value="Mathematics">Mathematics</option>
-                  <option value="Science">Science</option>
-                  <option value="English">English</option>
-                  <option value="History">History</option>
-                </select>
-              </div>
+              <>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Subject</label>
+                  <select
+                    value={selectedSubject}
+                    onChange={(e) => {
+                      setSelectedSubject(e.target.value);
+                      setSelectedTopic(''); // Reset topic when subject changes
+                    }}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="">Select Subject</option>
+                    {subjects.map(subject => (
+                      <option key={subject.id} value={subject.name}>{subject.name}</option>
+                    ))}
+                    <option value="Mathematics">Mathematics</option>
+                    <option value="Science">Science</option>
+                    <option value="English">English</option>
+                    <option value="History">History</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Topic (Optional)</label>
+                  <div className="space-y-2">
+                    <select
+                      value={selectedTopic}
+                      onChange={(e) => setSelectedTopic(e.target.value)}
+                      disabled={!selectedSubject}
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+                    >
+                      <option value="">Select Topic</option>
+                      {selectedSubject && subjectTopics[selectedSubject as keyof typeof subjectTopics]?.map(topic => (
+                        <option key={topic} value={topic}>{topic}</option>
+                      ))}
+                      <option value="custom">Custom Topic</option>
+                    </select>
+                    {selectedTopic === 'custom' && (
+                      <input
+                        type="text"
+                        placeholder="Enter custom topic..."
+                        value=""
+                        onChange={(e) => setSelectedTopic(e.target.value)}
+                        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 text-sm"
+                      />
+                    )}
+                  </div>
+                </div>
+              </>
             ) : (
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-2">Select Subjects</label>
