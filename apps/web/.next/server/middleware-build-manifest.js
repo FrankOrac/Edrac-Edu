@@ -24,10 +24,10 @@ self.__BUILD_MANIFEST = {
       "static/chunks/main.js",
       "static/chunks/pages/_error.js"
     ],
-    "/cbt-test": [
+    "/dashboard": [
       "static/chunks/webpack.js",
       "static/chunks/main.js",
-      "static/chunks/pages/cbt-test.js"
+      "static/chunks/pages/dashboard.js"
     ],
     "/login": [
       "static/chunks/webpack.js",
