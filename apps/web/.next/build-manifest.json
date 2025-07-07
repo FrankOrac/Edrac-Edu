@@ -27,15 +27,15 @@
       "static/chunks/main.js",
       "static/chunks/pages/_error.js"
     ],
-    "/ai-chat": [
+    "/cbt-test": [
       "static/chunks/webpack.js",
       "static/chunks/main.js",
-      "static/chunks/pages/ai-chat.js"
+      "static/chunks/pages/cbt-test.js"
     ],
-    "/analytics": [
+    "/register": [
       "static/chunks/webpack.js",
       "static/chunks/main.js",
-      "static/chunks/pages/analytics.js"
+      "static/chunks/pages/register.js"
     ]
   },
   "ampFirstPages": []

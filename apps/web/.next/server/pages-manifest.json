@@ -3,6 +3,7 @@
   "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
   "/": "pages/index.js",
-  "/ai-chat": "pages/ai-chat.js",
-  "/analytics": "pages/analytics.js"
+  "/login": "pages/login.js",
+  "/cbt-test": "pages/cbt-test.js",
+  "/register": "pages/register.js"
 }
