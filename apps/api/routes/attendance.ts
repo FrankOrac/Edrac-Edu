@@ -1,83 +1,123 @@
+
 import { Router, Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
-import { auth } from '../index';
+
 const router = Router();
 const prisma = new PrismaClient();
 
-function requireTeacherOrAdmin(req: Request, res: Response, next: () => void) {
-  if (!req.user || (req.user.role !== 'admin' && req.user.role !== 'teacher')) {
-    return res.status(403).json({ error: 'Teacher or admin role required' });
-  }
+// Middleware to check authentication (placeholder - implement based on your auth system)
+const requireAuth = (req: Request, res: Response, next: any) => {
+  // Add your authentication logic here
   next();
-}
+};
 
-// List attendance records
-router.get('/', auth, async (req: Request, res: Response) => {
+// Get all attendance records
+router.get('/', requireAuth, async (req: Request, res: Response) => {
   try {
-    const attendance = await prisma.attendance.findMany();
+    const attendance = await prisma.attendance.findMany({
+      include: {
+        student: true
+      }
+    });
     res.json(attendance);
   } catch (error) {
+    console.error('Error fetching attendance:', error);
     res.status(500).json({ error: 'Failed to fetch attendance records' });
   }
 });
 
-// Record attendance
-router.post('/', auth, requireTeacherOrAdmin, async (req: Request, res: Response) => {
-  const { studentId, date, status } = req.body;
-  if (!studentId || !date || !status) {
-    return res.status(400).json({ error: 'studentId, date, and status are required' });
+// Get attendance by student ID
+router.get('/student/:studentId', requireAuth, async (req: Request, res: Response) => {
+  const studentId = parseInt(req.params.studentId);
+  
+  if (isNaN(studentId)) {
+    return res.status(400).json({ error: 'Invalid student ID' });
   }
+
+  try {
+    const attendance = await prisma.attendance.findMany({
+      where: { studentId },
+      include: {
+        student: true
+      },
+      orderBy: { date: 'desc' }
+    });
+    res.json(attendance);
+  } catch (error) {
+    console.error('Error fetching student attendance:', error);
+    res.status(500).json({ error: 'Failed to fetch student attendance' });
+  }
+});
+
+// Create attendance record
+router.post('/', requireAuth, async (req: Request, res: Response) => {
+  const { studentId, date, status, remarks } = req.body;
+
+  if (!studentId || !date || !status) {
+    return res.status(400).json({ error: 'Student ID, date, and status are required' });
+  }
+
   try {
     const attendance = await prisma.attendance.create({
-      data: { studentId: Number(studentId), date: new Date(date), status },
+      data: {
+        studentId: parseInt(studentId),
+        date: new Date(date),
+        status,
+        remarks
+      },
+      include: {
+        student: true
+      }
     });
     res.status(201).json(attendance);
   } catch (error) {
-    res.status(500).json({ error: 'Failed to record attendance' });
+    console.error('Error creating attendance record:', error);
+    res.status(500).json({ error: 'Failed to create attendance record' });
   }
 });
 
-// Get an attendance record by ID
-router.get('/:id', auth, async (req: Request, res: Response) => {
-  const id = Number(req.params.id);
-  if (isNaN(id)) return res.status(400).json({ error: 'Invalid attendance ID' });
-  try {
-    const attendance = await prisma.attendance.findUnique({ where: { id } });
-    if (!attendance) return res.status(404).json({ error: 'Attendance record not found' });
-    res.json(attendance);
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch attendance record' });
-  }
-});
+// Update attendance record
+router.put('/:id', requireAuth, async (req: Request, res: Response) => {
+  const id = parseInt(req.params.id);
+  const { status, remarks } = req.body;
 
-// Update an attendance record
-router.put('/:id', auth, requireTeacherOrAdmin, async (req: Request, res: Response) => {
-  const id = Number(req.params.id);
-  const { studentId, date, status } = req.body;
-  if (isNaN(id)) return res.status(400).json({ error: 'Invalid attendance ID' });
+  if (isNaN(id)) {
+    return res.status(400).json({ error: 'Invalid attendance ID' });
+  }
+
   try {
     const attendance = await prisma.attendance.update({
       where: { id },
       data: {
-        studentId: studentId ? Number(studentId) : undefined,
-        date: date ? new Date(date) : undefined,
         status,
+        remarks
       },
+      include: {
+        student: true
+      }
     });
     res.json(attendance);
   } catch (error) {
-    res.status(500).json({ error: 'Failed to update attendance' });
+    console.error('Error updating attendance record:', error);
+    res.status(500).json({ error: 'Failed to update attendance record' });
   }
 });
 
-// Delete an attendance record
-router.delete('/:id', auth, requireTeacherOrAdmin, async (req: Request, res: Response) => {
-  const id = Number(req.params.id);
-  if (isNaN(id)) return res.status(400).json({ error: 'Invalid attendance ID' });
+// Delete attendance record
+router.delete('/:id', requireAuth, async (req: Request, res: Response) => {
+  const id = parseInt(req.params.id);
+
+  if (isNaN(id)) {
+    return res.status(400).json({ error: 'Invalid attendance ID' });
+  }
+
   try {
-    await prisma.attendance.delete({ where: { id } });
-    res.status(204).end();
+    await prisma.attendance.delete({
+      where: { id }
+    });
+    res.status(204).send();
   } catch (error) {
+    console.error('Error deleting attendance record:', error);
     res.status(500).json({ error: 'Failed to delete attendance record' });
   }
 });

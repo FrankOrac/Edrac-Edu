@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -203,7 +204,8 @@ const LandingPage = () => {
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
-              className="text-center mb-16">
+              className="text-center mb-16"
+            >
               <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
                 Powerful Features
               </h2>
@@ -243,34 +245,35 @@ const LandingPage = () => {
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
-              className="text-center mb-16">
-          <h1 className="text-5xl md:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-800 via-purple-700 to-blue-400 drop-shadow mb-6">
-            EduAI Platform
-          </h1>
-          <p className="text-xl md:text-2xl text-gray-700 max-w-3xl mx-auto leading-relaxed mb-8">
-            Revolutionizing education with AI-powered learning, comprehensive school management, and intelligent assessment tools
-          </p>
+              className="text-center mb-16"
+            >
+              <h1 className="text-5xl md:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-800 via-purple-700 to-blue-400 drop-shadow mb-6">
+                EduAI Platform
+              </h1>
+              <p className="text-xl md:text-2xl text-gray-700 max-w-3xl mx-auto leading-relaxed mb-8">
+                Revolutionizing education with AI-powered learning, comprehensive school management, and intelligent assessment tools
+              </p>
 
-          {/* CBT Demo Section */}
-          <div className="bg-gradient-to-r from-green-100 to-blue-100 rounded-3xl p-8 mb-8 border-2 border-blue-200">
-            <h2 className="text-3xl font-bold text-blue-800 mb-4">Try Our CBT System Now!</h2>
-            <p className="text-lg text-gray-700 mb-6">Experience our Computer-Based Testing platform with no registration required</p>
-            <div className="flex flex-col md:flex-row gap-4 justify-center">
-              <button
-                onClick={() => router.push('/cbt-test?demo=true')}
-                className="px-8 py-4 bg-gradient-to-r from-blue-600 to-green-600 text-white rounded-2xl font-bold text-lg shadow-lg hover:from-green-600 hover:to-blue-600 transition-all transform hover:scale-105"
-              >
-                🎯 Start Demo Test
-              </button>
-              <button
-                onClick={() => router.push('/register')}
-                className="px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-2xl font-bold text-lg shadow-lg hover:from-pink-600 hover:to-purple-600 transition-all transform hover:scale-105"
-              >
-                📚 Register for Full Access
-              </button>
-            </div>
-          </div>
-        </div>
+              {/* CBT Demo Section */}
+              <div className="bg-gradient-to-r from-green-100 to-blue-100 rounded-3xl p-8 mb-8 border-2 border-blue-200">
+                <h2 className="text-3xl font-bold text-blue-800 mb-4">Try Our CBT System Now!</h2>
+                <p className="text-lg text-gray-700 mb-6">Experience our Computer-Based Testing platform with no registration required</p>
+                <div className="flex flex-col md:flex-row gap-4 justify-center">
+                  <button
+                    onClick={() => router.push('/cbt-test?demo=true')}
+                    className="px-8 py-4 bg-gradient-to-r from-blue-600 to-green-600 text-white rounded-2xl font-bold text-lg shadow-lg hover:from-green-600 hover:to-blue-600 transition-all transform hover:scale-105"
+                  >
+                    🎯 Start Demo Test
+                  </button>
+                  <button
+                    onClick={() => router.push('/register')}
+                    className="px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-2xl font-bold text-lg shadow-lg hover:from-pink-600 hover:to-purple-600 transition-all transform hover:scale-105"
+                  >
+                    📚 Register for Full Access
+                  </button>
+                </div>
+              </div>
+            </motion.div>
           </div>
         </section>
 
