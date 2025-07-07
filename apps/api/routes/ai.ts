@@ -433,4 +433,32 @@ router.post('/bulk-generate-questions', auth, async (req: Request, res: Response
   }
 });
 
+// AI Comment Response
+router.post('/comment-response', async (req: Request, res: Response) => {
+  const { questionId, comment, question } = req.body;
+  
+  try {
+    // Mock AI response - in production, integrate with OpenAI
+    const responses = [
+      `Based on the question "${question}", here's a detailed explanation: This concept is fundamental to understanding the subject matter. The key point to remember is that...`,
+      `Great question about "${question}"! Let me clarify this for you: The correct approach involves understanding the underlying principles...`,
+      `I can see why this might be confusing. Regarding "${question}", it's important to note that...`,
+      `This is a common area of confusion. For the question "${question}", the explanation is...`,
+      `Excellent inquiry! The question "${question}" tests your understanding of core concepts. Here's what you need to know...`
+    ];
+    
+    const aiResponse = responses[Math.floor(Math.random() * responses.length)];
+    
+    res.json({
+      response: aiResponse,
+      timestamp: new Date().toISOString(),
+      author: 'AI Assistant',
+      helpful: true
+    });
+  } catch (error) {
+    console.error('AI comment response error:', error);
+    res.status(500).json({ error: 'Failed to generate AI response' });
+  }
+});
+
 export default router;

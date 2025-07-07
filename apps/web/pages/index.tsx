@@ -1,11 +1,12 @@
-
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import Head from 'next/head';
+import { useRouter } from 'next/router';
 
 const LandingPage = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const router = useRouter();
 
   const features = [
     {
@@ -202,8 +203,7 @@ const LandingPage = () => {
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
-              className="text-center mb-16"
-            >
+              className="text-center mb-16">
               <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
                 Powerful Features
               </h2>
@@ -243,52 +243,34 @@ const LandingPage = () => {
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
-              className="text-center mb-16"
-            >
-              <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-                Experience the Platform
-              </h2>
-              <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-8">
-                Try our demo accounts to explore all features. No registration required.
-              </p>
-              
-              <div className="grid md:grid-cols-3 lg:grid-cols-6 gap-4 max-w-5xl mx-auto">
-                {[
-                  { role: 'Guest Demo', email: 'guest@demo.com', icon: '✨', password: 'demo', highlight: true },
-                  { role: 'Admin', email: 'admin@edrac.edu', icon: '👨‍💼', password: 'password123' },
-                  { role: 'Teacher', email: 'teacher@edrac.edu', icon: '👨‍🏫', password: 'password123' },
-                  { role: 'Student', email: 'student@edrac.edu', icon: '👨‍🎓', password: 'password123' },
-                  { role: 'Parent', email: 'parent@edrac.edu', icon: '👨‍👩‍👧‍👦', password: 'password123' },
-                  { role: 'Super Admin', email: 'superadmin@edrac.edu', icon: '🛡️', password: 'password123' }
-                ].map((account, index) => (
-                  <motion.div
-                    key={account.role}
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    whileInView={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.5, delay: index * 0.1 }}
-                    className={`p-4 rounded-xl shadow-lg border ${
-                      account.highlight 
-                        ? 'bg-gradient-to-br from-green-50 to-emerald-50 border-green-200' 
-                        : 'bg-white/80 border-white/20'
-                    }`}
-                  >
-                    <div className="text-3xl mb-2">{account.icon}</div>
-                    <h4 className={`font-bold ${account.highlight ? 'text-green-900' : 'text-gray-900'}`}>
-                      {account.role}
-                    </h4>
-                    <p className={`text-sm ${account.highlight ? 'text-green-700' : 'text-gray-600'}`}>
-                      {account.email}
-                    </p>
-                    <p className={`text-xs mt-1 ${account.highlight ? 'text-green-600' : 'text-gray-500'}`}>
-                      {account.password}
-                    </p>
-                    {account.highlight && (
-                      <p className="text-xs text-green-600 mt-1 font-medium">Works offline! 🚀</p>
-                    )}
-                  </motion.div>
-                ))}
-              </div>
-            </motion.div>
+              className="text-center mb-16">
+          <h1 className="text-5xl md:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-800 via-purple-700 to-blue-400 drop-shadow mb-6">
+            EduAI Platform
+          </h1>
+          <p className="text-xl md:text-2xl text-gray-700 max-w-3xl mx-auto leading-relaxed mb-8">
+            Revolutionizing education with AI-powered learning, comprehensive school management, and intelligent assessment tools
+          </p>
+
+          {/* CBT Demo Section */}
+          <div className="bg-gradient-to-r from-green-100 to-blue-100 rounded-3xl p-8 mb-8 border-2 border-blue-200">
+            <h2 className="text-3xl font-bold text-blue-800 mb-4">Try Our CBT System Now!</h2>
+            <p className="text-lg text-gray-700 mb-6">Experience our Computer-Based Testing platform with no registration required</p>
+            <div className="flex flex-col md:flex-row gap-4 justify-center">
+              <button
+                onClick={() => router.push('/cbt-test?demo=true')}
+                className="px-8 py-4 bg-gradient-to-r from-blue-600 to-green-600 text-white rounded-2xl font-bold text-lg shadow-lg hover:from-green-600 hover:to-blue-600 transition-all transform hover:scale-105"
+              >
+                🎯 Start Demo Test
+              </button>
+              <button
+                onClick={() => router.push('/register')}
+                className="px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-2xl font-bold text-lg shadow-lg hover:from-pink-600 hover:to-purple-600 transition-all transform hover:scale-105"
+              >
+                📚 Register for Full Access
+              </button>
+            </div>
+          </div>
+        </div>
           </div>
         </section>
 

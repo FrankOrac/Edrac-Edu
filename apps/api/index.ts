@@ -34,6 +34,7 @@ import groupsRoutes from './routes/groups';
 import pluginsRoutes from './routes/plugins';
 import aiRoutes from './routes/ai';
 import schoolsRoutes from './routes/schools';
+import cbtCommentsRoutes from './routes/cbt-comments';
 
 const app = express();
 const prisma = new PrismaClient();
@@ -95,6 +96,7 @@ app.use('/api/groups', groupsRoutes);
 app.use('/api/plugins', pluginsRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/schools', schoolsRoutes);
+app.use('/api/cbt-comments', cbtCommentsRoutes);
 
 // Health check
 app.get('/health', (req, res) => {

@@ -1,4 +1,3 @@
-
 import { jwtDecode } from 'jwt-decode';
 
 interface User {
@@ -19,26 +18,19 @@ export const login = async (email: string, password: string): Promise<boolean> =
   try {
     console.log('Attempting login with:', { email, API_BASE_URL });
 
-    // Guest/Demo mode bypass
-    if (email === 'guest@demo.com' && password === 'demo') {
-      const guestUser = {
-        id: 999,
+    // Check for demo account
+    if (email === 'guest@demo.com' && password === 'demo123') {
+      console.log('Guest login successful');
+      localStorage.setItem('authToken', 'demo-token');
+      localStorage.setItem('user', JSON.stringify({
+        id: 'demo',
         email: 'guest@demo.com',
         name: 'Demo User',
-        role: 'admin'
-      };
-      
-      // Create a fake token for demo purposes
-      const fakeToken = btoa(JSON.stringify({ userId: 999, email: 'guest@demo.com', role: 'admin', exp: Date.now() + 24 * 60 * 60 * 1000 }));
-      
-      localStorage.setItem('token', fakeToken);
-      localStorage.setItem('user', JSON.stringify(guestUser));
-      localStorage.setItem('isGuest', 'true');
-      
-      console.log('Guest login successful');
+        role: 'student'
+      }));
       return true;
     }
-    
+
     const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
       method: 'POST',
       headers: {
@@ -62,12 +54,12 @@ export const login = async (email: string, password: string): Promise<boolean> =
 
     const data: AuthResponse = await response.json();
     console.log('Login successful');
-    
+
     // Store token and user info
     localStorage.setItem('token', data.token);
     localStorage.setItem('user', JSON.stringify(data.user));
     localStorage.removeItem('isGuest'); // Remove guest flag for real auth
-    
+
     return true;
   } catch (error) {
     console.error('Login error:', error);
@@ -80,13 +72,13 @@ export const login = async (email: string, password: string): Promise<boolean> =
         name: 'Demo User',
         role: 'admin'
       };
-      
+
       const fakeToken = btoa(JSON.stringify({ userId: 999, email: email, role: 'admin', exp: Date.now() + 24 * 60 * 60 * 1000 }));
-      
+
       localStorage.setItem('token', fakeToken);
       localStorage.setItem('user', JSON.stringify(guestUser));
       localStorage.setItem('isGuest', 'true');
-      
+
       return true;
     }
     throw error;
@@ -101,19 +93,19 @@ export const logout = (): void => {
 
 export const isLoggedIn = (): boolean => {
   if (typeof window === 'undefined') return false;
-  
+
   const token = localStorage.getItem('token');
   if (!token) return false;
 
   try {
     const decoded: any = jwtDecode(token);
     const currentTime = Date.now() / 1000;
-    
+
     if (decoded.exp < currentTime) {
       logout();
       return false;
     }
-    
+
     return true;
   } catch (error) {
     logout();
@@ -123,10 +115,10 @@ export const isLoggedIn = (): boolean => {
 
 export const getUser = (): User | null => {
   if (typeof window === 'undefined') return null;
-  
+
   const userStr = localStorage.getItem('user');
   if (!userStr) return null;
-  
+
   try {
     return JSON.parse(userStr);
   } catch (error) {
@@ -142,13 +134,13 @@ export const getToken = (): string | null => {
 export const apiCall = async (endpoint: string, options: RequestInit = {}): Promise<any> => {
   const token = getToken();
   const isGuest = localStorage.getItem('isGuest') === 'true';
-  
+
   // If in guest mode, return mock data
   if (isGuest) {
     console.log('Guest mode: returning mock data for', endpoint);
     return getMockData(endpoint);
   }
-  
+
   const config: RequestInit = {
     ...options,
     headers: {
@@ -160,7 +152,7 @@ export const apiCall = async (endpoint: string, options: RequestInit = {}): Prom
 
   try {
     const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
-    
+
     if (!response.ok) {
       if (response.status === 401) {
         logout();
