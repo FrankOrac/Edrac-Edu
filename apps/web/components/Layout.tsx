@@ -1,5 +1,3 @@
-
-
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -117,7 +115,7 @@ const Layout: React.FC<LayoutProps> = ({ children, title = 'EduAI Platform' }) =
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
       <title>{title}</title>
-      
+
       {/* Mobile sidebar backdrop */}
       <AnimatePresence>
         {sidebarOpen && (
@@ -183,7 +181,7 @@ const Layout: React.FC<LayoutProps> = ({ children, title = 'EduAI Platform' }) =
                     ▶
                   </motion.span>
                 </button>
-                
+
                 <AnimatePresence>
                   {expandedGroups.includes(group.name) && (
                     <motion.div
@@ -263,7 +261,7 @@ const Layout: React.FC<LayoutProps> = ({ children, title = 'EduAI Platform' }) =
                 </button>
                 <h1 className="text-2xl font-bold text-gray-900">{title}</h1>
               </div>
-              
+
               <div className="flex items-center gap-4">
                 <div className="hidden md:flex items-center gap-2">
                   <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
@@ -312,4 +310,3 @@ const Layout: React.FC<LayoutProps> = ({ children, title = 'EduAI Platform' }) =
 };
 
 export default Layout;
-

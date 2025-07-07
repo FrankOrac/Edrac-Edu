@@ -2,24 +2,47 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
-import swaggerUi from 'swagger-ui-express';
-import YAML from 'yamljs';
-import path from 'path';
-
-import express from 'express';
-import cors from 'cors';
-import helmet from 'helmet';
-import rateLimit from 'express-rate-limit';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { PrismaClient } from '@prisma/client';
 
+// Route imports
+import studentsRoutes from './routes/students';
+import teachersRoutes from './routes/teachers';
+import parentsRoutes from './routes/parents';
+import attendanceRoutes from './routes/attendance';
+import examsRoutes from './routes/exams';
+import cbtQuestionsRoutes from './routes/cbt-questions';
+import cbtResultsRoutes from './routes/cbt-results';
+import cbtSessionsRoutes from './routes/cbt-sessions';
+import cbtSubjectsRoutes from './routes/cbt-subjects';
+import resultsRoutes from './routes/results';
+import assignmentsRoutes from './routes/assignments';
+import transcriptsRoutes from './routes/transcripts';
+import notificationsRoutes from './routes/notifications';
+import eventsRoutes from './routes/events';
+import transportRoutes from './routes/transport';
+import inventoryRoutes from './routes/inventory';
+import libraryRoutes from './routes/library';
+import forumsRoutes from './routes/forums';
+import paymentsRoutes from './routes/payments';
+import analyticsRoutes from './routes/analytics';
+import gamificationRoutes from './routes/gamification';
+import certificatesRoutes from './routes/certificates';
+import alumniRoutes from './routes/alumni';
+import groupsRoutes from './routes/groups';
+import pluginsRoutes from './routes/plugins';
+import aiRoutes from './routes/ai';
+import schoolsRoutes from './routes/schools';
+
 const app = express();
 const prisma = new PrismaClient();
+const PORT = process.env.PORT || 5000;
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
 // Middleware
-app.use(cors());
 app.use(helmet());
+app.use(cors());
 app.use(express.json());
 
 // Rate limiting
@@ -33,227 +56,75 @@ app.use(limiter);
 export const auth = (req: any, res: any, next: any) => {
   const token = req.header('Authorization')?.replace('Bearer ', '');
   if (!token) {
-    return res.status(401).json({ error: 'Access denied. No token provided.' });
+    return res.status(401).json({ error: 'Access denied' });
   }
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback-secret');
+    const decoded = jwt.verify(token, JWT_SECRET);
     req.user = decoded;
     next();
   } catch (error) {
-    res.status(400).json({ error: 'Invalid token.' });
+    res.status(401).json({ error: 'Invalid token' });
   }
 };
+
+// Routes
+app.use('/api/students', studentsRoutes);
+app.use('/api/teachers', teachersRoutes);
+app.use('/api/parents', parentsRoutes);
+app.use('/api/attendance', attendanceRoutes);
+app.use('/api/exams', examsRoutes);
+app.use('/api/cbt-questions', cbtQuestionsRoutes);
+app.use('/api/cbt-results', cbtResultsRoutes);
+app.use('/api/cbt-sessions', cbtSessionsRoutes);
+app.use('/api/cbt-subjects', cbtSubjectsRoutes);
+app.use('/api/results', resultsRoutes);
+app.use('/api/assignments', assignmentsRoutes);
+app.use('/api/transcripts', transcriptsRoutes);
+app.use('/api/notifications', notificationsRoutes);
+app.use('/api/events', eventsRoutes);
+app.use('/api/transport', transportRoutes);
+app.use('/api/inventory', inventoryRoutes);
+app.use('/api/library', libraryRoutes);
+app.use('/api/forums', forumsRoutes);
+app.use('/api/payments', paymentsRoutes);
+app.use('/api/analytics', analyticsRoutes);
+app.use('/api/gamification', gamificationRoutes);
+app.use('/api/certificates', certificatesRoutes);
+app.use('/api/alumni', alumniRoutes);
+app.use('/api/groups', groupsRoutes);
+app.use('/api/plugins', pluginsRoutes);
+app.use('/api/ai', aiRoutes);
+app.use('/api/schools', schoolsRoutes);
+
+// Health check
+app.get('/health', (req, res) => {
+  res.json({ status: 'OK', timestamp: new Date().toISOString() });
+});
 
 // Login endpoint
 app.post('/api/auth/login', async (req, res) => {
   try {
     const { email, password } = req.body;
-    
-    // Find user by email
-    const user = await prisma.user.findUnique({
-      where: { email },
-      include: {
-        student: true,
-        staff: true,
-        parent: true
-      }
-    });
+    const user = await prisma.user.findUnique({ where: { email } });
 
-    if (!user) {
-      return res.status(400).json({ error: 'Invalid credentials' });
+    if (!user || !await bcrypt.compare(password, user.password)) {
+      return res.status(401).json({ error: 'Invalid credentials' });
     }
 
-    // Check password
-    const validPassword = await bcrypt.compare(password, user.password);
-    if (!validPassword) {
-      return res.status(400).json({ error: 'Invalid credentials' });
-    }
-
-    // Create JWT token
     const token = jwt.sign(
-      { 
-        id: user.id, 
-        email: user.email, 
-        role: user.role,
-        name: user.name 
-      },
-      process.env.JWT_SECRET || 'fallback-secret',
+      { id: user.id, email: user.email, role: user.role },
+      JWT_SECRET,
       { expiresIn: '24h' }
     );
 
-    res.json({
-      token,
-      user: {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        role: user.role
-      }
-    });
+    res.json({ token, user: { id: user.id, email: user.email, name: user.name, role: user.role } });
   } catch (error) {
-    console.error('Login error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ error: 'Login failed' });
   }
 });
 
-// Import routes
-import studentsRouter from './routes/students';
-import teachersRouter from './routes/teachers';
-import parentsRouter from './routes/parents';
-import attendanceRouter from './routes/attendance';
-import examsRouter from './routes/exams';
-import cbtQuestionsRouter from './routes/cbt-questions';
-import cbtResultsRouter from './routes/cbt-results';
-import cbtSessionsRouter from './routes/cbt-sessions';
-import cbtSubjectsRouter from './routes/cbt-subjects';
-import resultsRouter from './routes/results';
-import assignmentsRouter from './routes/assignments';
-import transcriptsRouter from './routes/transcripts';
-import notificationsRouter from './routes/notifications';
-import eventsRouter from './routes/events';
-import transportRouter from './routes/transport';
-import inventoryRouter from './routes/inventory';
-import libraryRouter from './routes/library';
-import forumsRouter from './routes/forums';
-import paymentsRouter from './routes/payments';
-import analyticsRouter from './routes/analytics';
-import gamificationRouter from './routes/gamification';
-import certificatesRouter from './routes/certificates';
-import alumniRouter from './routes/alumni';
-import groupsRouter from './routes/groups';
-import pluginsRouter from './routes/plugins';
-import aiRouter from './routes/ai';
-import schoolsRouter from './routes/schools';
-
-// Register routes
-app.use('/api/students', studentsRouter);
-app.use('/api/teachers', teachersRouter);
-app.use('/api/parents', parentsRouter);
-app.use('/api/attendance', attendanceRouter);
-app.use('/api/exams', examsRouter);
-app.use('/api/cbt-questions', cbtQuestionsRouter);
-app.use('/api/cbt-results', cbtResultsRouter);
-app.use('/api/cbt-sessions', cbtSessionsRouter);
-app.use('/api/cbt-subjects', cbtSubjectsRouter);
-app.use('/api/results', resultsRouter);
-app.use('/api/assignments', assignmentsRouter);
-app.use('/api/transcripts', transcriptsRouter);
-app.use('/api/notifications', notificationsRouter);
-app.use('/api/events', eventsRouter);
-app.use('/api/transport', transportRouter);
-app.use('/api/inventory', inventoryRouter);
-app.use('/api/library', libraryRouter);
-app.use('/api/forums', forumsRouter);
-app.use('/api/payments', paymentsRouter);
-app.use('/api/analytics', analyticsRouter);
-app.use('/api/gamification', gamificationRouter);
-app.use('/api/certificates', certificatesRouter);
-app.use('/api/alumni', alumniRouter);
-app.use('/api/groups', groupsRouter);
-app.use('/api/plugins', pluginsRouter);
-app.use('/api/ai', aiRouter);
-app.use('/api/schools', schoolsRouter);
-
-const PORT = process.env.PORT || 5000;
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`API Server running on port ${PORT}`);
-});
-
-export default app;
-
-const app = express();
-const PORT = process.env.PORT || 4000;
-
-// Security middleware
-app.use(helmet());
-app.use(cors({
-  origin: process.env.NODE_ENV === 'production' 
-    ? ['https://your-domain.com'] 
-    : ['http://localhost:3000', 'http://127.0.0.1:3000'],
-  credentials: true
-}));
-
-// Rate limiting
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100 // limit each IP to 100 requests per windowMs
-});
-app.use('/api/', limiter);
-
-// Body parsing middleware
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
-
-// Swagger documentation
-try {
-  const swaggerDocument = YAML.load(path.join(__dirname, 'swagger.yaml'));
-  app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
-} catch (error) {
-  console.warn('Swagger documentation not loaded:', error.message);
-}
-
-// Health check endpoint
-app.get('/api/health', (req, res) => {
-  res.json({ 
-    status: 'OK', 
-    timestamp: new Date().toISOString(),
-    version: process.env.npm_package_version || '1.0.0'
-  });
-});
-
-// API routes
-app.use('/api/students', studentsRouter);
-app.use('/api/teachers', teachersRouter);
-app.use('/api/parents', parentsRouter);
-app.use('/api/attendance', attendanceRouter);
-app.use('/api/exams', examsRouter);
-app.use('/api/cbt-questions', cbtQuestionsRouter);
-app.use('/api/cbt-results', cbtResultsRouter);
-app.use('/api/cbt-sessions', cbtSessionsRouter);
-app.use('/api/cbt-subjects', cbtSubjectsRouter);
-app.use('/api/results', resultsRouter);
-app.use('/api/assignments', assignmentsRouter);
-app.use('/api/transcripts', transcriptsRouter);
-app.use('/api/notifications', notificationsRouter);
-app.use('/api/events', eventsRouter);
-app.use('/api/transport', transportRouter);
-app.use('/api/inventory', inventoryRouter);
-app.use('/api/library', libraryRouter);
-app.use('/api/forums', forumsRouter);
-app.use('/api/payments', paymentsRouter);
-app.use('/api/analytics', analyticsRouter);
-app.use('/api/gamification', gamificationRouter);
-app.use('/api/certificates', certificatesRouter);
-app.use('/api/alumni', alumniRouter);
-app.use('/api/groups', groupsRouter);
-app.use('/api/plugins', pluginsRouter);
-app.use('/api/ai', aiRouter);
-app.use('/api/schools', schoolsRouter);
-
-// 404 handler
-app.use('*', (req, res) => {
-  res.status(404).json({ 
-    error: 'Route not found',
-    path: req.originalUrl,
-    method: req.method
-  });
-});
-
-// Global error handler
-app.use((error: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
-  console.error('Global error:', error);
-  res.status(error.status || 500).json({
-    error: process.env.NODE_ENV === 'production' 
-      ? 'Internal server error' 
-      : error.message,
-    ...(process.env.NODE_ENV !== 'production' && { stack: error.stack })
-  });
-});
-
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`🚀 API Server running on http://0.0.0.0:${PORT}`);
-  console.log(`📚 API Documentation: http://0.0.0.0:${PORT}/api/docs`);
-  console.log(`💚 Health Check: http://0.0.0.0:${PORT}/api/health`);
+  console.log(`🚀 API Server running on port ${PORT}`);
 });
 
 export default app;
