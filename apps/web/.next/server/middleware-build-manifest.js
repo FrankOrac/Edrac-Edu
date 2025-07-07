@@ -24,15 +24,20 @@ self.__BUILD_MANIFEST = {
       "static/chunks/main.js",
       "static/chunks/pages/_error.js"
     ],
-    "/dashboard": [
+    "/cbt-extra": [
       "static/chunks/webpack.js",
       "static/chunks/main.js",
-      "static/chunks/pages/dashboard.js"
+      "static/chunks/pages/cbt-extra.js"
     ],
-    "/parents": [
+    "/students": [
       "static/chunks/webpack.js",
       "static/chunks/main.js",
-      "static/chunks/pages/parents.js"
+      "static/chunks/pages/students.js"
+    ],
+    "/teachers": [
+      "static/chunks/webpack.js",
+      "static/chunks/main.js",
+      "static/chunks/pages/teachers.js"
     ]
   },
   "ampFirstPages": []
