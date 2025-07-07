@@ -6,6 +6,96 @@ import swaggerUi from 'swagger-ui-express';
 import YAML from 'yamljs';
 import path from 'path';
 
+import express from 'express';
+import cors from 'cors';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import { PrismaClient } from '@prisma/client';
+
+const app = express();
+const prisma = new PrismaClient();
+
+// Middleware
+app.use(cors());
+app.use(helmet());
+app.use(express.json());
+
+// Rate limiting
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100 // limit each IP to 100 requests per windowMs
+});
+app.use(limiter);
+
+// Auth middleware
+export const auth = (req: any, res: any, next: any) => {
+  const token = req.header('Authorization')?.replace('Bearer ', '');
+  if (!token) {
+    return res.status(401).json({ error: 'Access denied. No token provided.' });
+  }
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback-secret');
+    req.user = decoded;
+    next();
+  } catch (error) {
+    res.status(400).json({ error: 'Invalid token.' });
+  }
+};
+
+// Login endpoint
+app.post('/api/auth/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    
+    // Find user by email
+    const user = await prisma.user.findUnique({
+      where: { email },
+      include: {
+        student: true,
+        staff: true,
+        parent: true
+      }
+    });
+
+    if (!user) {
+      return res.status(400).json({ error: 'Invalid credentials' });
+    }
+
+    // Check password
+    const validPassword = await bcrypt.compare(password, user.password);
+    if (!validPassword) {
+      return res.status(400).json({ error: 'Invalid credentials' });
+    }
+
+    // Create JWT token
+    const token = jwt.sign(
+      { 
+        id: user.id, 
+        email: user.email, 
+        role: user.role,
+        name: user.name 
+      },
+      process.env.JWT_SECRET || 'fallback-secret',
+      { expiresIn: '24h' }
+    );
+
+    res.json({
+      token,
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role
+      }
+    });
+  } catch (error) {
+    console.error('Login error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // Import routes
 import studentsRouter from './routes/students';
 import teachersRouter from './routes/teachers';
@@ -34,6 +124,42 @@ import groupsRouter from './routes/groups';
 import pluginsRouter from './routes/plugins';
 import aiRouter from './routes/ai';
 import schoolsRouter from './routes/schools';
+
+// Register routes
+app.use('/api/students', studentsRouter);
+app.use('/api/teachers', teachersRouter);
+app.use('/api/parents', parentsRouter);
+app.use('/api/attendance', attendanceRouter);
+app.use('/api/exams', examsRouter);
+app.use('/api/cbt-questions', cbtQuestionsRouter);
+app.use('/api/cbt-results', cbtResultsRouter);
+app.use('/api/cbt-sessions', cbtSessionsRouter);
+app.use('/api/cbt-subjects', cbtSubjectsRouter);
+app.use('/api/results', resultsRouter);
+app.use('/api/assignments', assignmentsRouter);
+app.use('/api/transcripts', transcriptsRouter);
+app.use('/api/notifications', notificationsRouter);
+app.use('/api/events', eventsRouter);
+app.use('/api/transport', transportRouter);
+app.use('/api/inventory', inventoryRouter);
+app.use('/api/library', libraryRouter);
+app.use('/api/forums', forumsRouter);
+app.use('/api/payments', paymentsRouter);
+app.use('/api/analytics', analyticsRouter);
+app.use('/api/gamification', gamificationRouter);
+app.use('/api/certificates', certificatesRouter);
+app.use('/api/alumni', alumniRouter);
+app.use('/api/groups', groupsRouter);
+app.use('/api/plugins', pluginsRouter);
+app.use('/api/ai', aiRouter);
+app.use('/api/schools', schoolsRouter);
+
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`API Server running on port ${PORT}`);
+});
+
+export default app;
 
 const app = express();
 const PORT = process.env.PORT || 4000;
