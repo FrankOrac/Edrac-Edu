@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import Layout from '../components/Layout';
+import { motion } from 'framer-motion';
+import { useRouter } from 'next/router';
+import { isLoggedIn } from '../lib/auth';
 import axios from 'axios';
 
 interface CbtQuestion {
@@ -227,6 +230,5 @@ export default function CbtTestPage() {
         </div>
       </motion.div>
     </Layout>
-  );
   );
 }

@@ -7,13 +7,13 @@ import { auth } from '../index';
 
 function requireAdmin(req: any, res: Response, next: () => void) {
   if (req.user?.role !== 'admin') {
-    return res.status(403).json({ error: 'Forbidden' });
+    return res.status(403).json({ error: 'Admin access required' });
   }
   next();
 }
 
 // List all teachers
-router.get('/', auth, async (req: Request, res: Response) => {
+router.get('/', auth, requireAdmin, async (req: Request, res: Response) => {
   try {
     const teachers = await prisma.teacher.findMany();
     res.json(teachers);
