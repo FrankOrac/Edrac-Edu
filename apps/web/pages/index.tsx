@@ -224,27 +224,59 @@ const LandingPage = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20">
-              {[
+              [
                 {
                   name: 'Starter',
-                  price: 29,
-                  features: ['Basic Analytics', 'Email Support', 'Core Features', '5GB Storage', 'Up to 100 Users'],
+                  price: 49,
+                  features: [
+                    'Advanced CBT Testing System',
+                    'Basic AI Question Generation',
+                    'Student & Teacher Management',
+                    'Basic Analytics Dashboard',
+                    'Email Support',
+                    '10GB Storage',
+                    'Up to 200 Students',
+                    'Mobile App Access'
+                  ],
                   popular: false,
-                  description: 'Perfect for small schools'
+                  description: 'Perfect for small schools & academies'
                 },
                 {
                   name: 'Professional',
-                  price: 99,
-                  features: ['Advanced Analytics', 'Priority Support', 'All Features', '50GB Storage', 'API Access', 'Up to 500 Users'],
+                  price: 149,
+                  features: [
+                    'Everything in Starter',
+                    'AI-Powered Learning Analytics',
+                    'Advanced Question Generator',
+                    'Revenue Sharing Program',
+                    'White-label Branding',
+                    'API Access & Integrations',
+                    'Priority Support',
+                    '100GB Storage',
+                    'Up to 1,000 Students',
+                    'Custom Workflows'
+                  ],
                   popular: true,
-                  description: 'Ideal for medium institutions'
+                  description: 'Ideal for growing institutions'
                 },
                 {
                   name: 'Enterprise',
-                  price: 299,
-                  features: ['Custom Analytics', '24/7 Support', 'White Label', 'Unlimited Storage', 'Custom Integrations', 'Up to 2000 Users'],
+                  price: 399,
+                  features: [
+                    'Everything in Professional',
+                    'Custom AI Models Training',
+                    'Advanced Security Monitor',
+                    'Multi-tenant Architecture',
+                    'Custom Integrations',
+                    'Dedicated Account Manager',
+                    '24/7 Premium Support',
+                    'Unlimited Storage',
+                    'Unlimited Students',
+                    'Custom Development',
+                    'SLA Guarantee'
+                  ],
                   popular: false,
-                  description: 'Comprehensive enterprise solution'
+                  description: 'Complete enterprise solution'
                 }
               ].map((plan, index) => (
                 <motion.div

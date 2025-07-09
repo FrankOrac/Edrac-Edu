@@ -76,7 +76,10 @@ export const auth = (req: any, res: any, next: any) => {
 };
 
 // Routes
-app.use('/api/payments', paymentsRoutes);
+import authRoutes from './routes/auth';
+import healthRoutes from './routes/health';
+app.use('/api/health', healthRoutes);
+app.use('/api/auth', authRoutes);
 app.use('/api/students', studentsRoutes);
 app.use('/api/teachers', teachersRoutes);
 app.use('/api/parents', parentsRoutes);
@@ -95,6 +98,7 @@ app.use('/api/transport', transportRoutes);
 app.use('/api/inventory', inventoryRoutes);
 app.use('/api/library', libraryRoutes);
 app.use('/api/forums', forumsRoutes);
+app.use('/api/payments', paymentsRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/gamification', gamificationRoutes);
 app.use('/api/certificates', certificatesRoutes);

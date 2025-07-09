@@ -18,43 +18,6 @@ export const login = async (email: string, password: string): Promise<boolean> =
   try {
     console.log('Attempting login with:', { email, API_BASE_URL });
 
-    // Check for demo account
-    if (email === 'guest@demo.com' && password === 'demo123') {
-      console.log('Guest login successful');
-      localStorage.setItem('authToken', 'demo-token');
-      localStorage.setItem('user', JSON.stringify({
-        id: 'demo',
-        email: 'guest@demo.com',
-        name: 'Demo User',
-        role: 'student'
-      }));
-      return true;
-    }
-
-    // Default admin account bypass
-    if (email === 'admin@eduai.com' && password === 'admin123') {
-      console.log('Admin login successful');
-      const adminUser = {
-        id: 1,
-        email: 'admin@eduai.com',
-        name: 'System Administrator',
-        role: 'admin',
-        subscription: { status: 'active', expiresAt: '2025-12-31' }
-      };
-      
-      const adminToken = btoa(JSON.stringify({ 
-        userId: 1, 
-        email: 'admin@eduai.com', 
-        role: 'admin',
-        exp: Date.now() + 24 * 60 * 60 * 1000 
-      }));
-
-      localStorage.setItem('token', adminToken);
-      localStorage.setItem('user', JSON.stringify(adminUser));
-      localStorage.removeItem('isGuest');
-      return true;
-    }
-
     const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
       method: 'POST',
       headers: {
@@ -63,48 +26,19 @@ export const login = async (email: string, password: string): Promise<boolean> =
       body: JSON.stringify({ email, password }),
     });
 
-    console.log('Response status:', response.status);
+    const data = await response.json();
+    console.log('Login response:', data);
 
-    if (!response.ok) {
-      let errorMessage = 'Login failed';
-      try {
-        const errorData = await response.json();
-        errorMessage = errorData.error || errorMessage;
-      } catch (e) {
-        console.error('Error parsing error response:', e);
-      }
-      throw new Error(errorMessage);
+    if (response.ok && data.token) {
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('user', JSON.stringify(data.user));
+      console.log('Login successful');
+      return true;
+    } else {
+      throw new Error(data.error || 'Login failed');
     }
-
-    const data: AuthResponse = await response.json();
-    console.log('Login successful');
-
-    // Store token and user info
-    localStorage.setItem('token', data.token);
-    localStorage.setItem('user', JSON.stringify(data.user));
-    localStorage.removeItem('isGuest'); // Remove guest flag for real auth
-
-    return true;
   } catch (error) {
     console.error('Login error:', error);
-    if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
-      // Fallback to guest mode if API is not available
-      console.log('API not available, enabling guest mode');
-      const guestUser = {
-        id: 999,
-        email: email,
-        name: 'Demo User',
-        role: 'admin'
-      };
-
-      const fakeToken = btoa(JSON.stringify({ userId: 999, email: email, role: 'admin', exp: Date.now() + 24 * 60 * 60 * 1000 }));
-
-      localStorage.setItem('token', fakeToken);
-      localStorage.setItem('user', JSON.stringify(guestUser));
-      localStorage.setItem('isGuest', 'true');
-
-      return true;
-    }
     throw error;
   }
 };

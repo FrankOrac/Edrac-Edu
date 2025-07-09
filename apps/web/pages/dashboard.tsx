@@ -1,269 +1,201 @@
-
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/router';
 import Layout from '../components/Layout';
 import { motion } from 'framer-motion';
 import { 
-  Users, 
-  DollarSign, 
-  TrendingUp, 
-  BookOpen, 
-  BarChart3, 
-  Shield,
-  Monitor,
-  MapPin,
-  Cpu,
-  HardDrive,
-  Wifi,
-  Battery,
-  Smartphone,
-  Globe
+  Users, BookOpen, DollarSign, TrendingUp, AlertTriangle, 
+  Shield, Activity, Globe, Zap, Calendar, MessageSquare,
+  BarChart3, PieChart, ArrowUpRight, ArrowDownRight,
+  Clock, CheckCircle, XCircle, RefreshCw, Settings,
+  Download, Filter, Search, Bell, Eye, Edit, Trash2
 } from 'lucide-react';
-import { 
-  LineChart, 
-  Line, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  ResponsiveContainer,
-  BarChart,
-  Bar,
-  PieChart,
-  Pie,
-  Cell
-} from 'recharts';
-import { isLoggedIn, getUser } from '../lib/auth';
+import SecurityMonitor from '../components/SecurityMonitor';
 
 interface DashboardStats {
-  totalStudents: number;
-  totalTeachers: number;
-  totalParents: number;
-  attendanceRate: number;
-  revenue: number;
-  activeSubscriptions: number;
-  completedAssessments: number;
-  avgGrade: number;
+  totalUsers: number;
+  activeStudents: number;
+  totalRevenue: number;
   monthlyGrowth: number;
-  churnRate: number;
+  testsCompleted: number;
+  averageScore: number;
+  systemUptime: number;
+  activeTeachers: number;
 }
 
-interface DeviceInfo {
-  deviceType: string;
-  browser: string;
-  os: string;
-  screenResolution: string;
-  timezone: string;
-  language: string;
-  userAgent: string;
-  memory: string;
-  cores: number;
-  connection: string;
-  battery?: string;
-}
-
-interface LocationInfo {
-  ip: string;
-  country: string;
-  region: string;
-  city: string;
-  latitude: number;
-  longitude: number;
-  isp: string;
-  timezone: string;
-}
-
-interface UserSession {
+interface RecentActivity {
   id: string;
-  userId: number;
-  email: string;
-  name: string;
-  loginTime: string;
-  deviceInfo: DeviceInfo;
-  locationInfo: LocationInfo;
-  isActive: boolean;
-  riskScore: number;
+  type: 'user_registration' | 'test_completion' | 'payment' | 'login' | 'system_alert';
+  message: string;
+  timestamp: string;
+  severity?: 'low' | 'medium' | 'high';
+  user?: string;
 }
 
-const Dashboard = () => {
-  const router = useRouter();
-  const [user, setUser] = useState<any>(null);
+export default function Dashboard() {
   const [stats, setStats] = useState<DashboardStats>({
-    totalStudents: 0,
-    totalTeachers: 0,
-    totalParents: 0,
-    attendanceRate: 0,
-    revenue: 0,
-    activeSubscriptions: 0,
-    completedAssessments: 0,
-    avgGrade: 0,
+    totalUsers: 0,
+    activeStudents: 0,
+    totalRevenue: 0,
     monthlyGrowth: 0,
-    churnRate: 0,
+    testsCompleted: 0,
+    averageScore: 0,
+    systemUptime: 99.9,
+    activeTeachers: 0
   });
+
+  const [recentActivity, setRecentActivity] = useState<RecentActivity[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('overview');
-  const [dateRange, setDateRange] = useState('30d');
-  const [userSessions, setUserSessions] = useState<UserSession[]>([]);
-  const [deviceStats, setDeviceStats] = useState<any>({});
+  const [selectedTimeRange, setSelectedTimeRange] = useState('7d');
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
-    if (!isLoggedIn()) {
-      router.replace('/login');
-      return;
-    }
-    setUser(getUser());
-    collectDeviceInfo();
-    fetchUserSessions();
-  }, [router]);
+    fetchDashboardData();
+    const interval = setInterval(fetchDashboardData, 30000); // Refresh every 30 seconds
+    return () => clearInterval(interval);
+  }, [selectedTimeRange]);
 
-  const collectDeviceInfo = async () => {
+  const fetchDashboardData = async () => {
     try {
-      // Get basic device info
-      const deviceInfo: DeviceInfo = {
-        deviceType: /Mobile|Android|iPhone|iPad/.test(navigator.userAgent) ? 'Mobile' : 'Desktop',
-        browser: navigator.userAgent.split(' ').slice(-1)[0] || 'Unknown',
-        os: navigator.platform || 'Unknown',
-        screenResolution: `${screen.width}x${screen.height}`,
-        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-        language: navigator.language,
-        userAgent: navigator.userAgent,
-        memory: (navigator as any).deviceMemory ? `${(navigator as any).deviceMemory}GB` : 'Unknown',
-        cores: navigator.hardwareConcurrency || 1,
-        connection: (navigator as any).connection?.effectiveType || 'Unknown',
-      };
+      setRefreshing(true);
 
-      // Get battery info if available
-      if ('getBattery' in navigator) {
-        const battery = await (navigator as any).getBattery();
-        deviceInfo.battery = `${Math.round(battery.level * 100)}%`;
-      }
+      // Simulate API calls with realistic data
+      await new Promise(resolve => setTimeout(resolve, 1000));
 
-      // Get location info (using IP geolocation)
-      const locationResponse = await fetch('https://ipapi.co/json/');
-      const locationInfo: LocationInfo = await locationResponse.json();
+      setStats({
+        totalUsers: 12543,
+        activeStudents: 8921,
+        totalRevenue: 284750,
+        monthlyGrowth: 23.5,
+        testsCompleted: 45623,
+        averageScore: 78.2,
+        systemUptime: 99.97,
+        activeTeachers: 342
+      });
 
-      // Create user session
-      const session: UserSession = {
-        id: Date.now().toString(),
-        userId: user?.id || 1,
-        email: user?.email || 'admin@eduai.com',
-        name: user?.name || 'System Administrator',
-        loginTime: new Date().toISOString(),
-        deviceInfo,
-        locationInfo,
-        isActive: true,
-        riskScore: calculateRiskScore(deviceInfo, locationInfo)
-      };
+      const mockActivity: RecentActivity[] = [
+        {
+          id: '1',
+          type: 'user_registration',
+          message: 'New student registered: John Doe',
+          timestamp: new Date().toISOString(),
+          user: 'John Doe'
+        },
+        {
+          id: '2',
+          type: 'test_completion',
+          message: 'Mathematics test completed by class 10A',
+          timestamp: new Date(Date.now() - 300000).toISOString(),
+          user: 'Class 10A'
+        },
+        {
+          id: '3',
+          type: 'payment',
+          message: 'Payment received: $149 (Professional Plan)',
+          timestamp: new Date(Date.now() - 600000).toISOString(),
+          user: 'Springfield Academy'
+        },
+        {
+          id: '4',
+          type: 'system_alert',
+          message: 'High server load detected - Auto-scaling initiated',
+          timestamp: new Date(Date.now() - 900000).toISOString(),
+          severity: 'medium'
+        }
+      ];
 
-      setUserSessions(prev => [session, ...prev.slice(0, 9)]);
-      
+      setRecentActivity(mockActivity);
     } catch (error) {
-      console.error('Error collecting device info:', error);
+      console.error('Failed to fetch dashboard data:', error);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
     }
   };
 
-  const calculateRiskScore = (device: DeviceInfo, location: LocationInfo): number => {
-    let score = 0;
-    
-    // Check for suspicious patterns
-    if (device.deviceType === 'Mobile' && device.screenResolution.includes('1920')) score += 20;
-    if (location.country !== 'NG') score += 30; // Assuming Nigerian platform
-    if (device.browser.includes('headless')) score += 50;
-    if (device.userAgent.includes('bot')) score += 80;
-    
-    return Math.min(score, 100);
+  const getActivityIcon = (type: string) => {
+    switch (type) {
+      case 'user_registration': return <Users className="w-4 h-4" />;
+      case 'test_completion': return <BookOpen className="w-4 h-4" />;
+      case 'payment': return <DollarSign className="w-4 h-4" />;
+      case 'login': return <Shield className="w-4 h-4" />;
+      case 'system_alert': return <AlertTriangle className="w-4 h-4" />;
+      default: return <Activity className="w-4 h-4" />;
+    }
   };
 
-  const fetchUserSessions = () => {
-    // Mock data for user sessions
-    const mockSessions: UserSession[] = [
-      {
-        id: '1',
-        userId: 1,
-        email: 'admin@eduai.com',
-        name: 'System Administrator',
-        loginTime: new Date().toISOString(),
-        deviceInfo: {
-          deviceType: 'Desktop',
-          browser: 'Chrome/119.0',
-          os: 'Windows 11',
-          screenResolution: '1920x1080',
-          timezone: 'Africa/Lagos',
-          language: 'en-US',
-          userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-          memory: '8GB',
-          cores: 8,
-          connection: '4g',
-          battery: '85%'
-        },
-        locationInfo: {
-          ip: '197.210.227.254',
-          country: 'Nigeria',
-          region: 'Lagos',
-          city: 'Lagos',
-          latitude: 6.5244,
-          longitude: 3.3792,
-          isp: 'MTN Nigeria',
-          timezone: 'Africa/Lagos'
-        },
-        isActive: true,
-        riskScore: 5
-      }
-    ];
-    setUserSessions(mockSessions);
+  const getSeverityColor = (severity?: string) => {
+    switch (severity) {
+      case 'high': return 'bg-red-100 text-red-800';
+      case 'medium': return 'bg-yellow-100 text-yellow-800';
+      case 'low': return 'bg-green-100 text-green-800';
+      default: return 'bg-blue-100 text-blue-800';
+    }
   };
 
-  useEffect(() => {
-    setTimeout(() => {
-      setStats({
-        totalStudents: 12847,
-        totalTeachers: 486,
-        totalParents: 11456,
-        attendanceRate: 94.2,
-        revenue: 284750,
-        activeSubscriptions: 1247,
-        completedAssessments: 8956,
-        avgGrade: 87.3,
-        monthlyGrowth: 18.5,
-        churnRate: 2.3,
-      });
-      setLoading(false);
-    }, 1000);
-  }, []);
-
-  const revenueData = [
-    { month: 'Jan', revenue: 45000, subscriptions: 980, churn: 2.1 },
-    { month: 'Feb', revenue: 52000, subscriptions: 1100, churn: 1.8 },
-    { month: 'Mar', revenue: 48000, subscriptions: 1180, churn: 2.0 },
-    { month: 'Apr', revenue: 55000, subscriptions: 1220, churn: 1.9 },
-    { month: 'May', revenue: 62000, subscriptions: 1247, churn: 2.3 },
+  const kpiCards = [
+    {
+      title: 'Total Revenue',
+      value: `$${stats.totalRevenue.toLocaleString()}`,
+      change: `+${stats.monthlyGrowth}%`,
+      trend: 'up',
+      icon: DollarSign,
+      color: 'from-green-600 to-emerald-600',
+      description: 'Monthly recurring revenue'
+    },
+    {
+      title: 'Active Students',
+      value: stats.activeStudents.toLocaleString(),
+      change: '+12.3%',
+      trend: 'up',
+      icon: Users,
+      color: 'from-blue-600 to-cyan-600',
+      description: 'Students active this month'
+    },
+    {
+      title: 'Tests Completed',
+      value: stats.testsCompleted.toLocaleString(),
+      change: '+8.7%',
+      trend: 'up',
+      icon: BookOpen,
+      color: 'from-purple-600 to-violet-600',
+      description: 'Total assessments taken'
+    },
+    {
+      title: 'Average Score',
+      value: `${stats.averageScore}%`,
+      change: '+2.1%',
+      trend: 'up',
+      icon: TrendingUp,
+      color: 'from-orange-600 to-red-600',
+      description: 'Platform-wide performance'
+    },
+    {
+      title: 'System Uptime',
+      value: `${stats.systemUptime}%`,
+      change: '99.9%',
+      trend: 'stable',
+      icon: Activity,
+      color: 'from-teal-600 to-green-600',
+      description: 'Service availability'
+    },
+    {
+      title: 'Active Teachers',
+      value: stats.activeTeachers.toLocaleString(),
+      change: '+5.2%',
+      trend: 'up',
+      icon: Users,
+      color: 'from-indigo-600 to-purple-600',
+      description: 'Educators on platform'
+    }
   ];
-
-  const deviceData = [
-    { name: 'Desktop', value: 45, color: '#3B82F6' },
-    { name: 'Mobile', value: 35, color: '#10B981' },
-    { name: 'Tablet', value: 20, color: '#F59E0B' },
-  ];
-
-  const locationData = [
-    { country: 'Nigeria', users: 8500, percentage: 68 },
-    { country: 'Ghana', users: 1200, percentage: 9.6 },
-    { country: 'Kenya', users: 1000, percentage: 8 },
-    { country: 'South Africa', users: 800, percentage: 6.4 },
-    { country: 'Others', users: 1000, percentage: 8 },
-  ];
-
-  const getRiskColor = (score: number) => {
-    if (score < 20) return 'text-green-600 bg-green-100';
-    if (score < 50) return 'text-yellow-600 bg-yellow-100';
-    return 'text-red-600 bg-red-100';
-  };
 
   if (loading) {
     return (
-      <Layout>
-        <div className="flex items-center justify-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <Layout title="Admin Dashboard">
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="flex items-center space-x-2">
+            <RefreshCw className="w-6 h-6 animate-spin text-blue-600" />
+            <span className="text-xl font-semibold text-gray-700">Loading Dashboard...</span>
+          </div>
         </div>
       </Layout>
     );
@@ -271,7 +203,7 @@ const Dashboard = () => {
 
   return (
     <Layout title="Admin Dashboard">
-      <div className="space-y-8">
+      <div className="space-y-8 pb-8">
         {/* Enhanced Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -284,261 +216,269 @@ const Dashboard = () => {
             <div className="absolute bottom-0 left-0 w-64 h-64 bg-white/10 rounded-full transform -translate-x-32 translate-y-32"></div>
           </div>
           <div className="relative z-10">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between mb-6">
               <div>
-                <h1 className="text-4xl font-bold mb-2">Welcome back, {user?.name || 'Administrator'}!</h1>
-                <p className="text-blue-100 text-lg mb-4">Here's your comprehensive platform overview</p>
-                <div className="flex items-center gap-6">
-                  <div className="bg-white/20 px-6 py-3 rounded-full backdrop-blur-sm">
-                    <span className="font-semibold">Role: {user?.role || 'Super Admin'}</span>
-                  </div>
-                  <div className="bg-white/20 px-6 py-3 rounded-full backdrop-blur-sm">
-                    <span className="font-semibold">Active Sessions: {userSessions.length}</span>
+                <h1 className="text-4xl font-bold mb-2">Super Admin Dashboard</h1>
+                <p className="text-blue-100 text-lg">Comprehensive platform oversight and management</p>
+              </div>
+              <div className="flex items-center space-x-4">
+                <button
+                  onClick={fetchDashboardData}
+                  disabled={refreshing}
+                  className="bg-white/20 hover:bg-white/30 px-6 py-3 rounded-xl font-semibold transition-all flex items-center space-x-2"
+                >
+                  <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
+                  <span>Refresh</span>
+                </button>
+                <select
+                  value={selectedTimeRange}
+                  onChange={(e) => setSelectedTimeRange(e.target.value)}
+                  className="bg-white/20 border border-white/30 rounded-xl px-4 py-3 text-white font-semibold"
+                >
+                  <option value="24h" className="text-gray-900">Last 24 Hours</option>
+                  <option value="7d" className="text-gray-900">Last 7 Days</option>
+                  <option value="30d" className="text-gray-900">Last 30 Days</option>
+                  <option value="90d" className="text-gray-900">Last 90 Days</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <Globe className="w-8 h-8" />
+                  <span className="text-2xl font-bold">{stats.totalUsers.toLocaleString()}</span>
+                </div>
+                <h3 className="text-lg font-semibold">Total Platform Users</h3>
+                <p className="text-blue-100">Across all institutions</p>
+              </div>
+
+              <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <Zap className="w-8 h-8" />
+                  <div className="flex items-center space-x-2">
+                    <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                    <span className="text-2xl font-bold">Live</span>
                   </div>
                 </div>
+                <h3 className="text-lg font-semibold">System Status</h3>
+                <p className="text-blue-100">All services operational</p>
               </div>
-              <div className="text-right">
-                <div className="text-3xl font-bold">₦{stats.revenue.toLocaleString()}</div>
-                <div className="text-blue-100">Monthly Revenue</div>
+
+              <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <Calendar className="w-8 h-8" />
+                  <span className="text-2xl font-bold">{new Date().toLocaleDateString()}</span>
+                </div>
+                <h3 className="text-lg font-semibold">Today's Date</h3>
+                <p className="text-blue-100">Platform time: UTC</p>
               </div>
             </div>
           </div>
         </motion.div>
 
-        {/* Tab Navigation */}
-        <div className="bg-white rounded-2xl shadow-lg p-2">
-          <nav className="flex space-x-2">
-            {[
-              { id: 'overview', label: 'Overview', icon: BarChart3 },
-              { id: 'users', label: 'User Analytics', icon: Users },
-              { id: 'security', label: 'Security & Sessions', icon: Shield },
-              { id: 'revenue', label: 'Revenue', icon: DollarSign },
-            ].map((tab) => {
-              const Icon = tab.icon;
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center space-x-2 px-6 py-3 rounded-xl font-medium transition-all ${
-                    activeTab === tab.id
-                      ? 'bg-blue-600 text-white shadow-lg'
-                      : 'text-gray-600 hover:bg-gray-100'
-                  }`}
-                >
-                  <Icon className="w-5 h-5" />
-                  <span>{tab.label}</span>
-                </button>
-              );
-            })}
-          </nav>
+        {/* KPI Cards Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {kpiCards.map((card, index) => {
+            const Icon = card.icon;
+            return (
+              <motion.div
+                key={card.title}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
+                className="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition-all duration-300 border border-gray-100"
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <div className={`p-3 rounded-xl bg-gradient-to-r ${card.color}`}>
+                    <Icon className="w-6 h-6 text-white" />
+                  </div>
+                  <div className="flex items-center space-x-1">
+                    {card.trend === 'up' ? (
+                      <ArrowUpRight className="w-4 h-4 text-green-600" />
+                    ) : card.trend === 'down' ? (
+                      <ArrowDownRight className="w-4 h-4 text-red-600" />
+                    ) : (
+                      <div className="w-4 h-4" />
+                    )}
+                    <span className={`text-sm font-semibold ${
+                      card.trend === 'up' ? 'text-green-600' : 
+                      card.trend === 'down' ? 'text-red-600' : 'text-gray-600'
+                    }`}>
+                      {card.change}
+                    </span>
+                  </div>
+                </div>
+                <h3 className="text-2xl font-bold text-gray-900 mb-1">{card.value}</h3>
+                <p className="text-gray-700 font-semibold mb-1">{card.title}</p>
+                <p className="text-gray-500 text-sm">{card.description}</p>
+              </motion.div>
+            );
+          })}
         </div>
 
-        {/* Overview Tab */}
-        {activeTab === 'overview' && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {/* Main Content Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Recent Activity */}
+          <div className="lg:col-span-2">
+            <div className="bg-white rounded-2xl shadow-lg p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-xl font-bold text-gray-900 flex items-center">
+                  <Activity className="w-6 h-6 mr-2 text-blue-600" />
+                  Real-time Activity Monitor
+                </h3>
+                <div className="flex items-center space-x-2">
+                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                  <span className="text-sm text-gray-600">Live</span>
+                </div>
+              </div>
+
+              <div className="space-y-4 max-h-96 overflow-y-auto">
+                {recentActivity.map((activity) => (
+                  <motion.div
+                    key={activity.id}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    className="flex items-start space-x-4 p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors"
+                  >
+                    <div className={`p-2 rounded-lg ${getSeverityColor(activity.severity)}`}>
+                      {getActivityIcon(activity.type)}
+                    </div>
+                    <div className="flex-1">
+                      <p className="font-medium text-gray-900">{activity.message}</p>
+                      <div className="flex items-center justify-between mt-1">
+                        <span className="text-sm text-gray-500">
+                          {new Date(activity.timestamp).toLocaleTimeString()}
+                        </span>
+                        {activity.user && (
+                          <span className="text-sm text-blue-600 font-medium">{activity.user}</span>
+                        )}
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Security Monitor */}
+          <div>
+            <SecurityMonitor />
+          </div>
+        </div>
+
+        {/* Advanced Analytics Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Performance Metrics */}
+          <div className="bg-white rounded-2xl shadow-lg p-6">
+            <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center">
+              <BarChart3 className="w-6 h-6 mr-2 text-blue-600" />
+              Performance Analytics
+            </h3>
+
+            <div className="space-y-6">
+              <div>
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-sm font-medium text-gray-700">Server Response Time</span>
+                  <span className="text-sm text-gray-500">125ms avg</span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div className="bg-green-600 h-2 rounded-full" style={{ width: '85%' }}></div>
+                </div>
+              </div>
+
+              <div>
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-sm font-medium text-gray-700">Database Performance</span>
+                  <span className="text-sm text-gray-500">98.2% optimal</span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div className="bg-blue-600 h-2 rounded-full" style={{ width: '98%' }}></div>
+                </div>
+              </div>
+
+              <div>
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-sm font-medium text-gray-700">CDN Cache Hit Rate</span>
+                  <span className="text-sm text-gray-500">96.7%</span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div className="bg-purple-600 h-2 rounded-full" style={{ width: '97%' }}></div>
+                </div>
+              </div>
+
+              <div>
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-sm font-medium text-gray-700">API Success Rate</span>
+                  <span className="text-sm text-gray-500">99.8%</span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div className="bg-emerald-600 h-2 rounded-full" style={{ width: '99%' }}></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Quick Actions */}
+          <div className="bg-white rounded-2xl shadow-lg p-6">
+            <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center">
+              <Settings className="w-6 h-6 mr-2 text-blue-600" />
+              Quick Actions
+            </h3>
+
+            <div className="grid grid-cols-2 gap-4">
+              {[
+                { label: 'User Management', icon: Users, href: '/students' },
+                { label: 'System Settings', icon: Settings, href: '/admin-settings' },
+                { label: 'Analytics', icon: BarChart3, href: '/analytics' },
+                { label: 'Notifications', icon: Bell, href: '/notifications' },
+                { label: 'Reports', icon: Download, href: '/reports' },
+                { label: 'AI Config', icon: Zap, href: '/ai-endpoints' }
+              ].map((action, index) => {
+                const Icon = action.icon;
+                return (
+                  <motion.button
+                    key={action.label}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="p-4 bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl hover:from-blue-50 hover:to-blue-100 transition-all duration-200 text-left border border-gray-200 hover:border-blue-300"
+                  >
+                    <Icon className="w-6 h-6 text-gray-700 mb-2" />
+                    <p className="text-sm font-semibold text-gray-900">{action.label}</p>
+                  </motion.button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
+        {/* System Health Status */}
+        <div className="bg-white rounded-2xl shadow-lg p-6">
+          <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center">
+            <Shield className="w-6 h-6 mr-2 text-blue-600" />
+            System Health Overview
+          </h3>
+
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             {[
-              { title: 'Total Students', value: stats.totalStudents, icon: Users, color: 'blue', change: '+12%' },
-              { title: 'Active Teachers', value: stats.totalTeachers, icon: BookOpen, color: 'green', change: '+8%' },
-              { title: 'Monthly Revenue', value: `₦${stats.revenue.toLocaleString()}`, icon: DollarSign, color: 'purple', change: '+15%' },
-              { title: 'Avg Grade', value: `${stats.avgGrade}%`, icon: TrendingUp, color: 'orange', change: '+5%' },
-            ].map((stat, index) => {
-              const Icon = stat.icon;
-              return (
-                <motion.div
-                  key={stat.title}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                  className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-shadow"
-                >
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-gray-600 text-sm">{stat.title}</p>
-                      <p className="text-3xl font-bold text-gray-900">{stat.value}</p>
-                      <p className={`text-sm text-${stat.color}-600`}>{stat.change} from last month</p>
-                    </div>
-                    <div className={`bg-${stat.color}-100 p-3 rounded-xl`}>
-                      <Icon className={`w-6 h-6 text-${stat.color}-600`} />
-                    </div>
-                  </div>
-                </motion.div>
-              );
-            })}
+              { label: 'Web Server', status: 'operational', uptime: '99.97%', color: 'green' },
+              { label: 'Database', status: 'operational', uptime: '99.95%', color: 'green' },
+              { label: 'AI Services', status: 'operational', uptime: '99.92%', color: 'green' },
+              { label: 'CDN', status: 'operational', uptime: '99.99%', color: 'green' }
+            ].map((service) => (
+              <div key={service.label} className="text-center p-4 bg-gray-50 rounded-xl">
+                <div className="flex items-center justify-center mb-2">
+                  <div className={`w-3 h-3 rounded-full bg-${service.color}-500 mr-2`}></div>
+                  <CheckCircle className={`w-5 h-5 text-${service.color}-600`} />
+                </div>
+                <h4 className="font-semibold text-gray-900">{service.label}</h4>
+                <p className="text-sm text-gray-600 capitalize">{service.status}</p>
+                <p className="text-xs text-gray-500">{service.uptime} uptime</p>
+              </div>
+            ))}
           </div>
-        )}
-
-        {/* Security & Sessions Tab */}
-        {activeTab === 'security' && (
-          <div className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Device Distribution */}
-              <div className="bg-white rounded-2xl p-6 shadow-lg">
-                <h3 className="text-xl font-bold mb-4 flex items-center">
-                  <Monitor className="w-6 h-6 mr-2 text-blue-600" />
-                  Device Distribution
-                </h3>
-                <div className="h-64">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie
-                        data={deviceData}
-                        cx="50%"
-                        cy="50%"
-                        innerRadius={60}
-                        outerRadius={100}
-                        dataKey="value"
-                      >
-                        {deviceData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={entry.color} />
-                        ))}
-                      </Pie>
-                      <Tooltip />
-                    </PieChart>
-                  </ResponsiveContainer>
-                </div>
-              </div>
-
-              {/* Geographic Distribution */}
-              <div className="bg-white rounded-2xl p-6 shadow-lg">
-                <h3 className="text-xl font-bold mb-4 flex items-center">
-                  <Globe className="w-6 h-6 mr-2 text-green-600" />
-                  User Locations
-                </h3>
-                <div className="space-y-3">
-                  {locationData.map((location, index) => (
-                    <div key={index} className="flex items-center justify-between">
-                      <div className="flex items-center">
-                        <MapPin className="w-4 h-4 mr-2 text-gray-500" />
-                        <span className="font-medium">{location.country}</span>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <span className="text-sm text-gray-600">{location.users}</span>
-                        <div className="w-20 bg-gray-200 rounded-full h-2">
-                          <div 
-                            className="bg-green-500 h-2 rounded-full" 
-                            style={{ width: `${location.percentage}%` }}
-                          ></div>
-                        </div>
-                        <span className="text-sm text-gray-500">{location.percentage}%</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* Active Sessions */}
-            <div className="bg-white rounded-2xl p-6 shadow-lg">
-              <h3 className="text-xl font-bold mb-4 flex items-center">
-                <Shield className="w-6 h-6 mr-2 text-red-600" />
-                Active User Sessions
-              </h3>
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">User</th>
-                      <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Device</th>
-                      <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Location</th>
-                      <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">IP Address</th>
-                      <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Risk Score</th>
-                      <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Login Time</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-200">
-                    {userSessions.map((session) => (
-                      <tr key={session.id} className="hover:bg-gray-50">
-                        <td className="px-4 py-3">
-                          <div>
-                            <div className="font-medium text-gray-900">{session.name}</div>
-                            <div className="text-sm text-gray-500">{session.email}</div>
-                          </div>
-                        </td>
-                        <td className="px-4 py-3">
-                          <div className="flex items-center">
-                            {session.deviceInfo.deviceType === 'Mobile' ? 
-                              <Smartphone className="w-4 h-4 mr-2 text-blue-500" /> : 
-                              <Monitor className="w-4 h-4 mr-2 text-blue-500" />
-                            }
-                            <div>
-                              <div className="text-sm font-medium">{session.deviceInfo.deviceType}</div>
-                              <div className="text-xs text-gray-500">{session.deviceInfo.os}</div>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-4 py-3">
-                          <div className="flex items-center">
-                            <MapPin className="w-4 h-4 mr-2 text-green-500" />
-                            <div>
-                              <div className="text-sm font-medium">{session.locationInfo.city}</div>
-                              <div className="text-xs text-gray-500">{session.locationInfo.country}</div>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-4 py-3">
-                          <span className="text-sm font-mono text-gray-600">{session.locationInfo.ip}</span>
-                        </td>
-                        <td className="px-4 py-3">
-                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${getRiskColor(session.riskScore)}`}>
-                            {session.riskScore}% Risk
-                          </span>
-                        </td>
-                        <td className="px-4 py-3 text-sm text-gray-500">
-                          {new Date(session.loginTime).toLocaleString()}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Revenue Tab */}
-        {activeTab === 'revenue' && (
-          <div className="space-y-6">
-            <div className="bg-white rounded-2xl p-6 shadow-lg">
-              <h3 className="text-xl font-bold mb-4">Revenue Trends</h3>
-              <div className="h-80">
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={revenueData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="month" />
-                    <YAxis />
-                    <Tooltip formatter={(value) => [`₦${value?.toLocaleString()}`, 'Revenue']} />
-                    <Line type="monotone" dataKey="revenue" stroke="#3B82F6" strokeWidth={3} />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
-
-            {/* Affordable Pricing Info */}
-            <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-2xl p-6 border border-green-200">
-              <h3 className="text-xl font-bold mb-4 text-green-800">Affordable Pricing Strategy</h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="bg-white rounded-xl p-4 shadow-sm">
-                  <h4 className="font-semibold text-green-700">Basic Plan</h4>
-                  <div className="text-2xl font-bold text-green-600">₦2,500/month</div>
-                  <p className="text-sm text-gray-600">Perfect for small schools (up to 100 students)</p>
-                </div>
-                <div className="bg-white rounded-xl p-4 shadow-sm border-2 border-green-400">
-                  <h4 className="font-semibold text-green-700">Standard Plan</h4>
-                  <div className="text-2xl font-bold text-green-600">₦7,500/month</div>
-                  <p className="text-sm text-gray-600">Ideal for medium schools (up to 500 students)</p>
-                </div>
-                <div className="bg-white rounded-xl p-4 shadow-sm">
-                  <h4 className="font-semibold text-green-700">Premium Plan</h4>
-                  <div className="text-2xl font-bold text-green-600">₦15,000/month</div>
-                  <p className="text-sm text-gray-600">Complete solution (unlimited students)</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+        </div>
       </div>
     </Layout>
   );
-};
-
-export default Dashboard;
+}

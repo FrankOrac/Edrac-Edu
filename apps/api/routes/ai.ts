@@ -155,6 +155,13 @@ router.post('/generate-questions', auth, async (req: Request, res: Response) => 
   try {
     const { subject, difficulty, count, saveToDatabase, topic } = req.body;
     
+    // Validation
+    if (!subject) {
+      return res.status(400).json({ error: 'Subject is required' });
+    }
+    
+    const questionCount = Math.min(Math.max(parseInt(count) || 5, 1), 50); // Limit between 1-50
+    
     // Enhanced topic-based question generation
     const generateTopicQuestions = (subject: string, topic: string, difficulty: string, count: number) => {
       const baseQuestions = {
@@ -434,7 +441,7 @@ router.post('/bulk-generate-questions', auth, async (req: Request, res: Response
 });
 
 // AI Comment Response
-router.post('/comment-response', async (req: Request, res: Response) => {
+router.post('/comment-response', auth, async (req: Request, res: Response) => {
   const { questionId, comment, question } = req.body;
   
   try {
