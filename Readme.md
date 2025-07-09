@@ -8,28 +8,79 @@ Edu AI App is a comprehensive, next-generation educational platform for schools 
 
 ## Getting Started
 
+### Quick Start (Recommended)
+
 1. **Clone the repository**
    ```sh
    git clone <repo-url>
+   cd edu-ai-platform
    ```
-2. **Install dependencies**
+
+2. **Run the setup script**
+   
+   **For Linux/macOS:**
    ```sh
+   chmod +x setup-and-run.sh
+   ./setup-and-run.sh
+   ```
+   
+   **For Windows:**
+   ```powershell
+   .\setup-and-run.ps1
+   ```
+
+3. **Access the app**
+   - Frontend: [http://localhost:3000](http://localhost:3000)
+   - API: [http://localhost:5000/api](http://localhost:5000/api)
+   - API Documentation: [http://localhost:5000/api/docs](http://localhost:5000/api/docs)
+
+### Manual Setup
+
+1. **Install dependencies**
+   ```sh
+   npm install
    cd apps/api && npm install
    cd ../web && npm install
+   cd ../..
    ```
-3. **Set up environment variables**
-   - Copy `.env.example` to `.env` in each app and fill in DB, JWT, OpenAI, payment keys, etc.
-4. **Run the backend API**
+
+2. **Set up environment variables**
    ```sh
+   cp .env.example .env
+   # Edit .env with your configuration
+   ```
+
+3. **Setup database**
+   ```sh
+   npx prisma generate
+   npx prisma db push
+   npx prisma db seed
+   ```
+
+4. **Run the applications**
+   ```sh
+   # Terminal 1: API Server
    cd apps/api && npm run dev
-   ```
-5. **Run the frontend**
-   ```sh
+   
+   # Terminal 2: Web Server
    cd apps/web && npm run dev
    ```
-6. **Access the app**
-   - Frontend: [http://localhost:3000](http://localhost:3000)
-   - API: [http://localhost:4000/api](http://localhost:4000/api)
+
+### Script Commands
+
+- `./setup-and-run.sh start` - Full setup and start (default)
+- `./setup-and-run.sh setup` - Only install dependencies and setup database
+- `./setup-and-run.sh seed` - Only seed the database
+- `./setup-and-run.sh health` - Check if servers are running
+- `./setup-and-run.sh clean` - Clean up processes and build files
+- `./setup-and-run.sh help` - Show help message
+
+### Default Login Credentials
+
+- **Admin:** admin@edrac.edu / password123
+- **Teacher:** teacher@edrac.edu / password123
+- **Student:** student@edrac.edu / password123
+- **Parent:** parent@edrac.edu / password123
 
 ---
 
