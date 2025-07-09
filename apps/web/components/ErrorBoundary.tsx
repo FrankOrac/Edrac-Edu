@@ -2,9 +2,6 @@ import React from 'react';
 import Link from 'next/link';
 import { AlertCircle, RefreshCw, Home } from 'lucide-react';
 
-// Add fallback context provider
-const ErrorBoundaryContext = React.createContext(null);
-
 interface ErrorBoundaryState {
   hasError: boolean;
   error: Error | null;
