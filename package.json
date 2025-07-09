@@ -11,7 +11,8 @@
     "dev": "concurrently \"yarn dev:web\" \"yarn dev:api\"",
     "build": "yarn workspaces run build",
     "lint": "yarn workspaces run lint",
-    "test": "yarn workspaces run test"
+    "test": "yarn workspaces run test",
+    "install-all": "npm install && cd apps/api && npm install && cd ../web && npm install"
   },
   "devDependencies": {
     "@types/bcryptjs": "^3.0.0",
