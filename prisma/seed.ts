@@ -94,16 +94,20 @@ async function main() {
       });
 
       // Create some sample gamification data
-      await prisma.gamification.upsert({
-        where: { studentId: student.id },
-        update: {},
-        create: {
-          studentId: student.id,
-          points: 150,
-          level: 2,
-          badges: JSON.stringify(['First Login', 'Assignment Completed'])
-        }
+      const gamification = await prisma.gamification.findFirst({
+        where: { studentId: student.id }
       });
+      
+      if (!gamification) {
+        await prisma.gamification.create({
+          data: {
+            studentId: student.id,
+            points: 150,
+            level: 2,
+            badges: JSON.stringify(['First Login', 'Assignment Completed'])
+          }
+        });
+      }
     }
 
     if (user.role === 'PARENT') {
@@ -118,21 +122,24 @@ async function main() {
     }
   }
 
-  // Create sample CBT subjects and questions
-  const cbtSubjects = [
+  // Create sample CBT subjects
+  const subjects = [
     { name: 'Mathematics' },
-    { name: 'English Language' },
+    { name: 'English' },
     { name: 'Science' },
-    { name: 'History' },
-    { name: 'Geography' }
+    { name: 'History' }
   ];
 
-  for (const subjectData of cbtSubjects) {
-    const subject = await prisma.cbtSubject.upsert({
+  for (const subjectData of subjects) {
+    let subject = await prisma.cbtSubject.findFirst({
       where: { name: subjectData.name },
-      update: {},
-      create: subjectData
     });
+
+    if (!subject) {
+      subject = await prisma.cbtSubject.create({
+        data: subjectData,
+      });
+    }
 
     // Create sample questions for each subject
     const sampleQuestions = [

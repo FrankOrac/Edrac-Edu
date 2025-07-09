@@ -15,7 +15,7 @@ model User {
   email     String   @unique
   name      String?
   password  String
-  role      Role     @default(STUDENT)
+  role      String   @default("STUDENT")
   schoolId  Int?
   school    School?  @relation(fields: [schoolId], references: [id])
   student   Student?
@@ -31,15 +31,7 @@ model User {
 }
 
 
-enum Role {
-  ADMIN
-  TEACHER
-  STUDENT
-  PARENT
-  STAFF
-  ALUMNI
-  SUPERADMIN
-}
+// Using string literals instead of enum for SQLite compatibility
 
 // --- School and Structure ---
 model School {
@@ -168,17 +160,12 @@ model Attendance {
   studentId Int
   student   Student  @relation(fields: [studentId], references: [id])
   date      DateTime
-  status    AttendanceStatus
+  status    String @default("PRESENT")
   type      String?
   location  String?
 }
 
-enum AttendanceStatus {
-  PRESENT
-  ABSENT
-  LATE
-  EXCUSED
-}
+// Using string literals for attendance status
 
 model Assignment {
   id          Int      @id @default(autoincrement())
@@ -360,18 +347,13 @@ model CbtSession {
   startedAt   DateTime   @default(now())
   endedAt     DateTime?
   duration    Int        // in minutes
-  status      CbtSessionStatus @default(PENDING)
+  status      String @default("PENDING")
   results     CbtResult[]
   questions   CbtQuestion[]
 }
 
 
-enum CbtSessionStatus {
-  PENDING
-  IN_PROGRESS
-  COMPLETED
-  EXPIRED
-}
+// Using string literals for CBT session status
 
 model CbtSubject {
   id        Int           @id @default(autoincrement())

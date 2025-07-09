@@ -1,0 +1,411 @@
+// Prisma schema for Edu AI App
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+// --- Core User and Role Management ---
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  name      String?
+  password  String
+  role      Role     @default(STUDENT)
+  schoolId  Int?
+  school    School?  @relation(fields: [schoolId], references: [id])
+  student   Student?
+  staff     Staff?
+  parent    Parent?
+  alumni    Alumni?
+  notifications Notification[]
+  messages  Message[]
+  payments  Payment[]
+  cbtSessions CbtSession[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+
+enum Role {
+  ADMIN
+  TEACHER
+  STUDENT
+  PARENT
+  STAFF
+  ALUMNI
+  SUPERADMIN
+}
+
+// --- School and Structure ---
+model School {
+  id        Int      @id @default(autoincrement())
+  name      String
+  domain    String   @unique
+  users     User[]
+  classes   Class[]
+  staff     Staff[]
+  students  Student[]
+  parents   Parent[]
+  assignments Assignment[]
+  exams     Exam[]
+  events    Event[]
+  inventory Inventory[]
+  transports Transport[]
+  library   Library[]
+  forums    Forum[]
+  alumni    Alumni[]
+  groups    Group[]
+  analytics Analytics[]
+  plugins   Plugin[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+
+model Class {
+  id        Int      @id @default(autoincrement())
+  name      String
+  schoolId  Int
+  school    School   @relation(fields: [schoolId], references: [id])
+  students  Student[]
+  staff     Staff[]
+  // timetable Timetable[] // TODO: Define Timetable model or restore when ready
+  assignments Assignment[]
+  exams      Exam[]
+}
+
+
+model Staff {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @unique
+  user      User     @relation(fields: [userId], references: [id])
+  schoolId  Int
+  school    School   @relation(fields: [schoolId], references: [id])
+  classes   Class[]
+  role      String
+  department String?
+  groups    Group[] @relation("GroupStaff")
+}
+
+
+model Student {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @unique
+  user      User     @relation(fields: [userId], references: [id])
+  schoolId  Int
+  school    School   @relation(fields: [schoolId], references: [id])
+  classId   Int?
+  class     Class?   @relation(fields: [classId], references: [id])
+  parentId  Int?
+  parent    Parent?  @relation(fields: [parentId], references: [id])
+  attendance Attendance[]
+  assignments Assignment[]
+  exams     Exam[] @relation("StudentExams")
+  results   Result[]
+  transcripts Transcript[]
+  certificates Certificate[]
+  gamification Gamification[]
+  submissions Submission[]
+  events     Event[] @relation("EventAttendees")
+  transports Transport[] @relation("StudentTransports")
+  groups     Group[] @relation("GroupStudents")
+}
+
+
+model Exam {
+  id        Int      @id @default(autoincrement())
+  title     String
+  schoolId  Int
+  school    School   @relation(fields: [schoolId], references: [id])
+  classId   Int?
+  class     Class?   @relation(fields: [classId], references: [id])
+  date      DateTime
+  questions String   // JSON or external reference
+  results   Result[]
+  students  Student[] @relation("StudentExams")
+}
+
+
+model Submission {
+  id          Int      @id @default(autoincrement())
+  assignmentId Int
+  assignment  Assignment @relation(fields: [assignmentId], references: [id])
+  studentId   Int
+  student     Student    @relation(fields: [studentId], references: [id])
+  submittedAt DateTime   @default(now())
+  fileUrl     String?
+  grade       Float?
+  feedback    String?
+}
+
+
+model Parent {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @unique
+  user      User     @relation(fields: [userId], references: [id])
+  schoolId  Int
+  school    School   @relation(fields: [schoolId], references: [id])
+  students  Student[]
+}
+
+model Alumni {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @unique
+  user      User     @relation(fields: [userId], references: [id])
+  schoolId  Int
+  school    School   @relation(fields: [schoolId], references: [id])
+  graduationYear Int
+}
+
+// --- Attendance, Assignments, Exams, Results ---
+model Attendance {
+  id        Int      @id @default(autoincrement())
+  studentId Int
+  student   Student  @relation(fields: [studentId], references: [id])
+  date      DateTime
+  status    AttendanceStatus
+  type      String?
+  location  String?
+}
+
+enum AttendanceStatus {
+  PRESENT
+  ABSENT
+  LATE
+  EXCUSED
+}
+
+model Assignment {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String?
+  dueDate     DateTime?
+  schoolId    Int
+  school      School   @relation(fields: [schoolId], references: [id])
+  classId     Int?
+  class       Class?   @relation(fields: [classId], references: [id])
+  studentId   Int?
+  student     Student? @relation(fields: [studentId], references: [id])
+  submissions Submission[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+
+
+
+model Result {
+  id        Int      @id @default(autoincrement())
+  studentId Int
+  student   Student  @relation(fields: [studentId], references: [id])
+  examId    Int
+  exam      Exam     @relation(fields: [examId], references: [id])
+  score     Float
+  grade     String?
+  feedback  String?
+}
+
+model Transcript {
+  id        Int      @id @default(autoincrement())
+  studentId Int
+  student   Student  @relation(fields: [studentId], references: [id])
+  data      String   // JSON or external reference
+  createdAt DateTime @default(now())
+}
+
+// --- Notification, Event, Transport, Inventory, Library, Forum ---
+model Notification {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  message   String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model Event {
+  id        Int      @id @default(autoincrement())
+  schoolId  Int
+  school    School   @relation(fields: [schoolId], references: [id])
+  title     String
+  description String?
+  date      DateTime
+  location  String?
+  attendees Student[] @relation("EventAttendees")
+}
+
+
+model Transport {
+  id        Int      @id @default(autoincrement())
+  schoolId  Int
+  school    School   @relation(fields: [schoolId], references: [id])
+  route     String
+  driver    String?
+  students  Student[] @relation("StudentTransports")
+}
+
+
+model Inventory {
+  id        Int      @id @default(autoincrement())
+  schoolId  Int
+  school    School   @relation(fields: [schoolId], references: [id])
+  item      String
+  quantity  Int
+  assignedTo String?
+}
+
+model Library {
+  id        Int      @id @default(autoincrement())
+  schoolId  Int
+  school    School   @relation(fields: [schoolId], references: [id])
+  title     String
+  author    String?
+  isbn      String?
+  available Boolean  @default(true)
+}
+
+model Forum {
+  id        Int      @id @default(autoincrement())
+  schoolId  Int
+  school    School   @relation(fields: [schoolId], references: [id])
+  title     String
+  description String?
+  messages  Message[]
+}
+
+model Message {
+  id        Int      @id @default(autoincrement())
+  forumId   Int
+  forum     Forum    @relation(fields: [forumId], references: [id])
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  content   String
+  createdAt DateTime @default(now())
+}
+
+
+
+// --- Payments, Analytics, Gamification, Certificates, Plugins ---
+model Payment {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  amount    Float
+  method    String
+  status    String
+  reference String?
+  createdAt DateTime @default(now())
+}
+
+
+model Analytics {
+  id        Int      @id @default(autoincrement())
+  schoolId  Int
+  school    School   @relation(fields: [schoolId], references: [id])
+  data      String   // JSON or external reference
+  createdAt DateTime @default(now())
+}
+
+
+
+model Gamification {
+  id        Int      @id @default(autoincrement())
+  studentId Int
+  student   Student  @relation(fields: [studentId], references: [id])
+  points    Int      @default(0)
+  badges    String?  // JSON or external reference
+  level     Int      @default(1)
+}
+
+model Certificate {
+  id        Int      @id @default(autoincrement())
+  studentId Int
+  student   Student  @relation(fields: [studentId], references: [id])
+  title     String
+  issuedAt  DateTime @default(now())
+  fileUrl   String?
+}
+
+model Group {
+  id        Int      @id @default(autoincrement())
+  schoolId  Int
+  school    School   @relation(fields: [schoolId], references: [id])
+  name      String
+  students  Student[] @relation("GroupStudents")
+  staff     Staff[] @relation("GroupStaff")
+}
+
+
+
+model Plugin {
+  id        Int      @id @default(autoincrement())
+  schoolId  Int
+  school    School   @relation(fields: [schoolId], references: [id])
+  name      String
+  config    String   // JSON or external reference
+  enabled   Boolean  @default(true)
+}
+
+
+// --- CBT Extra: Computer-Based Testing ---
+model CbtSession {
+  id          Int        @id @default(autoincrement())
+  userId      Int
+  user        User       @relation(fields: [userId], references: [id])
+  startedAt   DateTime   @default(now())
+  endedAt     DateTime?
+  duration    Int        // in minutes
+  status      CbtSessionStatus @default(PENDING)
+  results     CbtResult[]
+  questions   CbtQuestion[]
+}
+
+
+enum CbtSessionStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  EXPIRED
+}
+
+model CbtSubject {
+  id        Int           @id @default(autoincrement())
+  name      String
+  questions CbtQuestion[]
+}
+
+model CbtQuestion {
+  id          Int        @id @default(autoincrement())
+  subjectId   Int
+  subject     CbtSubject @relation(fields: [subjectId], references: [id])
+  sessionId   Int?
+  session     CbtSession? @relation(fields: [sessionId], references: [id])
+  text        String
+  options     String      // JSON array of options
+  answer      String      // correct answer
+  marks       Int         @default(1)
+  explanation String?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  results     CbtResult[]
+}
+
+
+model CbtResult {
+  id          Int        @id @default(autoincrement())
+  sessionId   Int
+  session     CbtSession @relation(fields: [sessionId], references: [id])
+  questionId  Int
+  question    CbtQuestion @relation(fields: [questionId], references: [id])
+  selected    String
+  correct     Boolean
+  answeredAt  DateTime   @default(now())
+}
+
+// --- Extension points for future features: AI, VR/AR, Metaverse, etc. ---
+// Add more models as needed for future innovation
