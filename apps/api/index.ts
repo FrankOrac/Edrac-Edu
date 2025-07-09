@@ -33,6 +33,7 @@ import alumniRoutes from './routes/alumni';
 import groupsRoutes from './routes/groups';
 import pluginsRoutes from './routes/plugins';
 import aiRoutes from './routes/ai';
+import deviceTrackingRoutes from './routes/device-tracking';
 import schoolsRoutes from './routes/schools';
 import cbtCommentsRoutes from './routes/cbt-comments';
 import seoRouter from './routes/seo';
@@ -75,7 +76,7 @@ export const auth = (req: any, res: any, next: any) => {
 };
 
 // Routes
-app.use('/api/payments', paymentsRoutes); // Public access for payments
+app.use('/api/payments', paymentsRoutes);
 app.use('/api/students', studentsRoutes);
 app.use('/api/teachers', teachersRoutes);
 app.use('/api/parents', parentsRoutes);
@@ -101,6 +102,7 @@ app.use('/api/alumni', alumniRoutes);
 app.use('/api/groups', groupsRoutes);
 app.use('/api/plugins', pluginsRoutes);
 app.use('/api/ai', aiRoutes);
+app.use('/api/device-tracking', deviceTrackingRoutes);
 app.use('/api/schools', schoolsRoutes);
 app.use('/api/cbt-comments', cbtCommentsRoutes);
 app.use('/api/seo', seoRouter);

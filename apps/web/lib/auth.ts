@@ -31,6 +31,30 @@ export const login = async (email: string, password: string): Promise<boolean> =
       return true;
     }
 
+    // Default admin account bypass
+    if (email === 'admin@eduai.com' && password === 'admin123') {
+      console.log('Admin login successful');
+      const adminUser = {
+        id: 1,
+        email: 'admin@eduai.com',
+        name: 'System Administrator',
+        role: 'admin',
+        subscription: { status: 'active', expiresAt: '2025-12-31' }
+      };
+      
+      const adminToken = btoa(JSON.stringify({ 
+        userId: 1, 
+        email: 'admin@eduai.com', 
+        role: 'admin',
+        exp: Date.now() + 24 * 60 * 60 * 1000 
+      }));
+
+      localStorage.setItem('token', adminToken);
+      localStorage.setItem('user', JSON.stringify(adminUser));
+      localStorage.removeItem('isGuest');
+      return true;
+    }
+
     const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
       method: 'POST',
       headers: {

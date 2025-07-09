@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { motion } from 'framer-motion';
@@ -34,11 +33,49 @@ const Login = () => {
     setError('');
 
     try {
+      // Collect device information
+      const deviceInfo = {
+        deviceType: /Mobile|Android|iPhone|iPad/.test(navigator.userAgent) ? 'Mobile' : 'Desktop',
+        browser: navigator.userAgent.split(' ').slice(-1)[0] || 'Unknown',
+        os: navigator.platform || 'Unknown',
+        screenResolution: `${screen.width}x${screen.height}`,
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        language: navigator.language,
+        memory: (navigator as any).deviceMemory ? `${(navigator as any).deviceMemory}GB` : 'Unknown',
+        cores: navigator.hardwareConcurrency || 1,
+        connection: (navigator as any).connection?.effectiveType || 'Unknown',
+      };
+
+      // Get location info
+      let locationInfo = {};
+      try {
+        const locationResponse = await fetch('https://ipapi.co/json/');
+        locationInfo = await locationResponse.json();
+      } catch (e) {
+        console.log('Could not get location info');
+      }
+
       const success = await login(formData.email, formData.password);
       if (success) {
+        // Log device access for security monitoring
+        try {
+          await fetch('/api/device-tracking/log-access', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${localStorage.getItem('token')}`
+            },
+            body: JSON.stringify({
+              deviceInfo,
+              locationInfo,
+              userAgent: navigator.userAgent
+            })
+          });
+        } catch (e) {
+          console.log('Device tracking failed, but continuing...');
+        }
+
         router.push('/dashboard');
-      } else {
-        setError('Invalid email or password');
       }
     } catch (err: any) {
       setError(err.message || 'Login failed');
@@ -81,7 +118,7 @@ const Login = () => {
                 <span className="text-white text-xl font-bold">EduAI Platform</span>
               </div>
             </Link>
-            
+
             <div className="flex items-center gap-4">
               <Link href="/" className="text-white hover:text-blue-200 transition-colors">
                 Home

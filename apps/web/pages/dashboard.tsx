@@ -1,11 +1,39 @@
 
 import React, { useState, useEffect } from 'react';
-import Layout from '../components/Layout';
-import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/router';
+import Layout from '../components/Layout';
+import { motion } from 'framer-motion';
+import { 
+  Users, 
+  DollarSign, 
+  TrendingUp, 
+  BookOpen, 
+  BarChart3, 
+  Shield,
+  Monitor,
+  MapPin,
+  Cpu,
+  HardDrive,
+  Wifi,
+  Battery,
+  Smartphone,
+  Globe
+} from 'lucide-react';
+import { 
+  LineChart, 
+  Line, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  PieChart,
+  Pie,
+  Cell
+} from 'recharts';
 import { isLoggedIn, getUser } from '../lib/auth';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell, AreaChart, Area } from 'recharts';
-import { TrendingUp, Users, BookOpen, DollarSign, Award, Calendar, Bell, Settings, Download, Filter, Eye, ChevronRight } from 'lucide-react';
 
 interface DashboardStats {
   totalStudents: number;
@@ -18,6 +46,43 @@ interface DashboardStats {
   avgGrade: number;
   monthlyGrowth: number;
   churnRate: number;
+}
+
+interface DeviceInfo {
+  deviceType: string;
+  browser: string;
+  os: string;
+  screenResolution: string;
+  timezone: string;
+  language: string;
+  userAgent: string;
+  memory: string;
+  cores: number;
+  connection: string;
+  battery?: string;
+}
+
+interface LocationInfo {
+  ip: string;
+  country: string;
+  region: string;
+  city: string;
+  latitude: number;
+  longitude: number;
+  isp: string;
+  timezone: string;
+}
+
+interface UserSession {
+  id: string;
+  userId: number;
+  email: string;
+  name: string;
+  loginTime: string;
+  deviceInfo: DeviceInfo;
+  locationInfo: LocationInfo;
+  isActive: boolean;
+  riskScore: number;
 }
 
 const Dashboard = () => {
@@ -38,6 +103,8 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('overview');
   const [dateRange, setDateRange] = useState('30d');
+  const [userSessions, setUserSessions] = useState<UserSession[]>([]);
+  const [deviceStats, setDeviceStats] = useState<any>({});
 
   useEffect(() => {
     if (!isLoggedIn()) {
@@ -45,7 +112,106 @@ const Dashboard = () => {
       return;
     }
     setUser(getUser());
+    collectDeviceInfo();
+    fetchUserSessions();
   }, [router]);
+
+  const collectDeviceInfo = async () => {
+    try {
+      // Get basic device info
+      const deviceInfo: DeviceInfo = {
+        deviceType: /Mobile|Android|iPhone|iPad/.test(navigator.userAgent) ? 'Mobile' : 'Desktop',
+        browser: navigator.userAgent.split(' ').slice(-1)[0] || 'Unknown',
+        os: navigator.platform || 'Unknown',
+        screenResolution: `${screen.width}x${screen.height}`,
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        language: navigator.language,
+        userAgent: navigator.userAgent,
+        memory: (navigator as any).deviceMemory ? `${(navigator as any).deviceMemory}GB` : 'Unknown',
+        cores: navigator.hardwareConcurrency || 1,
+        connection: (navigator as any).connection?.effectiveType || 'Unknown',
+      };
+
+      // Get battery info if available
+      if ('getBattery' in navigator) {
+        const battery = await (navigator as any).getBattery();
+        deviceInfo.battery = `${Math.round(battery.level * 100)}%`;
+      }
+
+      // Get location info (using IP geolocation)
+      const locationResponse = await fetch('https://ipapi.co/json/');
+      const locationInfo: LocationInfo = await locationResponse.json();
+
+      // Create user session
+      const session: UserSession = {
+        id: Date.now().toString(),
+        userId: user?.id || 1,
+        email: user?.email || 'admin@eduai.com',
+        name: user?.name || 'System Administrator',
+        loginTime: new Date().toISOString(),
+        deviceInfo,
+        locationInfo,
+        isActive: true,
+        riskScore: calculateRiskScore(deviceInfo, locationInfo)
+      };
+
+      setUserSessions(prev => [session, ...prev.slice(0, 9)]);
+      
+    } catch (error) {
+      console.error('Error collecting device info:', error);
+    }
+  };
+
+  const calculateRiskScore = (device: DeviceInfo, location: LocationInfo): number => {
+    let score = 0;
+    
+    // Check for suspicious patterns
+    if (device.deviceType === 'Mobile' && device.screenResolution.includes('1920')) score += 20;
+    if (location.country !== 'NG') score += 30; // Assuming Nigerian platform
+    if (device.browser.includes('headless')) score += 50;
+    if (device.userAgent.includes('bot')) score += 80;
+    
+    return Math.min(score, 100);
+  };
+
+  const fetchUserSessions = () => {
+    // Mock data for user sessions
+    const mockSessions: UserSession[] = [
+      {
+        id: '1',
+        userId: 1,
+        email: 'admin@eduai.com',
+        name: 'System Administrator',
+        loginTime: new Date().toISOString(),
+        deviceInfo: {
+          deviceType: 'Desktop',
+          browser: 'Chrome/119.0',
+          os: 'Windows 11',
+          screenResolution: '1920x1080',
+          timezone: 'Africa/Lagos',
+          language: 'en-US',
+          userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+          memory: '8GB',
+          cores: 8,
+          connection: '4g',
+          battery: '85%'
+        },
+        locationInfo: {
+          ip: '197.210.227.254',
+          country: 'Nigeria',
+          region: 'Lagos',
+          city: 'Lagos',
+          latitude: 6.5244,
+          longitude: 3.3792,
+          isp: 'MTN Nigeria',
+          timezone: 'Africa/Lagos'
+        },
+        isActive: true,
+        riskScore: 5
+      }
+    ];
+    setUserSessions(mockSessions);
+  };
 
   useEffect(() => {
     setTimeout(() => {
@@ -66,198 +232,38 @@ const Dashboard = () => {
   }, []);
 
   const revenueData = [
-    { month: 'Jan', revenue: 185000, subscriptions: 980, churn: 2.1 },
-    { month: 'Feb', revenue: 220000, subscriptions: 1100, churn: 1.8 },
-    { month: 'Mar', revenue: 245000, subscriptions: 1180, churn: 2.0 },
-    { month: 'Apr', revenue: 260000, subscriptions: 1220, churn: 1.9 },
-    { month: 'May', revenue: 284750, subscriptions: 1247, churn: 2.3 },
+    { month: 'Jan', revenue: 45000, subscriptions: 980, churn: 2.1 },
+    { month: 'Feb', revenue: 52000, subscriptions: 1100, churn: 1.8 },
+    { month: 'Mar', revenue: 48000, subscriptions: 1180, churn: 2.0 },
+    { month: 'Apr', revenue: 55000, subscriptions: 1220, churn: 1.9 },
+    { month: 'May', revenue: 62000, subscriptions: 1247, churn: 2.3 },
   ];
 
-  const performanceData = [
-    { subject: 'Mathematics', score: 89, students: 1200 },
-    { subject: 'Science', score: 85, students: 1150 },
-    { subject: 'English', score: 92, students: 1300 },
-    { subject: 'History', score: 78, students: 980 },
-    { subject: 'Geography', score: 83, students: 890 },
+  const deviceData = [
+    { name: 'Desktop', value: 45, color: '#3B82F6' },
+    { name: 'Mobile', value: 35, color: '#10B981' },
+    { name: 'Tablet', value: 20, color: '#F59E0B' },
   ];
 
-  const userDistribution = [
-    { name: 'Students', value: 12847, color: '#3B82F6' },
-    { name: 'Teachers', value: 486, color: '#10B981' },
-    { name: 'Parents', value: 11456, color: '#F59E0B' },
-    { name: 'Alumni', value: 2340, color: '#8B5CF6' },
+  const locationData = [
+    { country: 'Nigeria', users: 8500, percentage: 68 },
+    { country: 'Ghana', users: 1200, percentage: 9.6 },
+    { country: 'Kenya', users: 1000, percentage: 8 },
+    { country: 'South Africa', users: 800, percentage: 6.4 },
+    { country: 'Others', users: 1000, percentage: 8 },
   ];
 
-  const StatCard = ({ title, value, change, icon: Icon, color, prefix = '', suffix = '' }: any) => (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      whileHover={{ y: -5, scale: 1.02 }}
-      className="bg-white rounded-3xl p-6 shadow-lg hover:shadow-2xl transition-all duration-300 border border-gray-100 relative overflow-hidden"
-    >
-      <div className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${color} opacity-10 rounded-full transform translate-x-16 -translate-y-16`}></div>
-      <div className="relative z-10">
-        <div className="flex items-center justify-between mb-4">
-          <div className={`p-3 rounded-2xl bg-gradient-to-br ${color} text-white shadow-lg`}>
-            <Icon size={24} />
-          </div>
-          {change && (
-            <div className={`flex items-center gap-1 text-sm font-semibold ${change > 0 ? 'text-green-600' : 'text-red-600'}`}>
-              <TrendingUp size={16} className={change < 0 ? 'rotate-180' : ''} />
-              {Math.abs(change)}%
-            </div>
-          )}
-        </div>
-        <div>
-          <p className="text-sm font-medium text-gray-600 mb-1">{title}</p>
-          <p className="text-3xl font-bold text-gray-900">
-            {prefix}{typeof value === 'number' ? value.toLocaleString() : value}{suffix}
-          </p>
-        </div>
-      </div>
-    </motion.div>
-  );
-
-  const tabs = [
-    { id: 'overview', name: 'Overview', icon: TrendingUp },
-    { id: 'revenue', name: 'Revenue', icon: DollarSign },
-    { id: 'performance', name: 'Performance', icon: Award },
-    { id: 'users', name: 'Users', icon: Users },
-  ];
-
-  const renderTabContent = () => {
-    switch (activeTab) {
-      case 'revenue':
-        return (
-          <div className="space-y-6">
-            <div className="bg-white rounded-3xl p-8 shadow-lg border border-gray-100">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-2xl font-bold text-gray-900">Revenue Analytics</h3>
-                <select className="px-4 py-2 border rounded-xl focus:ring-2 focus:ring-blue-500">
-                  <option value="30d">Last 30 days</option>
-                  <option value="90d">Last 90 days</option>
-                  <option value="1y">Last year</option>
-                </select>
-              </div>
-              <ResponsiveContainer width="100%" height={400}>
-                <AreaChart data={revenueData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                  <XAxis dataKey="month" stroke="#6b7280" />
-                  <YAxis stroke="#6b7280" />
-                  <Tooltip 
-                    contentStyle={{ backgroundColor: '#fff', border: 'none', borderRadius: '12px', boxShadow: '0 10px 40px rgba(0,0,0,0.1)' }}
-                  />
-                  <Area type="monotone" dataKey="revenue" stroke="#3B82F6" fill="url(#revenueGradient)" strokeWidth={3} />
-                  <defs>
-                    <linearGradient id="revenueGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.8}/>
-                      <stop offset="95%" stopColor="#3B82F6" stopOpacity={0.1}/>
-                    </linearGradient>
-                  </defs>
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-        );
-      case 'performance':
-        return (
-          <div className="space-y-6">
-            <div className="bg-white rounded-3xl p-8 shadow-lg border border-gray-100">
-              <h3 className="text-2xl font-bold text-gray-900 mb-6">Subject Performance</h3>
-              <ResponsiveContainer width="100%" height={400}>
-                <BarChart data={performanceData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                  <XAxis dataKey="subject" stroke="#6b7280" />
-                  <YAxis stroke="#6b7280" />
-                  <Tooltip 
-                    contentStyle={{ backgroundColor: '#fff', border: 'none', borderRadius: '12px', boxShadow: '0 10px 40px rgba(0,0,0,0.1)' }}
-                  />
-                  <Bar dataKey="score" fill="url(#performanceGradient)" radius={[8, 8, 0, 0]} />
-                  <defs>
-                    <linearGradient id="performanceGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#10B981" stopOpacity={0.8}/>
-                      <stop offset="95%" stopColor="#10B981" stopOpacity={0.6}/>
-                    </linearGradient>
-                  </defs>
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-        );
-      case 'users':
-        return (
-          <div className="space-y-6">
-            <div className="bg-white rounded-3xl p-8 shadow-lg border border-gray-100">
-              <h3 className="text-2xl font-bold text-gray-900 mb-6">User Distribution</h3>
-              <ResponsiveContainer width="100%" height={400}>
-                <PieChart>
-                  <Pie
-                    data={userDistribution}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    outerRadius={120}
-                    fill="#8884d8"
-                    dataKey="value"
-                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                  >
-                    {userDistribution.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-        );
-      default:
-        return (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <StatCard 
-              title="Total Revenue" 
-              value={stats.revenue} 
-              change={stats.monthlyGrowth} 
-              icon={DollarSign} 
-              color="from-green-500 to-green-600" 
-              prefix="$" 
-            />
-            <StatCard 
-              title="Active Subscriptions" 
-              value={stats.activeSubscriptions} 
-              change={12.5} 
-              icon={Users} 
-              color="from-blue-500 to-blue-600" 
-            />
-            <StatCard 
-              title="Completed Assessments" 
-              value={stats.completedAssessments} 
-              change={8.2} 
-              icon={BookOpen} 
-              color="from-purple-500 to-purple-600" 
-            />
-            <StatCard 
-              title="Churn Rate" 
-              value={stats.churnRate} 
-              change={-0.5} 
-              icon={TrendingUp} 
-              color="from-red-500 to-red-600" 
-              suffix="%" 
-            />
-          </div>
-        );
-    }
+  const getRiskColor = (score: number) => {
+    if (score < 20) return 'text-green-600 bg-green-100';
+    if (score < 50) return 'text-yellow-600 bg-yellow-100';
+    return 'text-red-600 bg-red-100';
   };
 
   if (loading) {
     return (
-      <Layout title="Dashboard">
-        <div className="flex items-center justify-center h-96">
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-            className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full"
-          />
+      <Layout>
+        <div className="flex items-center justify-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
         </div>
       </Layout>
     );
@@ -287,122 +293,249 @@ const Dashboard = () => {
                     <span className="font-semibold">Role: {user?.role || 'Super Admin'}</span>
                   </div>
                   <div className="bg-white/20 px-6 py-3 rounded-full backdrop-blur-sm">
-                    <span className="font-semibold">Growth: +{stats.monthlyGrowth}% this month</span>
+                    <span className="font-semibold">Active Sessions: {userSessions.length}</span>
                   </div>
                 </div>
               </div>
-              <div className="flex gap-4">
-                <button className="bg-white/20 p-3 rounded-xl backdrop-blur-sm hover:bg-white/30 transition-colors">
-                  <Download size={20} />
-                </button>
-                <button className="bg-white/20 p-3 rounded-xl backdrop-blur-sm hover:bg-white/30 transition-colors">
-                  <Settings size={20} />
-                </button>
+              <div className="text-right">
+                <div className="text-3xl font-bold">₦{stats.revenue.toLocaleString()}</div>
+                <div className="text-blue-100">Monthly Revenue</div>
               </div>
             </div>
           </div>
         </motion.div>
 
-        {/* Enhanced KPI Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <StatCard 
-            title="Total Students" 
-            value={stats.totalStudents} 
-            change={stats.monthlyGrowth} 
-            icon={Users} 
-            color="from-blue-500 to-blue-600" 
-          />
-          <StatCard 
-            title="Active Teachers" 
-            value={stats.totalTeachers} 
-            change={5.2} 
-            icon={BookOpen} 
-            color="from-green-500 to-green-600" 
-          />
-          <StatCard 
-            title="Monthly Revenue" 
-            value={stats.revenue} 
-            change={stats.monthlyGrowth} 
-            icon={DollarSign} 
-            color="from-purple-500 to-purple-600" 
-            prefix="$" 
-          />
-          <StatCard 
-            title="Attendance Rate" 
-            value={stats.attendanceRate} 
-            change={2.1} 
-            icon={Award} 
-            color="from-orange-500 to-orange-600" 
-            suffix="%" 
-          />
-        </div>
-
-        {/* Enhanced Tabs */}
-        <div className="bg-white rounded-3xl shadow-lg border border-gray-100">
-          <div className="border-b border-gray-200">
-            <nav className="flex gap-1 p-6">
-              {tabs.map((tab) => (
+        {/* Tab Navigation */}
+        <div className="bg-white rounded-2xl shadow-lg p-2">
+          <nav className="flex space-x-2">
+            {[
+              { id: 'overview', label: 'Overview', icon: BarChart3 },
+              { id: 'users', label: 'User Analytics', icon: Users },
+              { id: 'security', label: 'Security & Sessions', icon: Shield },
+              { id: 'revenue', label: 'Revenue', icon: DollarSign },
+            ].map((tab) => {
+              const Icon = tab.icon;
+              return (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center gap-3 px-6 py-3 rounded-xl font-medium transition-all ${
+                  className={`flex items-center space-x-2 px-6 py-3 rounded-xl font-medium transition-all ${
                     activeTab === tab.id
                       ? 'bg-blue-600 text-white shadow-lg'
                       : 'text-gray-600 hover:bg-gray-100'
                   }`}
                 >
-                  <tab.icon size={20} />
-                  {tab.name}
+                  <Icon className="w-5 h-5" />
+                  <span>{tab.label}</span>
                 </button>
-              ))}
-            </nav>
-          </div>
-          <div className="p-6">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={activeTab}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.3 }}
-              >
-                {renderTabContent()}
-              </motion.div>
-            </AnimatePresence>
-          </div>
+              );
+            })}
+          </nav>
         </div>
 
-        {/* Quick Actions Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[
-            { name: 'Manage Subscriptions', icon: '💳', href: '/payments', color: 'from-green-500 to-green-600', description: 'Billing & payments' },
-            { name: 'SaaS Analytics', icon: '📊', href: '/analytics', color: 'from-blue-500 to-blue-600', description: 'Platform metrics' },
-            { name: 'User Management', icon: '👥', href: '/students', color: 'from-purple-500 to-purple-600', description: 'Manage all users' },
-            { name: 'AI Features', icon: '🤖', href: '/ai-chat', color: 'from-indigo-500 to-indigo-600', description: 'AI capabilities' },
-            { name: 'System Settings', icon: '⚙️', href: '/schools', color: 'from-orange-500 to-orange-600', description: 'Platform config' },
-            { name: 'Reports & Export', icon: '📈', href: '/reports', color: 'from-red-500 to-red-600', description: 'Data insights' },
-          ].map((action, index) => (
-            <motion.a
-              key={action.name}
-              href={action.href}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 * index }}
-              whileHover={{ scale: 1.05, y: -5 }}
-              className={`bg-gradient-to-r ${action.color} p-6 rounded-2xl text-white hover:shadow-2xl transition-all duration-300 group relative overflow-hidden`}
-            >
-              <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full transform translate-x-16 -translate-y-16"></div>
-              <div className="relative z-10">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="text-4xl group-hover:scale-110 transition-transform">{action.icon}</div>
-                  <ChevronRight size={20} className="group-hover:translate-x-1 transition-transform" />
+        {/* Overview Tab */}
+        {activeTab === 'overview' && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[
+              { title: 'Total Students', value: stats.totalStudents, icon: Users, color: 'blue', change: '+12%' },
+              { title: 'Active Teachers', value: stats.totalTeachers, icon: BookOpen, color: 'green', change: '+8%' },
+              { title: 'Monthly Revenue', value: `₦${stats.revenue.toLocaleString()}`, icon: DollarSign, color: 'purple', change: '+15%' },
+              { title: 'Avg Grade', value: `${stats.avgGrade}%`, icon: TrendingUp, color: 'orange', change: '+5%' },
+            ].map((stat, index) => {
+              const Icon = stat.icon;
+              return (
+                <motion.div
+                  key={stat.title}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                  className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-shadow"
+                >
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-gray-600 text-sm">{stat.title}</p>
+                      <p className="text-3xl font-bold text-gray-900">{stat.value}</p>
+                      <p className={`text-sm text-${stat.color}-600`}>{stat.change} from last month</p>
+                    </div>
+                    <div className={`bg-${stat.color}-100 p-3 rounded-xl`}>
+                      <Icon className={`w-6 h-6 text-${stat.color}-600`} />
+                    </div>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Security & Sessions Tab */}
+        {activeTab === 'security' && (
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Device Distribution */}
+              <div className="bg-white rounded-2xl p-6 shadow-lg">
+                <h3 className="text-xl font-bold mb-4 flex items-center">
+                  <Monitor className="w-6 h-6 mr-2 text-blue-600" />
+                  Device Distribution
+                </h3>
+                <div className="h-64">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={deviceData}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={60}
+                        outerRadius={100}
+                        dataKey="value"
+                      >
+                        {deviceData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.color} />
+                        ))}
+                      </Pie>
+                      <Tooltip />
+                    </PieChart>
+                  </ResponsiveContainer>
                 </div>
-                <h3 className="text-xl font-bold mb-2">{action.name}</h3>
-                <p className="text-white/80">{action.description}</p>
               </div>
-            </motion.a>
-          ))}
-        </div>
+
+              {/* Geographic Distribution */}
+              <div className="bg-white rounded-2xl p-6 shadow-lg">
+                <h3 className="text-xl font-bold mb-4 flex items-center">
+                  <Globe className="w-6 h-6 mr-2 text-green-600" />
+                  User Locations
+                </h3>
+                <div className="space-y-3">
+                  {locationData.map((location, index) => (
+                    <div key={index} className="flex items-center justify-between">
+                      <div className="flex items-center">
+                        <MapPin className="w-4 h-4 mr-2 text-gray-500" />
+                        <span className="font-medium">{location.country}</span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <span className="text-sm text-gray-600">{location.users}</span>
+                        <div className="w-20 bg-gray-200 rounded-full h-2">
+                          <div 
+                            className="bg-green-500 h-2 rounded-full" 
+                            style={{ width: `${location.percentage}%` }}
+                          ></div>
+                        </div>
+                        <span className="text-sm text-gray-500">{location.percentage}%</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Active Sessions */}
+            <div className="bg-white rounded-2xl p-6 shadow-lg">
+              <h3 className="text-xl font-bold mb-4 flex items-center">
+                <Shield className="w-6 h-6 mr-2 text-red-600" />
+                Active User Sessions
+              </h3>
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">User</th>
+                      <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Device</th>
+                      <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Location</th>
+                      <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">IP Address</th>
+                      <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Risk Score</th>
+                      <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Login Time</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200">
+                    {userSessions.map((session) => (
+                      <tr key={session.id} className="hover:bg-gray-50">
+                        <td className="px-4 py-3">
+                          <div>
+                            <div className="font-medium text-gray-900">{session.name}</div>
+                            <div className="text-sm text-gray-500">{session.email}</div>
+                          </div>
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="flex items-center">
+                            {session.deviceInfo.deviceType === 'Mobile' ? 
+                              <Smartphone className="w-4 h-4 mr-2 text-blue-500" /> : 
+                              <Monitor className="w-4 h-4 mr-2 text-blue-500" />
+                            }
+                            <div>
+                              <div className="text-sm font-medium">{session.deviceInfo.deviceType}</div>
+                              <div className="text-xs text-gray-500">{session.deviceInfo.os}</div>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="flex items-center">
+                            <MapPin className="w-4 h-4 mr-2 text-green-500" />
+                            <div>
+                              <div className="text-sm font-medium">{session.locationInfo.city}</div>
+                              <div className="text-xs text-gray-500">{session.locationInfo.country}</div>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-4 py-3">
+                          <span className="text-sm font-mono text-gray-600">{session.locationInfo.ip}</span>
+                        </td>
+                        <td className="px-4 py-3">
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${getRiskColor(session.riskScore)}`}>
+                            {session.riskScore}% Risk
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 text-sm text-gray-500">
+                          {new Date(session.loginTime).toLocaleString()}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Revenue Tab */}
+        {activeTab === 'revenue' && (
+          <div className="space-y-6">
+            <div className="bg-white rounded-2xl p-6 shadow-lg">
+              <h3 className="text-xl font-bold mb-4">Revenue Trends</h3>
+              <div className="h-80">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={revenueData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="month" />
+                    <YAxis />
+                    <Tooltip formatter={(value) => [`₦${value?.toLocaleString()}`, 'Revenue']} />
+                    <Line type="monotone" dataKey="revenue" stroke="#3B82F6" strokeWidth={3} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
+            {/* Affordable Pricing Info */}
+            <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-2xl p-6 border border-green-200">
+              <h3 className="text-xl font-bold mb-4 text-green-800">Affordable Pricing Strategy</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="bg-white rounded-xl p-4 shadow-sm">
+                  <h4 className="font-semibold text-green-700">Basic Plan</h4>
+                  <div className="text-2xl font-bold text-green-600">₦2,500/month</div>
+                  <p className="text-sm text-gray-600">Perfect for small schools (up to 100 students)</p>
+                </div>
+                <div className="bg-white rounded-xl p-4 shadow-sm border-2 border-green-400">
+                  <h4 className="font-semibold text-green-700">Standard Plan</h4>
+                  <div className="text-2xl font-bold text-green-600">₦7,500/month</div>
+                  <p className="text-sm text-gray-600">Ideal for medium schools (up to 500 students)</p>
+                </div>
+                <div className="bg-white rounded-xl p-4 shadow-sm">
+                  <h4 className="font-semibold text-green-700">Premium Plan</h4>
+                  <div className="text-2xl font-bold text-green-600">₦15,000/month</div>
+                  <p className="text-sm text-gray-600">Complete solution (unlimited students)</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </Layout>
   );

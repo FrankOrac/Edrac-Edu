@@ -320,33 +320,55 @@ router.get('/plans', async (req: Request, res: Response) => {
     const plans = [
       {
         id: 1,
-        name: 'Starter',
-        price: 29,
+        name: 'Basic',
+        price: 2500,
+        currency: 'NGN',
         billingCycle: 'monthly',
-        features: ['Basic Analytics', 'Email Support', 'Core Features', '5GB Storage', 'Up to 100 Users'],
+        features: ['Basic Analytics', 'Email Support', 'Core Features', '5GB Storage', 'Up to 100 Students', 'Basic CBT System'],
         maxUsers: 100,
         popular: false,
-        description: 'Perfect for small schools and educational centers'
+        description: 'Perfect for small schools and educational centers',
+        yearlyPrice: 25000,
+        yearlyDiscount: '17% off'
       },
       {
         id: 2,
-        name: 'Professional',
-        price: 99,
+        name: 'Standard',
+        price: 7500,
+        currency: 'NGN',
         billingCycle: 'monthly',
-        features: ['Advanced Analytics', 'Priority Support', 'All Features', '50GB Storage', 'API Access', 'Up to 500 Users'],
+        features: ['Advanced Analytics', 'Priority Support', 'All Features', '50GB Storage', 'API Access', 'Up to 500 Students', 'Advanced CBT', 'Parent Portal'],
         maxUsers: 500,
         popular: true,
-        description: 'Ideal for medium-sized institutions'
+        description: 'Ideal for medium-sized institutions',
+        yearlyPrice: 75000,
+        yearlyDiscount: '17% off'
       },
       {
         id: 3,
-        name: 'Enterprise',
-        price: 299,
+        name: 'Premium',
+        price: 15000,
+        currency: 'NGN',
         billingCycle: 'monthly',
-        features: ['Custom Analytics', '24/7 Support', 'White Label', 'Unlimited Storage', 'Custom Integrations', 'Up to 2000 Users'],
-        maxUsers: 2000,
+        features: ['Custom Analytics', '24/7 Support', 'White Label', 'Unlimited Storage', 'Custom Integrations', 'Unlimited Students', 'AI Features', 'Custom Branding'],
+        maxUsers: -1, // Unlimited
         popular: false,
-        description: 'Comprehensive solution for large organizations'
+        description: 'Comprehensive solution for large organizations',
+        yearlyPrice: 150000,
+        yearlyDiscount: '17% off'
+      },
+      {
+        id: 4,
+        name: 'Individual',
+        price: 500,
+        currency: 'NGN',
+        billingCycle: 'monthly',
+        features: ['Personal Dashboard', 'Practice Tests', 'Basic Analytics', 'Mobile Access', 'Study Materials'],
+        maxUsers: 1,
+        popular: false,
+        description: 'For individual students and learners',
+        yearlyPrice: 5000,
+        yearlyDiscount: '17% off'
       }
     ];
 
