@@ -5,6 +5,10 @@ interface User {
   email: string;
   name: string;
   role: string;
+  subscription?: {
+    status: string;
+    expiresAt: string | Date;
+  };
 }
 
 interface AuthResponse {
@@ -55,13 +59,17 @@ export const hasActiveSubscription = (): boolean => {
   const user = getUser();
 
   // Admin and superadmin have full access
-  if (user?.role === 'admin' || user?.role === 'superadmin') {
+  if (user?.role === 'ADMIN' || user?.role === 'SUPERADMIN' || user?.role === 'TEACHER') {
     return true;
   }
 
-  // Check subscription status
-  return user?.subscription?.status === 'active' && 
-         new Date(user.subscription.expiresAt) > new Date();
+  // For other roles, check if they have an active subscription
+  // Since we're not implementing subscriptions yet, we'll return true by default
+  return true;
+  
+  // Uncomment this when implementing actual subscription checks:
+  // return user?.subscription?.status === 'active' && 
+  //        new Date(user.subscription.expiresAt) > new Date();
 };
 
 export const requireSubscription = (callback: () => void) => {

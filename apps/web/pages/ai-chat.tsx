@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Layout from '../components/Layout';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Bot, User, Loader, Trash2, Download, Settings, Lightbulb, BookOpen, Calculator, Flask, Globe } from 'lucide-react';
+import { Send, Bot, User, Loader, Trash2, Download, Settings, Lightbulb, BookOpen, Calculator, Beaker, Globe } from 'lucide-react';
 
 interface Message {
   id: string;
@@ -27,7 +27,7 @@ export default function AIChatPage() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const suggestions: Suggestion[] = [
-    { text: "Explain photosynthesis in simple terms", category: "Science", icon: <Flask className="w-4 h-4" /> },
+    { text: "Explain photosynthesis in simple terms", category: "Science", icon: <Beaker className="w-4 h-4" /> },
     { text: "Help me solve this algebra equation", category: "Mathematics", icon: <Calculator className="w-4 h-4" /> },
     { text: "What are the causes of World War II?", category: "History", icon: <Globe className="w-4 h-4" /> },
     { text: "Explain the concept of metaphors", category: "English", icon: <BookOpen className="w-4 h-4" /> },
