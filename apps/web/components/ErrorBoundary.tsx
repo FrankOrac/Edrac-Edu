@@ -1,7 +1,9 @@
-
 import React from 'react';
-import { AlertCircle, RefreshCw, Home } from 'lucide-react';
 import Link from 'next/link';
+import { AlertCircle, RefreshCw, Home } from 'lucide-react';
+
+// Add fallback context provider
+const ErrorBoundaryContext = React.createContext(null);
 
 interface ErrorBoundaryState {
   hasError: boolean;
@@ -81,7 +83,7 @@ class ErrorBoundary extends React.Component<
                 <RefreshCw className="w-4 h-4" />
                 Try Again
               </button>
-              
+
               <Link href="/" className="w-full bg-gray-100 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-200 flex items-center justify-center gap-2">
                 <Home className="w-4 h-4" />
                 Go Home

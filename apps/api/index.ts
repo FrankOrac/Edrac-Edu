@@ -200,8 +200,22 @@ app.post('/api/auth/register', async (req, res) => {
 
 const HOST = '0.0.0.0';
 
+// Add process error handlers
+process.on('uncaughtException', (error) => {
+  console.error('Uncaught Exception:', error);
+  process.exit(1);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+  process.exit(1);
+});
+
 app.listen(PORT, HOST, () => {
   console.log(`🚀 API Server running on http://${HOST}:${PORT}`);
+}).on('error', (err) => {
+  console.error('Server failed to start:', err);
+  process.exit(1);
 });
 
 export default app;

@@ -508,4 +508,65 @@ router.post('/generate-materials', auth, async (req: Request, res: Response) => 
   }
 });
 
+// Add more AI endpoints
+router.post('/train-model', async (req, res) => {
+  try {
+    const { modelType, trainingData } = req.body;
+
+    // Mock training process
+    res.json({
+      success: true,
+      message: 'Model training initiated',
+      modelId: `model_${Date.now()}`,
+      estimatedTime: '15 minutes'
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Training failed' });
+  }
+});
+
+router.post('/analyze-performance', async (req, res) => {
+  try {
+    const { studentId, timeRange } = req.body;
+
+    // Mock performance analysis
+    res.json({
+      success: true,
+      analysis: {
+        overallScore: 85,
+        strengths: ['Mathematics', 'Physics'],
+        weaknesses: ['Chemistry', 'Biology'],
+        recommendations: ['Focus on organic chemistry', 'Practice more biology problems']
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Analysis failed' });
+  }
+});
+
+router.post('/generate-insights', async (req, res) => {
+  try {
+    const { dataType, filters } = req.body;
+
+    // Mock insights generation
+    res.json({
+      success: true,
+      insights: [
+        {
+          type: 'trend',
+          message: 'Student performance has improved by 12% this month',
+          confidence: 0.89
+        },
+        {
+          type: 'alert',
+          message: 'Students struggling with calculus concepts',
+          confidence: 0.76
+        }
+      ]
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Insights generation failed' });
+  }
+});
+
 export default router;
