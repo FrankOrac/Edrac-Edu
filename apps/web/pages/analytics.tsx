@@ -29,12 +29,12 @@ export default function AnalyticsPage() {
 
   // Mock data for analytics
   const performanceData: ChartData[] = [
-    { name: 'Jan', performance: 85, attendance: 92, completion: 78 },
-    { name: 'Feb', performance: 88, attendance: 89, completion: 82 },
-    { name: 'Mar', performance: 92, attendance: 94, completion: 87 },
-    { name: 'Apr', performance: 89, attendance: 91, completion: 85 },
-    { name: 'May', performance: 94, attendance: 96, completion: 91 },
-    { name: 'Jun', performance: 91, attendance: 93, completion: 88 },
+    { name: 'Jan', value: 85, performance: 85, attendance: 92, completion: 78 },
+    { name: 'Feb', value: 88, performance: 88, attendance: 89, completion: 82 },
+    { name: 'Mar', value: 92, performance: 92, attendance: 94, completion: 87 },
+    { name: 'Apr', value: 89, performance: 89, attendance: 91, completion: 85 },
+    { name: 'May', value: 94, performance: 94, attendance: 96, completion: 91 },
+    { name: 'Jun', value: 91, performance: 91, attendance: 93, completion: 88 },
   ];
 
   const subjectData: ChartData[] = [
@@ -220,7 +220,7 @@ export default function AnalyticsPage() {
                       cx="50%"
                       cy="50%"
                       labelLine={false}
-                      label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                      label={({ name, percent = 0 }) => `${name} ${(percent * 100).toFixed(0)}%`}
                       outerRadius={80}
                       fill="#8884d8"
                       dataKey="value"
