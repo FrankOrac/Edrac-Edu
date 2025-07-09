@@ -1,4 +1,3 @@
-
 import { Router, Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
 import { auth } from '../index';
@@ -37,40 +36,40 @@ const educationalResponses = {
 
 const getAIResponse = (message: string, context: string = 'general') => {
   const lowerMessage = message.toLowerCase();
-  
+
   if (lowerMessage.includes('math') || lowerMessage.includes('calculation') || lowerMessage.includes('algebra')) {
     const responses = educationalResponses.math;
     return responses[Math.floor(Math.random() * responses.length)];
   }
-  
+
   if (lowerMessage.includes('science') || lowerMessage.includes('physics') || lowerMessage.includes('chemistry') || lowerMessage.includes('biology')) {
     const responses = educationalResponses.science;
     return responses[Math.floor(Math.random() * responses.length)];
   }
-  
+
   if (lowerMessage.includes('english') || lowerMessage.includes('literature') || lowerMessage.includes('writing') || lowerMessage.includes('reading')) {
     const responses = educationalResponses.english;
     return responses[Math.floor(Math.random() * responses.length)];
   }
-  
+
   if (lowerMessage.includes('history') || lowerMessage.includes('historical') || lowerMessage.includes('past')) {
     const responses = educationalResponses.history;
     return responses[Math.floor(Math.random() * responses.length)];
   }
-  
+
   // Specific educational responses
   if (lowerMessage.includes('homework') || lowerMessage.includes('assignment')) {
     return "I can help you understand concepts for your homework, but remember that learning comes from working through problems yourself. What specific concept are you struggling with?";
   }
-  
+
   if (lowerMessage.includes('exam') || lowerMessage.includes('test')) {
     return "Test preparation is about understanding concepts deeply, not just memorizing. Would you like study strategies or help with specific topics?";
   }
-  
+
   if (lowerMessage.includes('learn') || lowerMessage.includes('study')) {
     return "Effective learning involves active engagement, practice, and reflection. What learning strategies work best for you?";
   }
-  
+
   const responses = educationalResponses.general;
   return responses[Math.floor(Math.random() * responses.length)];
 };
@@ -80,14 +79,14 @@ router.post('/chat', auth, async (req: Request, res: Response) => {
   try {
     const { message, context } = req.body;
     const user = (req as any).user;
-    
+
     if (!message) {
       return res.status(400).json({ error: 'Message is required' });
     }
-    
+
     // Generate AI response
     const aiResponse = getAIResponse(message, context);
-    
+
     // Store conversation (optional - you can extend this)
     const conversation = {
       userId: user.id,
@@ -96,13 +95,13 @@ router.post('/chat', auth, async (req: Request, res: Response) => {
       timestamp: new Date(),
       context: context || 'general'
     };
-    
+
     res.json({
       response: aiResponse,
       timestamp: conversation.timestamp,
       context: conversation.context
     });
-    
+
   } catch (error) {
     console.error('AI Chat error:', error);
     res.status(500).json({ error: 'Failed to process AI request' });
@@ -113,7 +112,7 @@ router.post('/chat', auth, async (req: Request, res: Response) => {
 router.get('/study-recommendations', auth, async (req: Request, res: Response) => {
   try {
     const user = (req as any).user;
-    
+
     // Mock personalized study recommendations
     const recommendations = [
       {
@@ -138,12 +137,12 @@ router.get('/study-recommendations', auth, async (req: Request, res: Response) =
         reason: 'Improve your writing skills for better communication'
       }
     ];
-    
+
     res.json({
       recommendations,
       personalizedMessage: `Hello ${user.name || 'Student'}! Here are your personalized study recommendations.`
     });
-    
+
   } catch (error) {
     console.error('Study recommendations error:', error);
     res.status(500).json({ error: 'Failed to get study recommendations' });
@@ -154,14 +153,14 @@ router.get('/study-recommendations', auth, async (req: Request, res: Response) =
 router.post('/generate-questions', auth, async (req: Request, res: Response) => {
   try {
     const { subject, difficulty, count, saveToDatabase, topic } = req.body;
-    
+
     // Validation
     if (!subject) {
       return res.status(400).json({ error: 'Subject is required' });
     }
-    
+
     const questionCount = Math.min(Math.max(parseInt(count) || 5, 1), 50); // Limit between 1-50
-    
+
     // Enhanced topic-based question generation
     const generateTopicQuestions = (subject: string, topic: string, difficulty: string, count: number) => {
       const baseQuestions = {
@@ -237,21 +236,21 @@ router.post('/generate-questions', auth, async (req: Request, res: Response) => 
 
       const topicKey = topic?.toLowerCase() || 'general';
       const subjectKey = subject.toLowerCase();
-      
+
       let selectedQuestions = [];
-      
+
       if (baseQuestions[subjectKey] && baseQuestions[subjectKey][topicKey]) {
         selectedQuestions = baseQuestions[subjectKey][topicKey];
       } else {
         // Fallback to general questions for the subject
         selectedQuestions = Object.values(baseQuestions[subjectKey] || {}).flat();
       }
-      
+
       // Filter by difficulty if specified
       if (difficulty && difficulty !== 'mixed') {
         selectedQuestions = selectedQuestions.filter(q => q.difficulty === difficulty);
       }
-      
+
       // Generate multiple choice options for each question
       return selectedQuestions.slice(0, count).map(q => ({
         text: q.text,
@@ -288,7 +287,7 @@ router.post('/generate-questions', auth, async (req: Request, res: Response) => 
     const generateExplanation = (question: string, subject: string) => {
       return `This ${subject} question tests understanding of the core concepts. The correct approach involves applying the fundamental principles of the subject.`;
     };
-    
+
     // Extended question templates with more variety
     const questionTemplates = {
       mathematics: [
@@ -319,20 +318,20 @@ router.post('/generate-questions', auth, async (req: Request, res: Response) => 
         { text: "What was the primary cause of World War I?", options: ["Assassination of Archduke Franz Ferdinand", "Economic depression", "Religious conflicts", "Colonial disputes"], answer: "Assassination of Archduke Franz Ferdinand", marks: 2, explanation: "The assassination in 1914 triggered the alliance system and led to war" }
       ]
     };
-    
+
     // Find or create subject
     let cbtSubject = await prisma.cbtSubject.findFirst({
       where: { name: { equals: subject, mode: 'insensitive' } }
     });
-    
+
     if (!cbtSubject) {
       cbtSubject = await prisma.cbtSubject.create({
         data: { name: subject }
       });
     }
-    
+
     let selectedQuestions;
-    
+
     if (topic) {
       // Use topic-based generation
       selectedQuestions = generateTopicQuestions(subject, topic, difficulty, count || 5);
@@ -342,9 +341,9 @@ router.post('/generate-questions', auth, async (req: Request, res: Response) => 
       const shuffled = [...templates].sort(() => 0.5 - Math.random());
       selectedQuestions = shuffled.slice(0, Math.min(count || 5, templates.length));
     }
-    
+
     const generatedQuestions = [];
-    
+
     if (saveToDatabase) {
       // Save questions to database
       for (const questionData of selectedQuestions) {
@@ -363,7 +362,7 @@ router.post('/generate-questions', auth, async (req: Request, res: Response) => 
     } else {
       generatedQuestions.push(...selectedQuestions);
     }
-    
+
     res.json({
       questions: generatedQuestions,
       subject: cbtSubject,
@@ -374,7 +373,7 @@ router.post('/generate-questions', auth, async (req: Request, res: Response) => 
         savedToDatabase: saveToDatabase || false
       }
     });
-    
+
   } catch (error) {
     console.error('Question generation error:', error);
     res.status(500).json({ error: 'Failed to generate questions' });
@@ -386,13 +385,13 @@ router.post('/bulk-generate-questions', auth, async (req: Request, res: Response
   try {
     const { subjects, questionsPerSubject, difficulty, saveToDatabase } = req.body;
     const user = (req as any).user;
-    
+
     if (user.role !== 'admin' && user.role !== 'teacher') {
       return res.status(403).json({ error: 'Only admins and teachers can bulk generate questions' });
     }
-    
+
     const results = [];
-    
+
     for (const subject of subjects) {
       const response = await fetch(`${req.protocol}://${req.get('host')}/api/ai/generate-questions`, {
         method: 'POST',
@@ -407,7 +406,7 @@ router.post('/bulk-generate-questions', auth, async (req: Request, res: Response
           saveToDatabase: saveToDatabase || true
         })
       });
-      
+
       if (response.ok) {
         const data = await response.json();
         results.push({
@@ -424,7 +423,7 @@ router.post('/bulk-generate-questions', auth, async (req: Request, res: Response
         });
       }
     }
-    
+
     res.json({
       results,
       summary: {
@@ -433,7 +432,7 @@ router.post('/bulk-generate-questions', auth, async (req: Request, res: Response
         totalQuestionsGenerated: results.reduce((sum, r) => sum + (r.questionsGenerated || 0), 0)
       }
     });
-    
+
   } catch (error) {
     console.error('Bulk question generation error:', error);
     res.status(500).json({ error: 'Failed to bulk generate questions' });
@@ -443,7 +442,7 @@ router.post('/bulk-generate-questions', auth, async (req: Request, res: Response
 // AI Comment Response
 router.post('/comment-response', auth, async (req: Request, res: Response) => {
   const { questionId, comment, question } = req.body;
-  
+
   try {
     // Mock AI response - in production, integrate with OpenAI
     const responses = [
@@ -453,9 +452,9 @@ router.post('/comment-response', auth, async (req: Request, res: Response) => {
       `This is a common area of confusion. For the question "${question}", the explanation is...`,
       `Excellent inquiry! The question "${question}" tests your understanding of core concepts. Here's what you need to know...`
     ];
-    
+
     const aiResponse = responses[Math.floor(Math.random() * responses.length)];
-    
+
     res.json({
       response: aiResponse,
       timestamp: new Date().toISOString(),
@@ -465,6 +464,47 @@ router.post('/comment-response', auth, async (req: Request, res: Response) => {
   } catch (error) {
     console.error('AI comment response error:', error);
     res.status(500).json({ error: 'Failed to generate AI response' });
+  }
+});
+
+// Generate study materials
+router.post('/generate-materials', auth, async (req: Request, res: Response) => {
+  try {
+    const { subject, topic, level } = req.body;
+
+    if (!subject || !topic) {
+      return res.status(400).json({ error: 'Subject and topic are required' });
+    }
+
+    const materials = {
+      subject,
+      topic,
+      level: level || 'intermediate',
+      content: {
+        summary: `Comprehensive summary of ${topic} in ${subject}`,
+        keyPoints: [
+          `Understanding the fundamentals of ${topic}`,
+          `Key concepts and principles`,
+          `Practical applications`,
+          `Common misconceptions to avoid`
+        ],
+        examples: [
+          `Example 1: Basic ${topic} application`,
+          `Example 2: Advanced ${topic} scenario`
+        ],
+        exercises: [
+          `Practice problem 1`,
+          `Practice problem 2`,
+          `Challenge exercise`
+        ]
+      },
+      generatedAt: new Date().toISOString()
+    };
+
+    res.json(materials);
+  } catch (error) {
+    console.error('Error generating materials:', error);
+    res.status(500).json({ error: 'Failed to generate study materials' });
   }
 });
 
