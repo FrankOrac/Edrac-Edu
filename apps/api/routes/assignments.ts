@@ -4,69 +4,7 @@ import { PrismaClient } from '@prisma/client';
 const router = Router();
 const prisma = new PrismaClient();
 
-// Auth middleware function
-const auth = (req: any, res: any, next: any) => {
-  req.user = { id: 1, role: 'teacher', email: 'demo@example.com' };
-  next();
-};
-
-// Get all assignments
-router.get('/', async (req: Request, res: Response) => {
-  try {
-    const assignments = [
-      {
-        id: 1,
-        title: 'Mathematics Assignment 1',
-        description: 'Solve the given mathematical problems',
-        dueDate: '2024-01-15',
-        subject: 'Mathematics',
-        class: 'Grade 10',
-        status: 'active'
-      },
-      {
-        id: 2,
-        title: 'English Essay',
-        description: 'Write an essay about climate change',
-        dueDate: '2024-01-20',
-        subject: 'English',
-        class: 'Grade 10',
-        status: 'active'
-      }
-    ];
-    res.json(assignments);
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch assignments' });
-  }
-});
-
-// Create new assignment
-router.post('/', auth, async (req: Request, res: Response) => {
-  try {
-    const { title, description, dueDate, subject, classId } = req.body;
-
-    if (!title || !dueDate || !subject) {
-      return res.status(400).json({ error: 'Title, due date, and subject are required' });
-    }
-
-    const assignment = {
-      id: Date.now(),
-      title,
-      description,
-      dueDate,
-      subject,
-      classId,
-      status: 'active',
-      createdAt: new Date().toISOString()
-    };
-
-    res.status(201).json(assignment);
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to create assignment' });
-  }
-});
-
-export default router;
-// Authentication middleware (using existing auth from previous import)
+// Authentication middleware function
 function auth(req: any, res: Response, next: () => void) {
   const token = req.headers.authorization?.replace('Bearer ', '');
   if (!token) {

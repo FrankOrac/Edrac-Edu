@@ -1,337 +1,99 @@
-import React, { useState } from 'react';
+import React, { Suspense, lazy } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
-import dynamic from 'next/dynamic';
-import { ArrowRight, BookOpen, Users, BarChart3, Brain, Menu, X, CheckCircle } from 'lucide-react';
 
 // Lazy load heavy components
-const AnimatePresence = dynamic(() => import('framer-motion').then(mod => ({ default: mod.AnimatePresence })), { ssr: false });
-const motion = dynamic(() => import('framer-motion').then(mod => ({ default: mod.motion })), { ssr: false });
+const Layout = lazy(() => import('../components/Layout'));
 
-export default function HomePage() {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const router = useRouter();
+// Loading component
+const LoadingSpinner = () => (
+  <div className="min-h-screen flex items-center justify-center">
+    <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-500"></div>
+  </div>
+);
 
-  const features = [
-    {
-      icon: <Brain className="w-8 h-8" />,
-      title: "AI-Powered Learning",
-      description: "Intelligent tutoring system that adapts to each student's learning style and pace."
-    },
-    {
-      icon: <BookOpen className="w-8 h-8" />,
-      title: "CBT Testing Platform",
-      description: "Comprehensive computer-based testing with real-time analytics and automated grading."
-    },
-    {
-      icon: <Users className="w-8 h-8" />,
-      title: "School Management",
-      description: "Complete management system for students, teachers, parents, and administrators."
-    },
-    {
-      icon: <BarChart3 className="w-8 h-8" />,
-      title: "Advanced Analytics",
-      description: "Detailed insights and performance tracking for informed decision making."
-    }
-  ];
-
-  const plans = [
-    {
-      name: "Basic",
-      price: "$49",
-      period: "/month",
-      description: "Perfect for small schools",
-      features: [
-        "Up to 500 students",
-        "Basic CBT testing",
-        "Student management",
-        "Email support",
-        "Standard analytics"
-      ],
-      popular: false
-    },
-    {
-      name: "Professional",
-      price: "$149",
-      period: "/month",
-      description: "Ideal for growing institutions",
-      features: [
-        "Up to 2,000 students",
-        "Advanced AI features",
-        "Parent portal",
-        "Priority support",
-        "Advanced analytics",
-        "Custom branding"
-      ],
-      popular: true
-    },
-    {
-      name: "Enterprise",
-      price: "$399",
-      period: "/month",
-      description: "For large educational institutions",
-      features: [
-        "Unlimited students",
-        "Full AI suite",
-        "Multi-campus support",
-        "24/7 dedicated support",
-        "Custom integrations",
-        "White-label solution"
-      ],
-      popular: false
-    }
-  ];
-
+export default function Home() {
   return (
     <>
       <Head>
-        <title>EduAI Platform - Next Generation Education Management System</title>
-        <meta name="description" content="Complete education management platform with AI integration, CBT testing, and comprehensive analytics." />
+        <title>EduAI Platform - AI-Powered Education Management</title>
+        <meta name="description" content="Complete school management system with AI integration" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
-        {/* Navigation Header */}
-        <nav className="bg-white/90 backdrop-blur-xl border-b border-white/20 shadow-lg sticky top-0 z-50">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between items-center h-16">
-              <div className="flex items-center">
-                <Brain className="h-8 w-8 text-blue-600" />
-                <span className="ml-2 text-xl font-bold text-gray-900">EduAI</span>
-              </div>
-
-              <div className="hidden md:block">
-                <div className="ml-10 flex items-baseline space-x-4">
-                  <a href="#features" className="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium">Features</a>
-                  <a href="#pricing" className="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium">Pricing</a>
-                  <a href="#about" className="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium">About</a>
-                  <Link href="/login" className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700">
-                    Sign In
-                  </Link>
-                </div>
-              </div>
-
-              <div className="md:hidden">
-                <button
-                  onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                  className="text-gray-700 hover:text-gray-900 p-2"
-                >
-                  {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* Mobile menu */}
-          <AnimatePresence>
-            {mobileMenuOpen && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 0, height: 0 }}
-                className="md:hidden bg-white border-t border-gray-200"
-              >
-                <div className="px-2 pt-2 pb-3 space-y-1">
-                  <a href="#features" className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-blue-600">Features</a>
-                  <a href="#pricing" className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-blue-600">Pricing</a>
-                  <a href="#about" className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-blue-600">About</a>
-                  <Link href="/login" className="block px-3 py-2 text-base font-medium bg-blue-600 text-white rounded-lg mx-3 text-center">
-                    Sign In
-                  </Link>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </nav>
-
-        {/* Hero Section */}
-        <section className="relative overflow-hidden">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
-            <div className="text-center">
-              <motion.h1
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8 }}
-                className="text-4xl md:text-6xl font-bold text-gray-900 mb-6"
-              >
-                The Future of <span className="text-blue-600">Education</span> is Here
-              </motion.h1>
-
-              <motion.p
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.2 }}
-                className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto"
-              >
-                Comprehensive education management platform powered by AI. Streamline operations, enhance learning outcomes, and empower educators with cutting-edge technology.
-              </motion.p>
-
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.4 }}
-                className="flex flex-col sm:flex-row gap-4 justify-center"
-              >
-                <Link href="/register" className="bg-blue-600 text-white px-8 py-4 rounded-xl text-lg font-semibold hover:bg-blue-700 flex items-center justify-center gap-2">
-                  Get Started <ArrowRight className="w-5 h-5" />
-                </Link>
-                <Link href="/login" className="bg-white text-blue-600 border-2 border-blue-600 px-8 py-4 rounded-xl text-lg font-semibold hover:bg-blue-50 flex items-center justify-center gap-2">
-                  Try Demo <Brain className="w-5 h-5" />
-                </Link>
-              </motion.div>
-            </div>
-          </div>
-        </section>
-
-        {/* Features Section */}
-        <section id="features" className="py-20 bg-white/50">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-16">
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-                Powerful Features for Modern Education
-              </h2>
-              <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-                Everything you need to manage, teach, and learn in one comprehensive platform
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-              {features.map((feature, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: index * 0.1 }}
-                  className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-shadow duration-300"
-                >
-                  <div className="text-blue-600 mb-4">{feature.icon}</div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">{feature.title}</h3>
-                  <p className="text-gray-600">{feature.description}</p>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Pricing Section */}
-        <section id="pricing" className="py-20">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-16">
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-                Choose Your Plan
-              </h2>
-              <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-                Flexible pricing options to suit institutions of all sizes
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {plans.map((plan, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: index * 0.1 }}
-                  className={`rounded-2xl p-8 shadow-lg ${
-                    plan.popular 
-                      ? 'bg-blue-600 text-white ring-4 ring-blue-200 scale-105' 
-                      : 'bg-white text-gray-900'
-                  }`}
-                >
-                  {plan.popular && (
-                    <div className="bg-white text-blue-600 text-sm font-bold px-3 py-1 rounded-full inline-block mb-4">
-                      Most Popular
-                    </div>
-                  )}
-
-                  <h3 className="text-2xl font-bold mb-2">{plan.name}</h3>
-                  <p className={`mb-6 ${plan.popular ? 'text-blue-100' : 'text-gray-600'}`}>
-                    {plan.description}
+      <Suspense fallback={<LoadingSpinner />}>
+        <Layout>
+          <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+            {/* Hero Section */}
+            <section className="relative overflow-hidden">
+              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+                <div className="text-center">
+                  <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
+                    Welcome to <span className="text-blue-600">EduAI Platform</span>
+                  </h1>
+                  <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
+                    The ultimate AI-powered educational ecosystem for schools and learners. 
+                    Manage everything from attendance to alumni networks with intelligent automation.
                   </p>
-
-                  <div className="mb-6">
-                    <span className="text-4xl font-bold">{plan.price}</span>
-                    <span className={plan.popular ? 'text-blue-100' : 'text-gray-600'}>
-                      {plan.period}
-                    </span>
+                  <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                    <Link 
+                      href="/dashboard" 
+                      className="bg-blue-600 text-white px-8 py-4 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+                    >
+                      Get Started
+                    </Link>
+                    <Link 
+                      href="/login" 
+                      className="border border-blue-600 text-blue-600 px-8 py-4 rounded-lg font-semibold hover:bg-blue-50 transition-colors"
+                    >
+                      Sign In
+                    </Link>
                   </div>
-
-                  <ul className="space-y-3 mb-8">
-                    {plan.features.map((feature, featureIndex) => (
-                      <li key={featureIndex} className="flex items-center gap-3">
-                        <CheckCircle className={`w-5 h-5 ${plan.popular ? 'text-white' : 'text-green-500'}`} />
-                        <span className={plan.popular ? 'text-blue-100' : 'text-gray-600'}>
-                          {feature}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-
-                  <button
-                    className={`w-full py-3 px-6 rounded-lg font-semibold transition-colors ${
-                      plan.popular
-                        ? 'bg-white text-blue-600 hover:bg-gray-100'
-                        : 'bg-blue-600 text-white hover:bg-blue-700'
-                    }`}
-                  >
-                    Get Started
-                  </button>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Footer */}
-        <footer className="bg-gray-900 text-white py-12">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-              <div>
-                <div className="flex items-center mb-4">
-                  <Brain className="h-8 w-8 text-blue-400" />
-                  <span className="ml-2 text-xl font-bold">EduAI</span>
                 </div>
-                <p className="text-gray-400">
-                  Revolutionizing education through AI-powered technology and comprehensive management solutions.
-                </p>
               </div>
+            </section>
 
-              <div>
-                <h3 className="text-lg font-semibold mb-4">Product</h3>
-                <ul className="space-y-2 text-gray-400">
-                  <li><a href="#features" className="hover:text-white">Features</a></li>
-                  <li><a href="#pricing" className="hover:text-white">Pricing</a></li>
-                  <li><Link href="/login" className="hover:text-white">Login</Link></li>
-                  <li><Link href="/register" className="hover:text-white">Sign Up</Link></li>
-                </ul>
+            {/* Quick Features */}
+            <section className="py-16 bg-white">
+              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">
+                  Everything You Need for Modern Education
+                </h2>
+                <div className="grid md:grid-cols-3 gap-8">
+                  <div className="text-center p-6 rounded-lg bg-blue-50">
+                    <div className="w-12 h-12 bg-blue-600 rounded-lg mx-auto mb-4 flex items-center justify-center">
+                      <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                      </svg>
+                    </div>
+                    <h3 className="text-xl font-semibold mb-2">Smart Learning</h3>
+                    <p className="text-gray-600">AI-powered personalized learning paths and adaptive testing</p>
+                  </div>
+                  <div className="text-center p-6 rounded-lg bg-green-50">
+                    <div className="w-12 h-12 bg-green-600 rounded-lg mx-auto mb-4 flex items-center justify-center">
+                      <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                      </svg>
+                    </div>
+                    <h3 className="text-xl font-semibold mb-2">Complete Management</h3>
+                    <p className="text-gray-600">From attendance to alumni networks, manage everything in one place</p>
+                  </div>
+                  <div className="text-center p-6 rounded-lg bg-purple-50">
+                    <div className="w-12 h-12 bg-purple-600 rounded-lg mx-auto mb-4 flex items-center justify-center">
+                      <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                      </svg>
+                    </div>
+                    <h3 className="text-xl font-semibold mb-2">Advanced Analytics</h3>
+                    <p className="text-gray-600">Predictive insights and performance tracking with AI</p>
+                  </div>
+                </div>
               </div>
-
-              <div>
-                <h3 className="text-lg font-semibold mb-4">Support</h3>
-                <ul className="space-y-2 text-gray-400">
-                  <li><a href="#" className="hover:text-white">Documentation</a></li>
-                  <li><a href="#" className="hover:text-white">Help Center</a></li>
-                  <li><a href="#" className="hover:text-white">Contact Us</a></li>
-                  <li><a href="#" className="hover:text-white">Status</a></li>
-                </ul>
-              </div>
-
-              <div>
-                <h3 className="text-lg font-semibold mb-4">Company</h3>
-                <ul className="space-y-2 text-gray-400">
-                  <li><a href="#about" className="hover:text-white">About</a></li>
-                  <li><a href="#" className="hover:text-white">Privacy</a></li>
-                  <li><a href="#" className="hover:text-white">Terms</a></li>
-                  <li><a href="#" className="hover:text-white">Careers</a></li>
-                </ul>
-              </div>
-            </div>
-
-            <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-              <p>&copy; 2024 EduAI Platform. All rights reserved.</p>
-            </div>
+            </section>
           </div>
-        </footer>
-      </div>
+        </Layout>
+      </Suspense>
     </>
   );
 }
