@@ -1,15 +1,9 @@
-
 import { Router, Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
+import { auth } from '../index';
 
 const router = Router();
 const prisma = new PrismaClient();
-
-// Auth middleware
-const auth = (req: any, res: any, next: any) => {
-  req.user = { id: 1, role: 'admin', email: 'admin@example.com' };
-  next();
-};
 
 // Get device tracking data
 router.get('/', auth, async (req: Request, res: Response) => {
@@ -36,7 +30,7 @@ router.get('/', auth, async (req: Request, res: Response) => {
 router.post('/track', async (req: Request, res: Response) => {
   try {
     const { deviceId, userId, activity } = req.body;
-    
+
     const trackingData = {
       id: Date.now(),
       deviceId,
@@ -51,37 +45,27 @@ router.post('/track', async (req: Request, res: Response) => {
   }
 });
 
-export default router;
-function auth(req: any, res: Response, next: () => void) {
-  const token = req.headers.authorization?.replace('Bearer ', '');
-  if (!token) {
-    return res.status(401).json({ error: 'No token provided' });
-  }
-  req.user = { id: 1, role: 'admin' };
-  next();
-}
-
 // Log device access
 router.post('/log-access', auth, async (req: Request, res: Response) => {
   try {
     const { deviceInfo, locationInfo, userAgent } = req.body;
-    
+
     // Calculate risk score
     let riskScore = 0;
-    
+
     // Check for suspicious patterns
     if (deviceInfo?.deviceType === 'Mobile' && deviceInfo?.screenResolution?.includes('1920')) {
       riskScore += 20;
     }
-    
+
     if (locationInfo?.country !== 'Nigeria') {
       riskScore += 30;
     }
-    
+
     if (userAgent?.includes('headless') || userAgent?.includes('bot')) {
       riskScore += 50;
     }
-    
+
     // Check for multiple simultaneous logins from different locations
     const recentSessions = await getRecentSessions(req.user.id);
     if (recentSessions.length > 1) {
@@ -91,7 +75,7 @@ router.post('/log-access', auth, async (req: Request, res: Response) => {
         riskScore += 40;
       }
     }
-    
+
     const sessionData = {
       userId: req.user.id,
       deviceInfo: JSON.stringify(deviceInfo),
@@ -101,10 +85,10 @@ router.post('/log-access', auth, async (req: Request, res: Response) => {
       loginTime: new Date(),
       isActive: true
     };
-    
+
     // In a real app, you'd save this to database
     // const session = await prisma.userSession.create({ data: sessionData });
-    
+
     res.json({
       success: true,
       riskScore,
@@ -143,7 +127,7 @@ router.get('/sessions', auth, async (req: Request, res: Response) => {
         isActive: true
       }
     ];
-    
+
     res.json(sessions);
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch sessions' });
@@ -154,13 +138,13 @@ router.get('/sessions', auth, async (req: Request, res: Response) => {
 router.post('/terminate-session/:sessionId', auth, async (req: Request, res: Response) => {
   try {
     const sessionId = req.params.sessionId;
-    
+
     // In real app, mark session as terminated
     // await prisma.userSession.update({
     //   where: { id: parseInt(sessionId) },
     //   data: { isActive: false, terminatedAt: new Date() }
     // });
-    
+
     res.json({
       success: true,
       message: 'Session terminated successfully'
@@ -196,7 +180,7 @@ router.get('/security-analytics', auth, async (req: Request, res: Response) => {
         high: 3
       }
     };
-    
+
     res.json(analytics);
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch security analytics' });

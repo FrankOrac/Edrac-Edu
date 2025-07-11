@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
-import { useRouter } from 'next/router';
 import Head from 'next/head';
 import Link from 'next/link';
-import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowRight, BookOpen, Users, BarChart3, Brain, Star, Menu, X, Home, ArrowLeft, CheckCircle } from 'lucide-react';
+import dynamic from 'next/dynamic';
+import { ArrowRight, BookOpen, Users, BarChart3, Brain, Menu, X, CheckCircle } from 'lucide-react';
+
+// Lazy load heavy components
+const AnimatePresence = dynamic(() => import('framer-motion').then(mod => ({ default: mod.AnimatePresence })), { ssr: false });
+const motion = dynamic(() => import('framer-motion').then(mod => ({ default: mod.motion })), { ssr: false });
 
 export default function HomePage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);

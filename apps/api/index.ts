@@ -44,7 +44,14 @@ import errorLogsRouter from './routes/error-logs';
 import googleAuthRouter from './routes/google-auth';
 
 const app = express();
-const prisma = new PrismaClient();
+const prisma = new PrismaClient({
+  log: ['error'],
+  datasources: {
+    db: {
+      url: process.env.DATABASE_URL || 'file:./dev.db'
+    }
+  }
+});
 const PORT = parseInt(process.env.PORT || '5000', 10);
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 

@@ -1,21 +1,21 @@
-import React, { useEffect } from 'react';
-import { AppProps } from 'next/app';
-import ErrorBoundary from '../components/ErrorBoundary';
+
+import React from 'react';
+import type { AppProps } from 'next/app';
+import dynamic from 'next/dynamic';
 import '../styles/globals.css';
 
-export default function App({ Component, pageProps }: AppProps) {
-  useEffect(() => {
-    // Prevent React hydration issues
-    if (typeof window !== 'undefined') {
-      console.log('App mounted successfully');
-    }
-  }, []);
+// Dynamically import components to prevent SSR issues
+const ErrorBoundary = dynamic(() => import('../components/ErrorBoundary'), {
+  ssr: false,
+  loading: () => <div>Loading...</div>
+});
 
+function MyApp({ Component, pageProps }: AppProps) {
   return (
     <ErrorBoundary>
-      <div suppressHydrationWarning={true}>
-        <Component {...pageProps} />
-      </div>
+      <Component {...pageProps} />
     </ErrorBoundary>
-  )
+  );
 }
+
+export default MyApp;

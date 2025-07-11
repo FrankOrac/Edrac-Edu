@@ -1,4 +1,3 @@
-
 import { Router, Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
 
@@ -44,7 +43,7 @@ router.get('/', async (req: Request, res: Response) => {
 router.post('/', auth, async (req: Request, res: Response) => {
   try {
     const { title, description, dueDate, subject, classId } = req.body;
-    
+
     if (!title || !dueDate || !subject) {
       return res.status(400).json({ error: 'Title, due date, and subject are required' });
     }
