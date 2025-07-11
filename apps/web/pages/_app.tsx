@@ -1,8 +1,7 @@
-
-import React from 'react';
-import type { AppProps } from 'next/app';
-import dynamic from 'next/dynamic';
-import '../styles/globals.css';
+import React from 'react'
+import type { AppProps } from 'next/app'
+import '../styles/globals.css'
+import { ErrorBoundary } from '../components/ErrorBoundary'
 
 // Dynamically import components to prevent SSR issues
 const ErrorBoundary = dynamic(() => import('../components/ErrorBoundary'), {

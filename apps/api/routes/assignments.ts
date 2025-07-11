@@ -66,6 +66,7 @@ router.post('/', auth, async (req: Request, res: Response) => {
 });
 
 export default router;
+// Authentication middleware (using existing auth from previous import)
 function auth(req: any, res: Response, next: () => void) {
   const token = req.headers.authorization?.replace('Bearer ', '');
   if (!token) {
