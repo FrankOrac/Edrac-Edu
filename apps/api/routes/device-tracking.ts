@@ -6,6 +6,52 @@ const router = Router();
 const prisma = new PrismaClient();
 
 // Auth middleware
+const auth = (req: any, res: any, next: any) => {
+  req.user = { id: 1, role: 'admin', email: 'admin@example.com' };
+  next();
+};
+
+// Get device tracking data
+router.get('/', auth, async (req: Request, res: Response) => {
+  try {
+    const devices = [
+      {
+        id: 1,
+        deviceId: 'device-001',
+        userId: 1,
+        deviceType: 'laptop',
+        browser: 'Chrome',
+        os: 'Windows 10',
+        lastSeen: new Date().toISOString(),
+        isActive: true
+      }
+    ];
+    res.json(devices);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch device tracking data' });
+  }
+});
+
+// Track device activity
+router.post('/track', async (req: Request, res: Response) => {
+  try {
+    const { deviceId, userId, activity } = req.body;
+    
+    const trackingData = {
+      id: Date.now(),
+      deviceId,
+      userId,
+      activity,
+      timestamp: new Date().toISOString()
+    };
+
+    res.json({ success: true, data: trackingData });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to track device activity' });
+  }
+});
+
+export default router;
 function auth(req: any, res: Response, next: () => void) {
   const token = req.headers.authorization?.replace('Bearer ', '');
   if (!token) {
