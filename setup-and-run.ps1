@@ -576,22 +576,26 @@ function Test-Health {
     $healthPercentage = [math]::Round(($healthScore / $maxScore) * 100, 1)
     
     Write-Host ""
-    Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor Cyan
-    Write-Host "                              🏥 System Health Report                           " -ForegroundColor Cyan
-    Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor Cyan
+    Write-Host "==============================================================" -ForegroundColor Cyan
+    Write-Host "                   SYSTEM HEALTH REPORT" -ForegroundColor Cyan
+    Write-Host "==============================================================" -ForegroundColor Cyan
     Write-Host ""
-    Write-Host "📊 Health Score: $healthScore/$maxScore ($healthPercentage%)" -ForegroundColor $(
-        if ($healthPercentage -ge 80) { "Green" }
-        elseif ($healthPercentage -ge 60) { "Yellow" }
-        else { "Red" }
-    )
+    
+    $color = if ($healthPercentage -ge 80) { "Green" } 
+             elseif ($healthPercentage -ge 60) { "Yellow" } 
+             else { "Red" }
+             
+    $scoreText = [string]::Format("Health Score: {0}/{1} ({2}%)", $healthScore, $maxScore, $healthPercentage)
+    Write-Host $scoreText -ForegroundColor $color
     
     if ($healthPercentage -ge 80) {
-        Write-Host "🎉 System Status: EXCELLENT" -ForegroundColor Green
-    } elseif ($healthPercentage -ge 60) {
-        Write-Host "⚠️ System Status: GOOD (Minor Issues)" -ForegroundColor Yellow
-    } else {
-        Write-Host "🚨 System Status: NEEDS ATTENTION" -ForegroundColor Red
+        Write-Host "[EXCELLENT] System is healthy" -ForegroundColor Green
+    } 
+    elseif ($healthPercentage -ge 60) {
+        Write-Host "[GOOD] System has minor issues" -ForegroundColor Yellow
+    } 
+    else {
+        Write-Host "[ATTENTION NEEDED] System has critical issues" -ForegroundColor Red
     }
     Write-Host ""
 }
@@ -665,88 +669,82 @@ function Clean-Up {
 # Function to show comprehensive help
 function Show-Help {
     Write-Host ""
-    Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor Cyan
-    Write-Host "                          🎓 EduAI Platform Setup Script                        " -ForegroundColor Cyan
-    Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor Cyan
+    Write-Host "==============================================================" -ForegroundColor Cyan
+    Write-Host "                 EDUAI PLATFORM SETUP SCRIPT" -ForegroundColor Cyan
+    Write-Host "==============================================================" -ForegroundColor Cyan
     Write-Host ""
-    Write-Host "📋 Usage:" -ForegroundColor Yellow
+    Write-Host "USAGE:" -ForegroundColor Yellow
     Write-Host "  .\setup-and-run.ps1 [-Action <action>]" -ForegroundColor White
     Write-Host ""
-    Write-Host "🚀 Available Actions:" -ForegroundColor Yellow
-    Write-Host "  start          🟢 Complete setup and start servers (default)" -ForegroundColor White
-    Write-Host "  setup          ⚙️ Install dependencies and configure database only" -ForegroundColor White
-    Write-Host "  seed           🌱 Seed the database with sample data" -ForegroundColor White
-    Write-Host "  health         🏥 Comprehensive system health check" -ForegroundColor White
-    Write-Host "  clean          🧹 Clean up processes, cache, and build files" -ForegroundColor White
-    Write-Host "  help           ❓ Show this help message" -ForegroundColor White
+    Write-Host "AVAILABLE ACTIONS:" -ForegroundColor Yellow
+    Write-Host "  start     - Complete setup and start servers (default)" -ForegroundColor White
+    Write-Host "  setup     - Install dependencies and configure database only" -ForegroundColor White
+    Write-Host "  seed      - Seed the database with sample data" -ForegroundColor White
+    Write-Host "  health    - Run system health check" -ForegroundColor White
+    Write-Host "  clean     - Clean up processes and temporary files" -ForegroundColor White
+    Write-Host "  help      - Show this help message" -ForegroundColor White
     Write-Host ""
-    Write-Host "📋 Prerequisites:" -ForegroundColor Yellow
-    Write-Host "  • Node.js 18+ (LTS recommended)" -ForegroundColor White
-    Write-Host "  • npm package manager" -ForegroundColor White
-    Write-Host "  • Windows PowerShell 5.1+ or PowerShell Core 7+" -ForegroundColor White
-    Write-Host "  • At least 4GB RAM and 2GB free disk space" -ForegroundColor White
+    Write-Host "PREREQUISITES:" -ForegroundColor Yellow
+    Write-Host "  - Node.js 18+ (LTS recommended)" -ForegroundColor White
+    Write-Host "  - npm package manager" -ForegroundColor White
+    Write-Host "  - Windows PowerShell 5.1+ or PowerShell Core 7+" -ForegroundColor White
+    Write-Host "  - At least 4GB RAM and 2GB free disk space" -ForegroundColor White
     Write-Host ""
-    Write-Host "💡 Examples:" -ForegroundColor Yellow
-    Write-Host "  .\setup-and-run.ps1                     # Full setup and start" -ForegroundColor White
-    Write-Host "  .\setup-and-run.ps1 -Action setup       # Setup only" -ForegroundColor White
-    Write-Host "  .\setup-and-run.ps1 -Action health      # Health check" -ForegroundColor White
-    Write-Host "  .\setup-and-run.ps1 -Action clean       # Clean up" -ForegroundColor White
+    Write-Host "EXAMPLES:" -ForegroundColor Yellow
+    Write-Host "  .\setup-and-run.ps1" -ForegroundColor White
+    Write-Host "  .\setup-and-run.ps1 -Action setup" -ForegroundColor White
+    Write-Host "  .\setup-and-run.ps1 -Action health" -ForegroundColor White
+    Write-Host "  .\setup-and-run.ps1 -Action clean" -ForegroundColor White
     Write-Host ""
-    Write-Host "🎯 What gets installed:" -ForegroundColor Yellow
-    Write-Host "  • All Node.js dependencies with compatibility fixes" -ForegroundColor White
-    Write-Host "  • TypeScript configurations optimized for development" -ForegroundColor White
-    Write-Host "  • Database setup with Prisma ORM and sample data" -ForegroundColor White
-    Write-Host "  • Environment configuration with security defaults" -ForegroundColor White
-    Write-Host "  • Performance optimizations and monitoring setup" -ForegroundColor White
-    Write-Host ""
-    Write-Host "🔗 Useful URLs (after starting):" -ForegroundColor Yellow
-    Write-Host "  • Frontend: http://localhost:3000" -ForegroundColor White
-    Write-Host "  • API: http://localhost:5000/api" -ForegroundColor White
-    Write-Host "  • Documentation: http://localhost:5000/api/docs" -ForegroundColor White
+    Write-Host "USEFUL URLS (after starting):" -ForegroundColor Yellow
+    Write-Host "  - Frontend: http://localhost:3000" -ForegroundColor White
+    Write-Host "  - API: http://localhost:5000/api" -ForegroundColor White
+    Write-Host "  - Documentation: http://localhost:5000/api/docs" -ForegroundColor White
     Write-Host ""
 }
 
 # Main execution with enhanced error handling
 try {
-    switch ($Action.ToLower()) {
-        "setup" {
-            Write-Status "🔧 Running setup only..."
-            Setup-Application
-            Write-Status "✅ Setup complete! Run '.\setup-and-run.ps1 -Action start' to start the servers."
-        }
-        "seed" {
-            Write-Status "🌱 Seeding database..."
-            try {
-                npx prisma db seed
-                Write-Status "✅ Database seeded successfully!"
-            } catch {
-                Write-Warning "⚠️ Database seeding encountered issues. Trying alternative approach..."
-                Set-Location prisma -ErrorAction SilentlyContinue
-                npx prisma db seed
-                Set-Location .. -ErrorAction SilentlyContinue
-            }
-        }
-        "health" {
-            Test-Health
-        }
-        "clean" {
-            Clean-Up
-        }
-        "help" {
-            Show-Help
-        }
-        "start" {
-            Setup-Application
-            Start-Applications
-        }
-        default {
-            Write-Error "❌ Unknown action: $Action"
-            Show-Help
-            exit 1
+    $actionLower = $Action.ToLower()
+    
+    if ($actionLower -eq "setup") {
+        Write-Status "Running setup only..."
+        Setup-Application
+        Write-Status "Setup complete! Run '.\setup-and-run.ps1 -Action start' to start the servers."
+    }
+    elseif ($actionLower -eq "seed") {
+        Write-Status "Seeding database..."
+        try {
+            npx prisma db seed
+            Write-Status "Database seeded successfully!"
+        } catch {
+            Write-Warning "Database seeding encountered issues. Trying alternative approach..."
+            Set-Location prisma -ErrorAction SilentlyContinue
+            npx prisma db seed
+            Set-Location .. -ErrorAction SilentlyContinue
         }
     }
-} catch {
-    Write-Error "💥 An unexpected error occurred: $($_.Exception.Message)"
-    Write-Status "📞 If the issue persists, please check the documentation or contact support."
+    elseif ($actionLower -eq "health") {
+        Test-Health
+    }
+    elseif ($actionLower -eq "clean") {
+        Clean-Up
+    }
+    elseif ($actionLower -eq "help") {
+        Show-Help
+    }
+    elseif ($actionLower -eq "start") {
+        Setup-Application
+        Start-Applications
+    }
+    else {
+        Write-Error "Unknown action: $Action"
+        Show-Help
+        exit 1
+    }
+}
+catch {
+    Write-Error "An unexpected error occurred: $($_.Exception.Message)"
+    Write-Status "If the issue persists, please check the documentation or contact support."
     exit 1
 }
