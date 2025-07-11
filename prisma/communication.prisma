@@ -1,0 +1,125 @@
+// Communication Models
+
+model Message {
+  id          Int       @id @default(autoincrement())
+  senderId    Int
+  sender      User      @relation("SentMessages", fields: [senderId], references: [id])
+  recipientId Int
+  recipient   User      @relation("ReceivedMessages", fields: [recipientId], references: [id])
+  subject     String?
+  body        String    @db.Text
+  isRead      Boolean   @default(false)
+  isArchived  Boolean   @default(false)
+  schoolId    Int
+  school      School    @relation(fields: [schoolId], references: [id])
+  parentId    Int?
+  parent      Message?  @relation("MessageReplies", fields: [parentId], references: [id])
+  replies     Message[] @relation("MessageReplies")
+  attachments MessageAttachment[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  @@index([senderId])
+  @@index([recipientId])
+  @@index([schoolId])
+  @@index([isRead])
+  @@index([parentId])
+}
+
+model MessageAttachment {
+  id        Int      @id @default(autoincrement())
+  messageId Int
+  message   Message  @relation(fields: [messageId], references: [id])
+  name      String
+  url       String
+  type      String?
+  size      Int?
+  schoolId  Int
+  school    School   @relation(fields: [schoolId], references: [id])
+  createdAt DateTime @default(now())
+  
+  @@index([messageId])
+  @@index([schoolId])
+}
+
+model Notification {
+  id          Int       @id @default(autoincrement())
+  userId      Int
+  user        User      @relation(fields: [userId], references: [id])
+  title       String
+  message     String
+  type        String    // 'info', 'success', 'warning', 'error', 'system'
+  isRead      Boolean   @default(false)
+  actionUrl   String?
+  schoolId    Int
+  school      School    @relation(fields: [schoolId], references: [id])
+  createdAt   DateTime  @default(now())
+  readAt      DateTime?
+  
+  @@index([userId])
+  @@index([schoolId])
+  @@index([isRead])
+  @@index([createdAt])
+}
+
+model Event {
+  id           Int          @id @default(autoincrement())
+  title        String
+  description  String?      @db.Text
+  startTime    DateTime
+  endTime      DateTime
+  location     String?
+  isAllDay     Boolean      @default(false)
+  isRecurring  Boolean      @default(false)
+  recurrence   String?      // JSON string with recurrence rules
+  isPublic     Boolean      @default(false)
+  createdById  Int
+  createdBy    User         @relation("CreatedEvents", fields: [createdById], references: [id])
+  schoolId     Int
+  school       School       @relation(fields: [schoolId], references: [id])
+  attendees    EventAttendee[]
+  attachments  EventAttachment[]
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  
+  @@index([startTime])
+  @@index([endTime])
+  @@index([schoolId])
+  @@index([createdById])
+  @@index([isPublic])
+}
+
+model EventAttendee {
+  id        Int       @id @default(autoincrement())
+  eventId   Int
+  event     Event     @relation(fields: [eventId], references: [id])
+  userId    Int
+  user      User      @relation(fields: [userId], references: [id])
+  status    String    @default("pending") // 'pending', 'accepted', 'declined', 'tentative'
+  schoolId  Int
+  school    School    @relation(fields: [schoolId], references: [id])
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  
+  @@unique([eventId, userId])
+  @@index([eventId])
+  @@index([userId])
+  @@index([schoolId])
+  @@index([status])
+}
+
+model EventAttachment {
+  id        Int      @id @default(autoincrement())
+  eventId   Int
+  event     Event    @relation(fields: [eventId], references: [id])
+  name      String
+  url       String
+  type      String?
+  size      Int?
+  schoolId  Int
+  school    School   @relation(fields: [schoolId], references: [id])
+  createdAt DateTime @default(now())
+  
+  @@index([eventId])
+  @@index([schoolId])
+}

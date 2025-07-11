@@ -1,0 +1,371 @@
+// Academic Models
+
+model Class {
+  id                  Int                 @id @default(autoincrement())
+  name                String
+  section             String?
+  academicYear        String?
+  academicTerm        String?
+  roomNumber          String?
+  capacity            Int?
+  isActive            Boolean             @default(true)
+  schoolId            Int
+  school              School              @relation(fields: [schoolId], references: [id])
+  students            Student[]
+  subjects            Subject[]
+  assignments         Assignment[]
+  exams               Exam[]
+  attendances         Attendance[]
+  grades              Grade[]
+  classSchedules      ClassSchedule[]
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+  
+  @@index([schoolId])
+  @@index([name, section])
+  @@index([academicYear, academicTerm])
+}
+
+model Subject {
+  id                  Int                 @id @default(autoincrement())
+  name                String
+  code                String?             @unique
+  description         String?
+  category            String?             // e.g., 'core', 'elective', 'language', 'arts'
+  credits             Float?              @default(1.0)
+  isActive            Boolean             @default(true)
+  colorCode           String?             // For UI display
+  classId             Int
+  class               Class               @relation(fields: [classId], references: [id])
+  teacherId           Int?
+  teacher             Staff?              @relation(fields: [teacherId], references: [id])
+  schoolId            Int
+  school              School              @relation(fields: [schoolId], references: [id])
+  grades              Grade[]
+  assignments         Assignment[]
+  exams               Exam[]
+  classSchedules      ClassSchedule[]
+  learningOutcomes    LearningOutcome[]
+  resourceMaterials   ResourceMaterial[]
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+  
+  @@index([schoolId])
+  @@index([classId])
+  @@index([teacherId])
+  @@index([code])
+  @@index([category])
+}
+
+model Assignment {
+  id                  Int                     @id @default(autoincrement())
+  title               String
+  description         String?
+  instructions        String?
+  dueDate             DateTime
+  maxScore            Float
+  weight              Float?                  @default(1.0)
+  isPublished         Boolean                 @default(false)
+  allowLateSubmissions Boolean                @default(false)
+  latePenalty         Float?                  @default(0)
+  submissionType      String                  @default("file") // 'file', 'text', 'both'
+  classId             Int
+  class               Class                   @relation(fields: [classId], references: [id])
+  subjectId           Int
+  subject             Subject                 @relation(fields: [subjectId], references: [id])
+  createdById         Int
+  createdBy           User                    @relation("CreatedAssignments", fields: [createdById], references: [id])
+  schoolId            Int
+  school              School                  @relation(fields: [schoolId], references: [id])
+  submissions         AssignmentSubmission[]
+  attachments         AssignmentAttachment[]
+  rubric              Rubric?
+  learningOutcomes    LearningOutcome[]
+  createdAt           DateTime                @default(now())
+  updatedAt           DateTime                @updatedAt
+  
+  @@index([classId])
+  @@index([subjectId])
+  @@index([createdById])
+  @@index([schoolId])
+  @@index([dueDate])
+  @@index([isPublished])
+}
+
+model AssignmentSubmission {
+  id                  Int                                 @id @default(autoincrement())
+  assignmentId        Int
+  assignment          Assignment                          @relation(fields: [assignmentId], references: [id])
+  studentId           Int
+  student             Student                             @relation(fields: [studentId], references: [id])
+  submittedAt         DateTime?
+  score               Float?
+  feedback            String?
+  privateNotes        String?
+  gradedById          Int?
+  gradedBy            User?                               @relation("GradedSubmissions", fields: [gradedById], references: [id])
+  gradedAt            DateTime?
+  status              String                              @default("pending") // 'draft', 'submitted', 'late', 'graded', 'resubmitted', 'excused'
+  submissionText      String?                             // For text submissions
+  draftText           String?                             // Auto-saved draft
+  lastSavedAt         DateTime?                           // Last auto-save time
+  schoolId            Int
+  school              School                              @relation(fields: [schoolId], references: [id])
+  attachments         AssignmentSubmissionAttachment[]
+  rubricAssessments   RubricAssessment[]
+  createdAt           DateTime                            @default(now())
+  updatedAt           DateTime                            @updatedAt
+  
+  @@unique([assignmentId, studentId])
+  @@index([assignmentId])
+  @@index([studentId])
+  @@index([schoolId])
+  @@index([status])
+  @@index([gradedById])
+  @@index([submittedAt])
+  @@index([gradedAt])
+}
+
+model AssignmentAttachment {
+  id            Int       @id @default(autoincrement())
+  assignmentId  Int
+  assignment    Assignment @relation(fields: [assignmentId], references: [id])
+  name          String
+  url           String
+  type          String?
+  size          Int?
+  schoolId      Int
+  school        School    @relation(fields: [schoolId], references: [id])
+  createdAt     DateTime  @default(now())
+  
+  @@index([assignmentId])
+  @@index([schoolId])
+}
+
+model AssignmentSubmissionAttachment {
+  id                 Int                 @id @default(autoincrement())
+  submissionId       Int
+  submission         AssignmentSubmission @relation(fields: [submissionId], references: [id])
+  name               String
+  url                String
+  type               String?
+  size               Int?
+  schoolId           Int
+  school             School    @relation(fields: [schoolId], references: [id])
+  createdAt          DateTime  @default(now())
+  
+  @@index([submissionId])
+  @@index([schoolId])
+}
+
+model Exam {
+  id                  Int                 @id @default(autoincrement())
+  name                String
+  description         String?
+  instructions        String?
+  startDate           DateTime
+  endDate             DateTime
+  duration            Int?                // Duration in minutes
+  maxScore            Float
+  passingScore        Float?
+  weight              Float?              @default(1.0)
+  isPublished         Boolean             @default(false)
+  examType            String?             // 'quiz', 'midterm', 'final', 'project', 'practical'
+  location            String?
+  roomNumber          String?
+  allowCalculator     Boolean             @default(false)
+  allowDictionary     Boolean             @default(false)
+  allowNotes          Boolean             @default(false)
+  classId             Int
+  class               Class               @relation(fields: [classId], references: [id])
+  subjectId           Int
+  subject             Subject             @relation(fields: [subjectId], references: [id])
+  createdById         Int
+  createdBy           User                @relation(fields: [createdById], references: [id])
+  schoolId            Int
+  school              School              @relation(fields: [schoolId], references: [id])
+  results             ExamResult[]
+  examSections        ExamSection[]
+  questionBanks       QuestionBank[]      @relation("ExamQuestionBanks")
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+  
+  @@index([classId])
+  @@index([subjectId])
+  @@index([schoolId])
+  @@index([startDate])
+  @@index([endDate])
+  @@index([examType])
+  @@index([createdById])
+}
+
+model ExamResult {
+  id          Int       @id @default(autoincrement())
+  examId      Int
+  exam        Exam      @relation(fields: [examId], references: [id])
+  studentId   Int
+  student     Student   @relation(fields: [studentId], references: [id])
+  score       Float
+  grade       String?
+  remarks     String?
+  isAbsent    Boolean   @default(false)
+  recordedById Int
+  recordedBy  User      @relation("RecordedExamResults", fields: [recordedById], references: [id])
+  schoolId    Int
+  school      School    @relation(fields: [schoolId], references: [id])
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  @@unique([examId, studentId])
+  @@index([examId])
+  @@index([studentId])
+  @@index([schoolId])
+}
+
+model Grade {
+  id                  Int                 @id @default(autoincrement())
+  studentId           Int
+  student             Student             @relation(fields: [studentId], references: [id])
+  subjectId           Int
+  subject             Subject             @relation(fields: [subjectId], references: [id])
+  grade               String
+  score               Float?
+  maxScore            Float
+  weight              Float?              @default(1.0)
+  gradingPeriod       String?             // e.g., 'Q1', 'Q2', 'Semester 1', 'Final'
+  academicYear        String?
+  term                String?             // 'Fall', 'Spring', 'Summer', etc.
+  isFinal             Boolean             @default(false)
+  isDropped           Boolean             @default(false)
+  notes               String?
+  rubricAssessmentId  Int?
+  rubricAssessment    RubricAssessment?   @relation(fields: [rubricAssessmentId], references: [id])
+  gradedById          Int?
+  gradedBy            User?               @relation("GradedGrades", fields: [gradedById], references: [id])
+  gradedAt            DateTime?
+  schoolId            Int
+  school              School              @relation(fields: [schoolId], references: [id])
+  assignmentId        Int?
+  assignment          Assignment?         @relation(fields: [assignmentId], references: [id])
+  examId              Int?
+  exam                Exam?               @relation(fields: [examId], references: [id])
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+  
+  @@unique([studentId, subjectId, assignmentId, examId, gradingPeriod, academicYear, term])
+  @@index([studentId])
+  @@index([subjectId])
+  @@index([schoolId])
+  @@index([gradingPeriod])
+  @@index([academicYear, term])
+  @@index([assignmentId])
+  @@index([examId])
+  @@index([gradedById])
+  @@index([gradedAt])
+}
+
+model Attendance {
+  id                  Int                 @id @default(autoincrement())
+  studentId           Int
+  student             Student             @relation(fields: [studentId], references: [id])
+  classId             Int
+  class               Class               @relation(fields: [classId], references: [id])
+  date                DateTime
+  status              String              // 'present', 'absent', 'late', 'excused', 'half_day'
+  notes               String?
+  recordedById        Int
+  recordedBy          User                @relation("RecordedAttendances", fields: [recordedById], references: [id])
+  recordedAt          DateTime            @default(now())
+  schoolId            Int
+  school              School              @relation(fields: [schoolId], references: [id])
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+  
+  @@unique([studentId, classId, date])
+  @@index([studentId])
+  @@index([classId])
+  @@index([date])
+  @@index([status])
+  @@index([recordedById])
+  @@index([schoolId])
+  
+  // Add this model to complete the relation
+  model ClassSchedule {
+    id                Int                 @id @default(autoincrement())
+    classId           Int
+    class             Class               @relation(fields: [classId], references: [id])
+    subjectId         Int
+    subject           Subject             @relation(fields: [subjectId], references: [id])
+    teacherId         Int
+    teacher           Staff               @relation(fields: [teacherId], references: [id])
+    dayOfWeek         Int                 // 0-6 (Sunday-Saturday)
+    startTime         String              // Format: 'HH:MM'
+    endTime           String              // Format: 'HH:MM'
+    roomNumber        String?
+    isActive          Boolean             @default(true)
+    schoolId          Int
+    school            School              @relation(fields: [schoolId], references: [id])
+    createdAt         DateTime            @default(now())
+    updatedAt         DateTime            @updatedAt
+    
+    @@index([classId])
+    @@index([subjectId])
+    @@index([teacherId])
+    @@index([dayOfWeek])
+    @@index([schoolId])
+  }
+  
+  model LearningOutcome {
+    id                Int                 @id @default(autoincrement())
+    code              String
+    description       String
+    subjectId         Int
+    subject           Subject             @relation(fields: [subjectId], references: [id])
+    assignments       Assignment[]
+    rubricCriteria    RubricCriterion[]
+    schoolId          Int
+    school            School              @relation(fields: [schoolId], references: [id])
+    createdAt         DateTime            @default(now())
+    updatedAt         DateTime            @updatedAt
+    
+    @@index([subjectId])
+    @@index([schoolId])
+    @@index([code])
+  }
+  
+  model ResourceMaterial {
+    id                Int                 @id @default(autoincrement())
+    title             String
+    description       String?
+    url               String
+    type              String?             // 'document', 'video', 'link', 'presentation', 'worksheet'
+    subjectId         Int
+    subject           Subject             @relation(fields: [subjectId], references: [id])
+    uploadedById      Int
+    uploadedBy        User                @relation(fields: [uploadedById], references: [id])
+    isPublic          Boolean             @default(false)
+    schoolId          Int
+    school            School              @relation(fields: [schoolId], references: [id])
+    createdAt         DateTime            @default(now())
+    updatedAt         DateTime            @updatedAt
+    
+    @@index([subjectId])
+    @@index([uploadedById])
+    @@index([schoolId])
+    @@index([type])
+  }
+  date       DateTime
+  status     String    // 'present', 'absent', 'late', 'excused'
+  notes      String?
+  recordedById Int
+  recordedBy User      @relation("RecordedAttendances", fields: [recordedById], references: [id])
+  schoolId   Int
+  school     School    @relation(fields: [schoolId], references: [id])
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  
+  @@index([studentId])
+  @@index([date])
+  @@index([status])
+  @@index([schoolId])
+}

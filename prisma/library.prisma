@@ -1,0 +1,218 @@
+// Library and Resource Management Models
+
+model Library {
+  id          Int               @id @default(autoincrement())
+  name        String
+  description String?           @db.Text
+  location    String?
+  schoolId    Int
+  school      School            @relation(fields: [schoolId], references: [id])
+  books       Book[]
+  members     LibraryMember[]
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  
+  @@index([schoolId])
+}
+
+model Book {
+  id              Int                 @id @default(autoincrement())
+  title           String
+  author          String
+  isbn            String?             @unique
+  publisher       String?
+  publicationYear Int?
+  edition         String?
+  category        String?
+  description     String?             @db.Text
+  coverImage      String?
+  totalCopies     Int                 @default(1)
+  availableCopies Int
+  schoolId        Int
+  school          School              @relation(fields: [schoolId], references: [id])
+  items           BookItem[]
+  transactions    LibraryTransaction[]
+  reservations    BookReservation[]
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+  
+  @@index([schoolId])
+  @@index([author])
+  @@index([category])
+}
+
+model BookItem {
+  id              Int                 @id @default(autoincrement())
+  bookId          Int
+  book            Book                @relation(fields: [bookId], references: [id])
+  barcode         String?             @unique
+  status          String              @default("available") // 'available', 'checked_out', 'lost', 'damaged', 'in_repair', 'withdrawn'
+  condition       String?             // 'new', 'good', 'worn', 'damaged'
+  acquisitionDate DateTime?           @default(now())
+  acquisitionCost Float?
+  notes           String?             @db.Text
+  schoolId        Int
+  school          School              @relation(fields: [schoolId], references: [id])
+  transactions    LibraryTransaction[]
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+  
+  @@index([bookId])
+  @@index([schoolId])
+  @@index([status])
+}
+
+model LibraryMember {
+  id              Int                 @id @default(autoincrement())
+  studentId       Int?
+  student         Student?            @relation(fields: [studentId], references: [id])
+  staffId         Int?
+  staff           Staff?              @relation(fields: [staffId], references: [id])
+  libraryId       Int
+  library         Library             @relation(fields: [libraryId], references: [id])
+  memberId        String              @unique
+  joinDate        DateTime            @default(now())
+  expiryDate      DateTime?
+  status          String              @default("active") // 'active', 'inactive', 'suspended', 'banned'
+  maxCheckoutLimit Int?               @default(5)
+  schoolId        Int
+  school          School              @relation(fields: [schoolId], references: [id])
+  transactions    LibraryTransaction[]
+  reservations    BookReservation[]
+  fines           LibraryFine[]
+  renewals        BookRenewal[]
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+  
+  @@index([studentId])
+  @@index([staffId])
+  @@index([libraryId])
+  @@index([schoolId])
+  @@index([status])
+  @@index([expiryDate])
+}
+
+model LibraryTransaction {
+  id              Int                 @id @default(autoincrement())
+  bookItemId      Int
+  bookItem        BookItem            @relation(fields: [bookItemId], references: [id])
+  bookId          Int
+  book            Book                @relation(fields: [bookId], references: [id])
+  memberId        Int
+  member          LibraryMember       @relation(fields: [memberId], references: [id])
+  checkoutDate    DateTime            @default(now())
+  dueDate         DateTime
+  returnDate      DateTime?
+  status          String              // 'checked_out', 'returned', 'overdue', 'lost'
+  fineAmount      Float?              @default(0)
+  finePaid        Boolean             @default(false)
+  notes           String?             @db.Text
+  processedById   Int
+  processedBy     User                @relation("ProcessedTransactions", fields: [processedById], references: [id])
+  schoolId        Int
+  school          School              @relation(fields: [schoolId], references: [id])
+  renewals        BookRenewal[]
+  fine            LibraryFine[]
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+  
+  @@index([bookItemId])
+  @@index([bookId])
+  @@index([memberId])
+  @@index([schoolId])
+  @@index([status])
+  @@index([dueDate])
+  @@index([returnDate])
+}
+
+model BookReservation {
+  id              Int                 @id @default(autoincrement())
+  bookId          Int
+  book            Book                @relation(fields: [bookId], references: [id])
+  memberId        Int
+  member          LibraryMember       @relation(fields: [memberId], references: [id])
+  reservationDate DateTime            @default(now())
+  expiryDate      DateTime
+  status          String              @default("pending") // 'pending', 'fulfilled', 'cancelled', 'expired'
+  notes           String?             @db.Text
+  schoolId        Int
+  school          School              @relation(fields: [schoolId], references: [id])
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+  
+  @@index([bookId])
+  @@index([memberId])
+  @@index([schoolId])
+  @@index([status])
+  @@index([expiryDate])
+}
+
+model BookRenewal {
+  id                  Int                 @id @default(autoincrement())
+  transactionId       Int
+  transaction         LibraryTransaction  @relation(fields: [transactionId], references: [id])
+  memberId            Int
+  member              LibraryMember       @relation(fields: [memberId], references: [id])
+  renewalDate         DateTime            @default(now())
+  previousDueDate     DateTime
+  newDueDate          DateTime
+  renewedById         Int
+  renewedBy           User                @relation("ProcessedRenewals", fields: [renewedById], references: [id])
+  schoolId            Int
+  school              School              @relation(fields: [schoolId], references: [id])
+  createdAt           DateTime            @default(now())
+  
+  @@index([transactionId])
+  @@index([memberId])
+  @@index([schoolId])
+  @@index([newDueDate])
+}
+
+model LibraryFine {
+  id              Int                 @id @default(autoincrement())
+  transactionId   Int
+  transaction     LibraryTransaction  @relation(fields: [transactionId], references: [id])
+  memberId        Int
+  member          LibraryMember       @relation(fields: [memberId], references: [id])
+  fineDate        DateTime            @default(now())
+  amount          Float
+  reason          String              // 'overdue', 'damaged', 'lost', 'other'
+  status          String              @default("unpaid") // 'unpaid', 'paid', 'waived', 'partially_paid'
+  paidAmount      Float?              @default(0)
+  paidDate        DateTime?
+  notes           String?             @db.Text
+  processedById   Int
+  processedBy     User                @relation("ProcessedFines", fields: [processedById], references: [id])
+  schoolId        Int
+  school          School              @relation(fields: [schoolId], references: [id])
+  payments        FinePayment[]
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+  
+  @@index([transactionId])
+  @@index([memberId])
+  @@index([schoolId])
+  @@index([status])
+  @@index([fineDate])
+}
+
+model FinePayment {
+  id              Int                 @id @default(autoincrement())
+  fineId          Int
+  fine            LibraryFine         @relation(fields: [fineId], references: [id])
+  amount          Float
+  paymentDate     DateTime            @default(now())
+  paymentMethod   String              // 'cash', 'credit_card', 'bank_transfer', 'check', 'online', 'other'
+  transactionId   String?             @unique
+  notes           String?             @db.Text
+  processedById   Int
+  processedBy     User                @relation("ProcessedFinePayments", fields: [processedById], references: [id])
+  schoolId        Int
+  school          School              @relation(fields: [schoolId], references: [id])
+  receiptNo       String?             @unique
+  createdAt       DateTime            @default(now())
+  
+  @@index([fineId])
+  @@index([schoolId])
+  @@index([paymentDate])
+}

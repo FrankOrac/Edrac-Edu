@@ -1,0 +1,109 @@
+// Base Prisma Configuration
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+// Using string literals instead of enum for SQLite compatibility
+
+// Base models that other models will reference
+model School {
+  id                      Int                     @id @default(autoincrement())
+  name                    String
+  domain                  String                  @unique
+  address                 String?
+  phone                   String?
+  email                   String?
+  logo                    String?
+  website                 String?
+  isActive                Boolean                 @default(true)
+  users                   User[]
+  staff                   Staff[]
+  students                Student[]
+  parents                 Parent[]
+  classes                 Class[]
+  subjects                Subject[]
+  assignments             Assignment[]
+  exams                   Exam[]
+  grades                  Grade[]
+  attendances             Attendance[]
+  messages                Message[]
+  notifications           Notification[]
+  events                  Event[]
+  payments                Payment[]
+  invoices                Invoice[]
+  fees                    Fee[]
+  receipts                Receipt[]
+  libraries               Library[]
+  transport               Transport[]
+  inventoryItems          InventoryItem[]
+  suppliers               Supplier[]
+  forums                  Forum[]
+  analyticsEvents         AnalyticsEvent[]
+  reports                 Report[]
+  reportExecutions        ReportExecution[]
+  analyticsSettings       AnalyticsSettings?
+  systemSettings          SystemSettings?
+  notificationSettings    NotificationSettings?
+  seoSettings             SEOSettings?
+  createdAt               DateTime                @default(now())
+  updatedAt               DateTime                @updatedAt
+  
+  @@index([name])
+  @@index([domain])
+}
+
+model User {
+  id                      Int                     @id @default(autoincrement())
+  email                   String                  @unique
+  password                String
+  firstName               String
+  lastName                String
+  role                    String                  // 'admin', 'teacher', 'student', 'parent', 'staff', 'librarian', 'accountant', 'receptionist', 'driver', 'inventory_manager', 'forum_moderator', 'forum_admin'
+  phone                   String?
+  avatar                  String?
+  isActive                Boolean                 @default(true)
+  lastLogin               DateTime?
+  schoolId                Int?
+  school                  School?                 @relation(fields: [schoolId], references: [id])
+  staff                   Staff?
+  student                 Student?
+  parent                  Parent?
+  sentMessages            Message[]                @relation("SentMessages")
+  receivedMessages        Message[]                @relation("ReceivedMessages")
+  notifications           Notification[]
+  createdEvents           Event[]                  @relation("CreatedEvents")
+  receivedPayments        Payment[]                @relation("ReceivedPayments")
+  madePayments            Payment[]                @relation("MadePayments")
+  processedTransactions   LibraryTransaction[]     @relation("ProcessedTransactions")
+  processedRenewals       BookRenewal[]            @relation("ProcessedRenewals")
+  processedFines          LibraryFine[]            @relation("ProcessedFines")
+  processedFinePayments   FinePayment[]            @relation("ProcessedFinePayments")
+  recordedTripPassengers  TransportTripPassenger[] @relation("RecordedTripPassengers")
+  createdReceipts         Receipt[]                @relation("CreatedReceipts")
+  createdAssignments      Assignment[]             @relation("CreatedAssignments")
+  gradedSubmissions       AssignmentSubmission[]   @relation("GradedSubmissions")
+  recordedExamResults     ExamResult[]             @relation("RecordedExamResults")
+  gradedGrades            Grade[]                  @relation("GradedGrades")
+  recordedAttendances     Attendance[]             @relation("RecordedAttendances")
+  inventoryTransactions   InventoryTransaction[]   @relation("InventoryTransactions")
+  forumPosts              ForumPost[]
+  forumTopics             ForumTopic[]
+  forumAttachments        ForumAttachment[]
+  forumReports            ForumReport[]            @relation("ResolvedReports")
+  forumNotifications      ForumNotification[]
+  analyticsEvents         AnalyticsEvent[]
+  createdAt               DateTime                @default(now())
+  updatedAt               DateTime                @updatedAt
+  
+  @@index([email])
+  @@index([role])
+  @@index([schoolId])
+}
+
+// Include other models using Prisma's import syntax
+// These will be defined in separate files for better organization

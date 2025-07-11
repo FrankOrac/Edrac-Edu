@@ -1,0 +1,263 @@
+// Forum and Community Models
+
+model Forum {
+  id              Int               @id @default(autoincrement())
+  name            String
+  description     String?           @db.Text
+  slug            String            @unique
+  isPublic        Boolean           @default(true)
+  isActive        Boolean           @default(true)
+  order           Int               @default(0)
+  schoolId        Int
+  school          School            @relation(fields: [schoolId], references: [id])
+  categories      ForumCategory[]
+  members         ForumMember[]
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  
+  @@index([schoolId])
+  @@index([isPublic])
+  @@index([isActive])
+  @@index([order])
+}
+
+model ForumCategory {
+  id              Int               @id @default(autoincrement())
+  name            String
+  description     String?           @db.Text
+  slug            String
+  icon            String?
+  order           Int               @default(0)
+  isActive        Boolean           @default(true)
+  forumId         Int
+  forum           Forum             @relation(fields: [forumId], references: [id])
+  parentId        Int?
+  parent          ForumCategory?    @relation("Subcategories", fields: [parentId], references: [id])
+  subcategories   ForumCategory[]   @relation("Subcategories")
+  topics          ForumTopic[]
+  schoolId        Int
+  school          School            @relation(fields: [schoolId], references: [id])
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  
+  @@unique([forumId, slug])
+  @@index([forumId])
+  @@index([parentId])
+  @@index([schoolId])
+  @@index([isActive])
+  @@index([order])
+}
+
+model ForumTopic {
+  id              Int               @id @default(autoincrement())
+  title           String
+  slug            String
+  content         String            @db.Text
+  isPinned        Boolean           @default(false)
+  isLocked        Boolean           @default(false)
+  isApproved      Boolean           @default(true)
+  viewCount       Int               @default(0)
+  lastPostAt      DateTime?
+  forumId         Int
+  forum           Forum             @relation(fields: [forumId], references: [id])
+  categoryId      Int
+  category        ForumCategory     @relation(fields: [categoryId], references: [id])
+  authorId        Int
+  author          User              @relation(fields: [authorId], references: [id])
+  lastPostId      Int?
+  lastPost        ForumPost?        @relation("LastPost", fields: [lastPostId], references: [id])
+  posts           ForumPost[]
+  attachments     ForumAttachment[]
+  subscribers     ForumTopicSubscription[]
+  reports         ForumReport[]
+  schoolId        Int
+  school          School            @relation(fields: [schoolId], references: [id])
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  
+  @@unique([forumId, slug])
+  @@index([forumId])
+  @@index([categoryId])
+  @@index([authorId])
+  @@index([lastPostId])
+  @@index([schoolId])
+  @@index([isPinned])
+  @@index([isLocked])
+  @@index([isApproved])
+  @@index([lastPostAt])
+}
+
+model ForumPost {
+  id              Int               @id @default(autoincrement())
+  content         String            @db.Text
+  isFirstPost     Boolean           @default(false)
+  isApproved      Boolean           @default(true)
+  topicId         Int
+  topic           ForumTopic        @relation(fields: [topicId], references: [id])
+  authorId        Int
+  author          User              @relation(fields: [authorId], references: [id])
+  parentId        Int?
+  parent          ForumPost?        @relation("Replies", fields: [parentId], references: [id])
+  replies         ForumPost[]       @relation("Replies")
+  likes           ForumPostLike[]
+  attachments     ForumAttachment[]
+  reports         ForumReport[]
+  schoolId        Int
+  school          School            @relation(fields: [schoolId], references: [id])
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  
+  @@index([topicId])
+  @@index([authorId])
+  @@index([parentId])
+  @@index([schoolId])
+  @@index([isFirstPost])
+  @@index([isApproved])
+  @@index([createdAt])
+}
+
+model ForumMember {
+  id              Int               @id @default(autoincrement())
+  forumId         Int
+  forum           Forum             @relation(fields: [forumId], references: [id])
+  userId          Int
+  user            User              @relation(fields: [userId], references: [id])
+  role            String            @default("member") // 'member', 'moderator', 'admin'
+  joinDate        DateTime          @default(now())
+  postCount       Int               @default(0)
+  topicCount      Int               @default(0)
+  lastPostAt      DateTime?
+  signature       String?           @db.Text
+  isBanned        Boolean           @default(false)
+  banReason       String?           @db.Text
+  banExpiresAt    DateTime?
+  notifications   ForumNotification[]
+  subscriptions   ForumTopicSubscription[]
+  reports         ForumReport[]
+  schoolId        Int
+  school          School            @relation(fields: [schoolId], references: [id])
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  
+  @@unique([forumId, userId])
+  @@index([forumId])
+  @@index([userId])
+  @@index([schoolId])
+  @@index([role])
+  @@index([isBanned])
+  @@index([banExpiresAt])
+}
+
+model ForumTopicSubscription {
+  id              Int               @id @default(autoincrement())
+  topicId         Int
+  topic           ForumTopic        @relation(fields: [topicId], references: [id])
+  memberId        Int
+  member          ForumMember       @relation(fields: [memberId], references: [id])
+  isNotified      Boolean           @default(true)
+  lastNotifiedAt  DateTime?
+  schoolId        Int
+  school          School            @relation(fields: [schoolId], references: [id])
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  
+  @@unique([topicId, memberId])
+  @@index([topicId])
+  @@index([memberId])
+  @@index([schoolId])
+}
+
+model ForumPostLike {
+  id              Int               @id @default(autoincrement())
+  postId          Int
+  post            ForumPost         @relation(fields: [postId], references: [id])
+  memberId        Int
+  member          ForumMember       @relation(fields: [memberId], references: [id])
+  schoolId        Int
+  school          School            @relation(fields: [schoolId], references: [id])
+  createdAt       DateTime          @default(now())
+  
+  @@unique([postId, memberId])
+  @@index([postId])
+  @@index([memberId])
+  @@index([schoolId])
+}
+
+model ForumAttachment {
+  id              Int               @id @default(autoincrement())
+  name            String
+  path            String
+  type            String?
+  size            Int
+  downloadCount   Int               @default(0)
+  topicId         Int?
+  topic           ForumTopic?       @relation(fields: [topicId], references: [id])
+  postId          Int?
+  post            ForumPost?        @relation(fields: [postId], references: [id])
+  uploadedById    Int
+  uploadedBy      User              @relation(fields: [uploadedById], references: [id])
+  schoolId        Int
+  school          School            @relation(fields: [schoolId], references: [id])
+  createdAt       DateTime          @default(now())
+  
+  @@index([topicId])
+  @@index([postId])
+  @@index([uploadedById])
+  @@index([schoolId])
+}
+
+model ForumReport {
+  id              Int               @id @default(autoincrement())
+  reason          String            @db.Text
+  status          String            @default("pending") // 'pending', 'reviewed', 'resolved', 'rejected'
+  resolution      String?           @db.Text
+  topicId         Int?
+  topic           ForumTopic?       @relation(fields: [topicId], references: [id])
+  postId          Int?
+  post            ForumPost?        @relation(fields: [postId], references: [id])
+  reportedById    Int
+  reportedBy      ForumMember       @relation("ReportedBy", fields: [reportedById], references: [id])
+  reportedMemberId Int?
+  reportedMember  ForumMember?      @relation("ReportedMember", fields: [reportedMemberId], references: [id])
+  resolvedById    Int?
+  resolvedBy      User?             @relation("ResolvedReports", fields: [resolvedById], references: [id])
+  resolvedAt      DateTime?
+  schoolId        Int
+  school          School            @relation(fields: [schoolId], references: [id])
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  
+  @@index([topicId])
+  @@index([postId])
+  @@index([reportedById])
+  @@index([reportedMemberId])
+  @@index([resolvedById])
+  @@index([schoolId])
+  @@index([status])
+}
+
+model ForumNotification {
+  id              Int               @id @default(autoincrement())
+  type            String            // 'topic_reply', 'mention', 'reaction', 'moderation', 'system'
+  isRead          Boolean           @default(false)
+  memberId        Int
+  member          ForumMember       @relation(fields: [memberId], references: [id])
+  data            String?           @db.Text // JSON string with notification data
+  topicId         Int?
+  topic           ForumTopic?       @relation(fields: [topicId], references: [id])
+  postId          Int?
+  post            ForumPost?        @relation(fields: [postId], references: [id])
+  createdById     Int?
+  createdBy       User?             @relation("CreatedForumNotifications", fields: [createdById], references: [id])
+  schoolId        Int
+  school          School            @relation(fields: [schoolId], references: [id])
+  createdAt       DateTime          @default(now())
+  
+  @@index([memberId])
+  @@index([topicId])
+  @@index([postId])
+  @@index([createdById])
+  @@index([schoolId])
+  @@index([isRead])
+  @@index([createdAt])
+}

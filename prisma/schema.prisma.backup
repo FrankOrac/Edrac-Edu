@@ -9,13 +9,15 @@ datasource db {
   url      = "file:./dev.db"
 }
 
+// Using string literals instead of enum for SQLite compatibility
+
 // --- Core User and Role Management ---
 model User {
   id        Int      @id @default(autoincrement())
   email     String   @unique
   name      String?
   password  String
-  role      Role     @default(STUDENT)
+  role      String   @default("STUDENT")
   schoolId  Int?
   school    School?  @relation(fields: [schoolId], references: [id])
   student   Student?
@@ -31,15 +33,7 @@ model User {
 }
 
 
-enum Role {
-  ADMIN
-  TEACHER
-  STUDENT
-  PARENT
-  STAFF
-  ALUMNI
-  SUPERADMIN
-}
+
 
 // --- School and Structure ---
 model School {
@@ -168,17 +162,12 @@ model Attendance {
   studentId Int
   student   Student  @relation(fields: [studentId], references: [id])
   date      DateTime
-  status    AttendanceStatus
+  status    String @default("PRESENT")
   type      String?
   location  String?
 }
 
-enum AttendanceStatus {
-  PRESENT
-  ABSENT
-  LATE
-  EXCUSED
-}
+// Using string literals for attendance status
 
 model Assignment {
   id          Int      @id @default(autoincrement())
@@ -360,18 +349,13 @@ model CbtSession {
   startedAt   DateTime   @default(now())
   endedAt     DateTime?
   duration    Int        // in minutes
-  status      CbtSessionStatus @default(PENDING)
+  status      String @default("PENDING")
   results     CbtResult[]
   questions   CbtQuestion[]
 }
 
 
-enum CbtSessionStatus {
-  PENDING
-  IN_PROGRESS
-  COMPLETED
-  EXPIRED
-}
+// Using string literals for CBT session status
 
 model CbtSubject {
   id        Int           @id @default(autoincrement())
@@ -405,6 +389,295 @@ model CbtResult {
   selected    String
   correct     Boolean
   answeredAt  DateTime   @default(now())
+}
+
+// --- Advertising Settings ---
+model AdvertisingSettings {
+  id              Int      @id @default(autoincrement())
+  adsenseEnabled  Boolean  @default(false)
+  adsenseClientId String?
+  adsenseSlotIds  String   @default("{\"header\": \"\", \"sidebar\": \"\", \"footer\": \"\", \"inContent\": \"\"}")
+  customAdsEnabled Boolean  @default(false)
+  customAdCode    String?
+  adPlacements    String   @default("{\"header\": true, \"sidebar\": true, \"footer\": true, \"inContent\": true}")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+// ... (rest of the code remains the same)
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?
+  type        String   // e.g., 'chat', 'completion', 'embedding', 'custom'
+  url         String
+  apiKey      String?  // Encrypted in production
+  enabled     Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Add any additional fields as needed
+  metadata    String?  // JSON string for additional configuration
+  
+  @@unique([name, type])
+}
+
+// --- Analytics Reports ---
+model AnalyticsReport {
+  id           Int      @id @default(autoincrement())
+  title        String
+  description  String?
+  data         String   // JSON string containing the report data
+  type         String   // e.g., 'user_activity', 'system_performance', 'engagement'
+  generatedAt  DateTime @default(now())
+  generatedBy  Int?     // User ID who generated the report
+  isScheduled  Boolean  @default(false)
+  schedule     String?  // Cron expression if scheduled
+  status       String   @default('completed') // 'pending', 'processing', 'completed', 'failed'
+  filters      String?  // JSON string of filters applied
+  
+  @@index([type])
+  @@index([generatedAt])
+}
+
+// --- Notification Settings ---
+model NotificationSettings {
+  id           Int      @id @default(autoincrement())
+  emailEnabled Boolean  @default(true)
+  emailProvider String?  // e.g., 'sendgrid', 'mailgun', 'smtp'
+  emailSettings String?  // JSON string with provider-specific settings
+  smsEnabled   Boolean  @default(false)
+  smsProvider  String?  // e.g., 'twilio', 'nexmo'
+  smsSettings  String?  // JSON string with provider-specific settings
+  pushEnabled  Boolean  @default(true)
+  pushSettings String?  // JSON string with push notification settings
+  
+  // Notification triggers (stored as JSON string)
+  triggers     String   @default("{\"userRegistration\": {\"email\": true, \"sms\": false}, \"loginAttempt\": {\"email\": false, \"sms\": false}, \"paymentSuccess\": {\"email\": true, \"sms\": true}, \"examCompleted\": {\"email\": true, \"sms\": false}, \"assignmentDue\": {\"email\": true, \"sms\": false}}")
+  
+  // Additional settings
+  isDefault    Boolean  @default(true) // If this is the default settings
+  schoolId     Int?     // If these are school-specific settings
+  
+  // Timestamps
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  
+  // Relations
+  school       School?  @relation(fields: [schoolId], references: [id])
+  
+  @@index([schoolId])
+}
+
+// --- Advertising Settings ---
+model AdvertisingSettings {
+  id              Int      @id @default(autoincrement())
+  adsenseEnabled  Boolean  @default(false)
+  adsenseClientId String?
+  adsenseSlotIds  String   @default("{\"header\": \"\", \"sidebar\": \"\", \"footer\": \"\", \"inContent\": \"\"}")
+  customAdsEnabled Boolean  @default(false)
+  customAdCode    String?
+  adPlacements    String   @default("{\"header\": true, \"sidebar\": true, \"footer\": true, \"inContent\": true}")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+// --- AI Endpoints ---
+model AIEndpoint {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?
+  type        String   // e.g., 'chat', 'completion', 'embedding', 'custom'
+  url         String
+  apiKey      String?  // Encrypted in production
+  enabled     Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  metadata    String?  // JSON string for additional configuration
+  @@unique([name, type])
+}
+
+// --- Analytics Reports ---
+model AnalyticsReport {
+  id           Int      @id @default(autoincrement())
+  title        String
+  description  String?
+  data         String   // JSON string containing the report data
+  type         String   // e.g., 'user_activity', 'system_performance', 'engagement'
+  generatedAt  DateTime @default(now())
+  generatedBy  Int?     // User ID who generated the report
+  isScheduled  Boolean  @default(false)
+  schedule     String?  // Cron expression if scheduled
+  status       String   @default("completed") // 'pending', 'processing', 'completed', 'failed'
+  filters      String?  // JSON string of filters applied
+  
+  @@index([type])
+  @@index([generatedAt])
+}
+
+// --- Analytics Settings ---
+model AnalyticsSettings {
+  id                      Int       @id @default(autoincrement())
+  googleAnalyticsEnabled  Boolean   @default(false)
+  googleAnalyticsId       String?   
+  gtmEnabled             Boolean   @default(false)
+  gtmId                  String?   
+  facebookPixelEnabled   Boolean   @default(false)
+  facebookPixelId        String?   
+  hotjarEnabled          Boolean   @default(false)
+  hotjarId               String?   
+  customScripts          String?   @default("[]") // JSON array of custom scripts
+  anonymizeIp            Boolean   @default(true)
+  respectDoNotTrack      Boolean   @default(true)
+  schoolId               Int?     
+  school                 School?   @relation(fields: [schoolId], references: [id])
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
+  
+  @@index([schoolId])
+}
+
+// --- Library Item ---
+model LibraryItem {
+  id              Int       @id @default(autoincrement())
+  title           String
+  author          String
+  isbn            String?   
+  type            String    // e.g., 'book', 'journal', 'ebook', 'audio', 'video'
+  category        String?   
+  description     String?   
+  coverImage      String?   
+  fileUrl         String?   // For digital items
+  location        String?   // Physical location for physical items
+  available       Boolean   @default(true)
+  totalCopies     Int       @default(1)
+  availableCopies Int       @default(1)
+  schoolId        Int?     
+  school          School?   @relation(fields: [schoolId], references: [id])
+  publishedYear   Int?     
+  publisher       String?  
+  language        String?  @default("English")
+  pages           Int?     
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  @@index([schoolId])
+  @@index([type])
+  @@index([isbn])
+}
+
+// --- Notification Settings ---
+model NotificationSettings {
+  id              Int      @id @default(autoincrement())
+  emailEnabled    Boolean  @default(true)
+  emailProvider   String?
+  emailSettings   String?
+  smsEnabled      Boolean  @default(false)
+  smsProvider     String?
+  smsSettings     String?
+  pushEnabled     Boolean  @default(true)
+  pushSettings    String?
+  triggers        String   @default("{\"userRegistration\": {\"email\": true, \"sms\": false}, \"loginAttempt\": {\"email\": false, \"sms\": false}, \"paymentSuccess\": {\"email\": true, \"sms\": true}, \"examCompleted\": {\"email\": true, \"sms\": false}, \"assignmentDue\": {\"email\": true, \"sms\": false}}")
+  isDefault       Boolean  @default(true)
+  schoolId        Int?
+  school          School?  @relation(fields: [schoolId], references: [id])
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@index([schoolId])
+}
+
+// --- SEO Settings ---
+model SEOSettings {
+  id               Int      @id @default(autoincrement())
+  metaTitle        String   @default("EduAI Platform")
+  metaDescription  String   @default("Complete education management platform with AI integration")
+  metaKeywords     String   @default("education, AI, learning, school management")
+  ogTitle          String?  @default("EduAI Platform")
+  ogDescription    String?  @default("Next generation education management system")
+  ogImage          String?  @default("/images/og-image.jpg")
+  twitterCard      String?  @default("summary_large_image")
+  canonicalUrl     String?  
+  robotsTxt        String   @default("User-agent: *\nAllow: /")
+  sitemapEnabled   Boolean  @default(true)
+  sitemapUrl       String?  
+  googleSiteVerification String?
+  bingSiteVerification   String?
+  baiduSiteVerification  String?
+  yandexSiteVerification String?
+  
+  // School relation for multi-tenant support
+  schoolId         Int?     
+  school           School?  @relation(fields: [schoolId], references: [id])
+  
+  // Timestamps
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  
+  @@index([schoolId])
+}
+
+// --- Analytics Settings ---
+model AnalyticsSettings {
+  id                      Int       @id @default(autoincrement())
+  googleAnalyticsEnabled   Boolean   @default(false)
+  googleAnalyticsId        String?   
+  gtmEnabled              Boolean   @default(false)
+  gtmId                   String?   
+  facebookPixelEnabled    Boolean   @default(false)
+  facebookPixelId         String?   
+  hotjarEnabled           Boolean   @default(false)
+  hotjarId                String?   
+  customScripts           String?   @default("[]") // JSON array of custom scripts
+  
+  // Privacy settings
+  anonymizeIp             Boolean   @default(true)
+  respectDoNotTrack       Boolean   @default(true)
+  
+  // School relation for multi-tenant support
+  schoolId                Int?     
+  school                  School?  @relation(fields: [schoolId], references: [id])
+  
+  // Timestamps
+  createdAt               DateTime  @default(now())
+  updatedAt               DateTime  @updatedAt
+  
+  @@index([schoolId])
+}
+
+// --- Library Item ---
+model LibraryItem {
+  id              Int       @id @default(autoincrement())
+  title           String
+  author          String
+  isbn            String?   
+  type            String    // e.g., 'book', 'journal', 'ebook', 'audio', 'video'
+  category        String?   
+  description     String?   
+  coverImage      String?   
+  fileUrl         String?   // For digital items
+  location        String?   // Physical location for physical items
+  available       Boolean   @default(true)
+  totalCopies     Int       @default(1)
+  availableCopies Int       @default(1)
+  
+  // Relations
+  schoolId        Int?     
+  school          School?  @relation(fields: [schoolId], references: [id])
+  
+  // Metadata
+  publishedYear   Int?     
+  publisher       String?  
+  language        String?  @default("English")
+  pages           Int?     
+  
+  // Timestamps
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  // Indexes
+  @@index([schoolId])
+  @@index([type])
+  @@index([isbn])
 }
 
 // --- Extension points for future features: AI, VR/AR, Metaverse, etc. ---

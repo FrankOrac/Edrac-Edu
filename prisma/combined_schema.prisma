@@ -1,0 +1,263 @@
+// Main Prisma Schema File
+// This file combines all modular schema files
+
+// Base Configuration and Core Models
+// =================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+// Import all schema modules
+// ========================
+
+// Core models (School, User, etc.)
+// ===============================
+model School {
+  id          Int      @id @default(autoincrement())
+  name        String
+  domain      String   @unique
+  address     String?
+  phone       String?
+  email       String?
+  logo        String?
+  website     String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model User {
+  id               Int      @id @default(autoincrement())
+  email            String   @unique
+  password         String
+  firstName        String
+  lastName         String
+  role             String   // 'admin', 'teacher', 'student', 'parent', 'staff'
+  phone            String?
+  avatar           String?
+  isActive         Boolean  @default(true)
+  lastLogin        DateTime?
+  schoolId         Int?
+  school           School?  @relation(fields: [schoolId], references: [id])
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  
+  @@index([email])
+  @@index([role])
+  @@index([schoolId])
+}
+
+// Import all other models
+// ======================
+
+// Academic models (Class, Subject, Assignment, etc.)
+// ================================================
+model Class {
+  id          Int         @id @default(autoincrement())
+  name        String
+  section     String?
+  schoolId    Int
+  school      School      @relation(fields: [schoolId], references: [id])
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  
+  @@index([schoolId])
+}
+
+// ... (other models from academic.prisma)
+
+// User-related models (Staff, Student, Parent)
+// ===========================================
+model Staff {
+  id          Int         @id @default(autoincrement())
+  userId      Int         @unique
+  user        User        @relation(fields: [userId], references: [id])
+  staffId     String      @unique
+  department  String?
+  position    String?
+  hireDate    DateTime?
+  salary      Float?
+  schoolId    Int
+  school      School      @relation(fields: [schoolId], references: [id])
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  
+  @@index([schoolId])
+  @@index([staffId])
+}
+
+// ... (other models from users.prisma)
+
+// Communication models (Message, Notification, Event)
+// =================================================
+model Message {
+  id          Int       @id @default(autoincrement())
+  senderId    Int
+  sender      User      @relation("SentMessages", fields: [senderId], references: [id])
+  recipientId Int
+  recipient   User      @relation("ReceivedMessages", fields: [recipientId], references: [id])
+  subject     String?
+  body        String    @db.Text
+  isRead      Boolean   @default(false)
+  isArchived  Boolean   @default(false)
+  schoolId    Int
+  school      School    @relation(fields: [schoolId], references: [id])
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  @@index([senderId])
+  @@index([recipientId])
+  @@index([schoolId])
+  @@index([isRead])
+}
+
+// ... (other models from communication.prisma)
+
+// Finance models (Payment, Invoice, Fee, etc.)
+// ===========================================
+model Payment {
+  id              Int           @id @default(autoincrement())
+  amount          Float
+  paymentMethod   String        // 'cash', 'credit_card', 'bank_transfer', 'check', 'online', 'other'
+  transactionId   String?       @unique
+  paymentDate     DateTime
+  notes           String?       @db.Text
+  status          String        @default("pending") // 'pending', 'completed', 'failed', 'refunded', 'partially_refunded'
+  schoolId        Int
+  school          School        @relation(fields: [schoolId], references: [id])
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  
+  @@index([schoolId])
+  @@index([paymentDate])
+  @@index([status])
+}
+
+// ... (other models from finance.prisma)
+
+// Library and Resource models
+// ==========================
+model Library {
+  id          Int               @id @default(autoincrement())
+  name        String
+  description String?           @db.Text
+  location    String?
+  schoolId    Int
+  school      School            @relation(fields: [schoolId], references: [id])
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  
+  @@index([schoolId])
+}
+
+// ... (other models from library.prisma)
+
+// Transport and Inventory models
+// =============================
+model Transport {
+  id              Int                     @id @default(autoincrement())
+  name            String
+  description     String?                 @db.Text
+  vehicleNo       String
+  driverName      String
+  driverPhone     String?
+  capacity        Int
+  route           String?
+  status          String                  @default("active") // 'active', 'inactive', 'maintenance', 'accident', 'other'
+  schoolId        Int
+  school          School                  @relation(fields: [schoolId], references: [id])
+  createdAt       DateTime                @default(now())
+  updatedAt       DateTime                @updatedAt
+  
+  @@index([schoolId])
+  @@index([status])
+  @@index([vehicleNo])
+}
+
+// ... (other models from transport.prisma)
+
+// Forum and Community models
+// =========================
+model Forum {
+  id              Int               @id @default(autoincrement())
+  name            String
+  description     String?           @db.Text
+  slug            String            @unique
+  isPublic        Boolean           @default(true)
+  isActive        Boolean           @default(true)
+  order           Int               @default(0)
+  schoolId        Int
+  school          School            @relation(fields: [schoolId], references: [id])
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  
+  @@index([schoolId])
+  @@index([isPublic])
+  @@index([isActive])
+  @@index([order])
+}
+
+// ... (other models from forum.prisma)
+
+// Analytics and Settings models
+// ===========================
+model AnalyticsEvent {
+  id              Int               @id @default(autoincrement())
+  eventType       String            // 'page_view', 'login', 'download', 'api_call', etc.
+  eventData       String?           @db.Text // JSON string with event data
+  ipAddress       String?
+  userAgent       String?           @db.Text
+  referrer        String?           @db.Text
+  url             String?           @db.Text
+  userId          Int?
+  user            User?             @relation(fields: [userId], references: [id])
+  schoolId        Int
+  school          School            @relation(fields: [schoolId], references: [id])
+  createdAt       DateTime          @default(now())
+  
+  @@index([eventType])
+  @@index([userId])
+  @@index([schoolId])
+  @@index([createdAt])
+}
+
+// ... (other models from analytics.prisma)
+
+// System Settings
+// ==============
+model SystemSettings {
+  id                      Int       @id @default(autoincrement())
+  maintenanceMode         Boolean   @default(false)
+  maintenanceMessage      String?   @db.Text
+  registrationEnabled     Boolean   @default(true)
+  emailVerificationRequired Boolean @default(true)
+  passwordResetEnabled    Boolean   @default(true)
+  twoFactorAuthRequired   Boolean   @default(false)
+  sessionTimeout          Int       @default(30) // in minutes
+  maxLoginAttempts        Int       @default(5)
+  passwordMinLength       Int       @default(8)
+  passwordRequireUppercase Boolean   @default(true)
+  passwordRequireLowercase Boolean   @default(true)
+  passwordRequireNumber   Boolean   @default(true)
+  passwordRequireSpecial  Boolean   @default(true)
+  passwordExpiryDays      Int?      // null means never expires
+  passwordReuseLimit      Int       @default(5)
+  captchaEnabled          Boolean   @default(false)
+  captchaType             String?   // 'recaptcha', 'hcaptcha', 'turnstile'
+  captchaSiteKey          String?   
+  captchaSecretKey        String?   
+  schoolId                Int       @unique
+  school                  School    @relation(fields: [schoolId], references: [id])
+  createdAt               DateTime  @default(now())
+  updatedAt               DateTime  @updatedAt
+  
+  @@index([schoolId])
+}
+
+// ... (other settings models from analytics.prisma)

@@ -1,0 +1,127 @@
+// Finance Models
+
+model Payment {
+  id              Int           @id @default(autoincrement())
+  invoiceId       Int?
+  invoice         Invoice?      @relation(fields: [invoiceId], references: [id])
+  amount          Float
+  paymentMethod   String        // 'cash', 'credit_card', 'bank_transfer', 'check', 'online', 'other'
+  transactionId   String?       @unique
+  paymentDate     DateTime
+  receivedById    Int
+  receivedBy      User          @relation("ReceivedPayments", fields: [receivedById], references: [id])
+  payerId         Int
+  payer           User          @relation("MadePayments", fields: [payerId], references: [id])
+  notes           String?       @db.Text
+  status          String        @default("pending") // 'pending', 'completed', 'failed', 'refunded', 'partially_refunded'
+  schoolId        Int
+  school          School        @relation(fields: [schoolId], references: [id])
+  receipts        Receipt[]
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  
+  @@index([invoiceId])
+  @@index([receivedById])
+  @@index([payerId])
+  @@index([schoolId])
+  @@index([paymentDate])
+  @@index([status])
+}
+
+model Invoice {
+  id              Int           @id @default(autoincrement())
+  invoiceNo       String        @unique
+  studentId       Int?
+  student         Student?      @relation(fields: [studentId], references: [id])
+  parentId        Int?
+  parent          Parent?       @relation(fields: [parentId], references: [id])
+  dueDate         DateTime
+  issueDate       DateTime      @default(now())
+  status          String        @default("unpaid") // 'draft', 'sent', 'viewed', 'overdue', 'paid', 'cancelled', 'refunded'
+  subtotal        Float
+  taxAmount       Float         @default(0)
+  discountAmount  Float         @default(0)
+  total           Float
+  notes           String?       @db.Text
+  terms           String?       @db.Text
+  schoolId        Int
+  school          School        @relation(fields: [schoolId], references: [id])
+  items           InvoiceItem[]
+  payments        Payment[]
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  
+  @@index([studentId])
+  @@index([parentId])
+  @@index([schoolId])
+  @@index([dueDate])
+  @@index([status])
+}
+
+model InvoiceItem {
+  id              Int           @id @default(autoincrement())
+  invoiceId       Int
+  invoice         Invoice       @relation(fields: [invoiceId], references: [id])
+  description     String
+  quantity        Float         @default(1)
+  unitPrice       Float
+  taxRate         Float?        @default(0)
+  discountAmount  Float?        @default(0)
+  total           Float
+  schoolId        Int
+  school          School        @relation(fields: [schoolId], references: [id])
+  feeId           Int?
+  fee             Fee?          @relation(fields: [feeId], references: [id])
+  createdAt       DateTime      @default(now())
+  
+  @@index([invoiceId])
+  @@index([schoolId])
+  @@index([feeId])
+}
+
+model Fee {
+  id              Int             @id @default(autoincrement())
+  name            String
+  description     String?         @db.Text
+  amount          Float
+  taxInclusive    Boolean         @default(false)
+  taxRate         Float?          @default(0)
+  frequency       String          @default("one_time") // 'one_time', 'daily', 'weekly', 'monthly', 'quarterly', 'yearly'
+  dueDate         DateTime?
+  isActive        Boolean         @default(true)
+  schoolId        Int
+  school          School          @relation(fields: [schoolId], references: [id])
+  classId         Int?
+  class           Class?          @relation(fields: [classId], references: [id])
+  invoiceItems    InvoiceItem[]
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  
+  @@index([schoolId])
+  @@index([classId])
+  @@index([isActive])
+  @@index([dueDate])
+}
+
+model Receipt {
+  id              Int           @id @default(autoincrement())
+  receiptNo       String        @unique
+  paymentId       Int
+  payment         Payment       @relation(fields: [paymentId], references: [id])
+  receiptDate     DateTime      @default(now())
+  receivedFrom    String
+  amount          Float
+  paymentMethod   String
+  notes           String?       @db.Text
+  schoolId        Int
+  school          School        @relation(fields: [schoolId], references: [id])
+  createdById     Int
+  createdBy       User          @relation("CreatedReceipts", fields: [createdById], references: [id])
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  
+  @@index([paymentId])
+  @@index([schoolId])
+  @@index([createdById])
+  @@index([receiptDate])
+}

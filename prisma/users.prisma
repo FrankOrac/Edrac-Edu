@@ -1,0 +1,106 @@
+// User-related Models
+
+model Staff {
+  id                  Int                     @id @default(autoincrement())
+  userId              Int                     @unique
+  user                User                    @relation(fields: [userId], references: [id])
+  staffId             String                  @unique
+  department          String?
+  position            String?
+  hireDate            DateTime?
+  salary              Float?
+  schoolId            Int
+  school              School                  @relation(fields: [schoolId], references: [id])
+  subjects            Subject[]
+  classes             Class[]
+  assignments         Assignment[]
+  exams               Exam[]
+  events              Event[]
+  libraryTransactions LibraryTransaction[]
+  transportTrips      TransportTrip[]
+  inventoryItems      InventoryItem[]
+  forumModerations    ForumCategory[]
+  forumPosts          ForumPost[]
+  forumTopics         ForumTopic[]
+  forumAttachments    ForumAttachment[]
+  forumReports        ForumReport[]
+  createdAt           DateTime                @default(now())
+  updatedAt           DateTime                @updatedAt
+  
+  @@index([schoolId])
+  @@index([staffId])
+  @@index([department])
+  @@index([position])
+}
+
+model Student {
+  id                  Int                     @id @default(autoincrement())
+  userId              Int                     @unique
+  user                User                    @relation(fields: [userId], references: [id])
+  admissionNo         String                  @unique
+  dateOfBirth         DateTime?
+  gender              String?
+  bloodGroup          String?
+  religion            String?
+  address             String?
+  classId             Int?
+  class               Class?                  @relation(fields: [classId], references: [id])
+  parentId            Int?
+  parent              Parent?                 @relation(fields: [parentId], references: [id])
+  schoolId            Int
+  school              School                  @relation(fields: [schoolId], references: [id])
+  attendances         Attendance[]
+  grades              Grade[]
+  assignments         AssignmentSubmission[]
+  examResults         ExamResult[]
+  libraryMemberships   LibraryMember[]
+  transport           TransportPassenger[]
+  forumPosts          ForumPost[]
+  forumTopics         ForumTopic[]
+  forumAttachments    ForumAttachment[]
+  forumReports        ForumReport[]
+  forumNotifications  ForumNotification[]
+  createdAt           DateTime                @default(now())
+  updatedAt           DateTime                @updatedAt
+  
+  @@index([schoolId])
+  @@index([classId])
+  @@index([parentId])
+  @@index([admissionNo])
+  @@index([dateOfBirth])
+  @@index([gender])
+}
+
+model Parent {
+  id                  Int                     @id @default(autoincrement())
+  userId              Int                     @unique
+  user                User                    @relation(fields: [userId], references: [id])
+  occupation          String?
+  company             String?
+  address             String?
+  city                String?
+  state               String?
+  country             String?
+  postalCode          String?
+  emergencyContact    String?
+  emergencyPhone      String?
+  children            Student[]
+  schoolId            Int
+  school              School                  @relation(fields: [schoolId], references: [id])
+  notifications       Notification[]
+  messages            Message[]
+  payments            Payment[]
+  invoices            Invoice[]
+  receipts            Receipt[]
+  forumPosts          ForumPost[]
+  forumTopics         ForumTopic[]
+  forumAttachments    ForumAttachment[]
+  forumReports        ForumReport[]
+  forumNotifications  ForumNotification[]
+  createdAt           DateTime                @default(now())
+  updatedAt           DateTime                @updatedAt
+  
+  @@index([schoolId])
+  @@index([occupation])
+  @@index([city, state, country])
+}

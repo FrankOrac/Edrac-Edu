@@ -1,0 +1,179 @@
+// Transport and Inventory Models
+
+model Transport {
+  id              Int                     @id @default(autoincrement())
+  name            String
+  description     String?
+  vehicleNo       String
+  driverName      String
+  driverPhone     String?
+  capacity        Int
+  route           String?
+  status          String                  @default("active") // 'active', 'inactive', 'maintenance', 'accident', 'other'
+  schoolId        Int
+  school          School                  @relation(fields: [schoolId], references: [id])
+  trips           TransportTrip[]
+  passengers      TransportPassenger[]
+  createdAt       DateTime                @default(now())
+  updatedAt       DateTime                @updatedAt
+  
+  @@index([schoolId])
+  @@index([status])
+  @@index([vehicleNo])
+}
+
+model TransportTrip {
+  id              Int                     @id @default(autoincrement())
+  tripType        String                  // 'morning', 'afternoon', 'full_day', 'custom'
+  startTime       DateTime
+  endTime         DateTime
+  startLocation   String
+  endLocation     String
+  status          String                  @default("scheduled") // 'scheduled', 'in_progress', 'completed', 'cancelled'
+  transportId     Int
+  transport       Transport               @relation(fields: [transportId], references: [id])
+  driverId        Int?
+  driver          Staff?                  @relation(fields: [driverId], references: [id])
+  schoolId        Int
+  school          School                  @relation(fields: [schoolId], references: [id])
+  passengers      TransportTripPassenger[]
+  createdAt       DateTime                @default(now())
+  updatedAt       DateTime                @updatedAt
+  
+  @@index([transportId])
+  @@index([driverId])
+  @@index([schoolId])
+  @@index([status])
+  @@index([startTime])
+}
+
+model TransportPassenger {
+  id              Int                     @id @default(autoincrement())
+  studentId       Int
+  student         Student                 @relation(fields: [studentId], references: [id])
+  transportId     Int
+  transport       Transport               @relation(fields: [transportId], references: [id])
+  pickupPoint     String
+  dropoffPoint    String
+  status          String                  @default("active") // 'active', 'inactive', 'temporary', 'suspended'
+  startDate       DateTime                @default(now())
+  endDate         DateTime?
+  notes           String?
+  schoolId        Int
+  school          School                  @relation(fields: [schoolId], references: [id])
+  trips           TransportTripPassenger[]
+  createdAt       DateTime                @default(now())
+  updatedAt       DateTime                @updatedAt
+  
+  @@unique([studentId, transportId])
+  @@index([studentId])
+  @@index([transportId])
+  @@index([schoolId])
+  @@index([status])
+}
+
+model TransportTripPassenger {
+  id                  Int                 @id @default(autoincrement())
+  tripId              Int
+  trip                TransportTrip       @relation(fields: [tripId], references: [id])
+  passengerId         Int
+  passenger           TransportPassenger  @relation(fields: [passengerId], references: [id])
+  pickupStatus        String              @default("scheduled") // 'scheduled', 'picked_up', 'not_picked_up', 'absent'
+  dropoffStatus       String?             // 'scheduled', 'dropped_off', 'not_dropped_off'
+  pickupTime          DateTime?
+  dropoffTime         DateTime?
+  notes               String?
+  recordedById        Int
+  recordedBy          User                @relation("RecordedTripPassengers", fields: [recordedById], references: [id])
+  schoolId            Int
+  school              School              @relation(fields: [schoolId], references: [id])
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+  
+  @@unique([tripId, passengerId])
+  @@index([tripId])
+  @@index([passengerId])
+  @@index([schoolId])
+  @@index([pickupStatus])
+  @@index([dropoffStatus])
+}
+
+model InventoryItem {
+  id              Int                     @id @default(autoincrement())
+  name            String
+  description     String?
+  sku             String?                 @unique
+  barcode         String?                 @unique
+  quantity        Int                     @default(0)
+  minQuantity     Int?                    @default(0)
+  unit            String?                 @default("pcs")
+  unitPrice       Float?                  @default(0)
+  category        String?
+  location        String?
+  isActive        Boolean                 @default(true)
+  schoolId        Int
+  school          School                  @relation(fields: [schoolId], references: [id])
+  transactions    InventoryTransaction[]
+  supplierId      Int?
+  supplier        Supplier?               @relation(fields: [supplierId], references: [id])
+  createdAt       DateTime                @default(now())
+  updatedAt       DateTime                @updatedAt
+  
+  @@index([schoolId])
+  @@index([category])
+  @@index([isActive])
+  @@index([sku])
+  @@index([barcode])
+}
+
+model InventoryTransaction {
+  id              Int                     @id @default(autoincrement())
+  itemId          Int
+  item            InventoryItem           @relation(fields: [itemId], references: [id])
+  type            String                  // 'purchase', 'sale', 'adjustment', 'transfer', 'return', 'damage', 'loss', 'donation'
+  quantity        Int
+  referenceNo     String?
+  referenceType   String?                 // 'purchase_order', 'sales_invoice', 'adjustment', 'transfer', 'return', 'damage', 'loss', 'donation'
+  referenceId     Int?
+  notes           String?
+  transactionDate DateTime                @default(now())
+  schoolId        Int
+  school          School                  @relation(fields: [schoolId], references: [id])
+  createdById     Int
+  createdBy       User                    @relation("InventoryTransactions", fields: [createdById], references: [id])
+  supplierId      Int?
+  supplier        Supplier?               @relation(fields: [supplierId], references: [id])
+  createdAt       DateTime                @default(now())
+  
+  @@index([itemId])
+  @@index([schoolId])
+  @@index([createdById])
+  @@index([type])
+  @@index([referenceType, referenceId])
+  @@index([transactionDate])
+  @@index([supplierId])
+}
+
+model Supplier {
+  id              Int                     @id @default(autoincrement())
+  name            String
+  contactPerson   String?
+  email           String?
+  phone           String?
+  address         String?
+  taxId           String?
+  website         String?
+  notes           String?
+  isActive        Boolean                 @default(true)
+  schoolId        Int
+  school          School                  @relation(fields: [schoolId], references: [id])
+  inventoryItems  InventoryItem[]
+  transactions    InventoryTransaction[]
+  createdAt       DateTime                @default(now())
+  updatedAt       DateTime                @updatedAt
+  
+  @@index([schoolId])
+  @@index([isActive])
+  @@index([email])
+  @@index([phone])
+}

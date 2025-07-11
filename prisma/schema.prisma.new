@@ -1,0 +1,186 @@
+// Prisma schema for Edu AI App
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+// Using string literals instead of enum for SQLite compatibility
+
+// =====================
+// CORE MODELS
+// =====================
+
+model School {
+  id          Int              @id @default(autoincrement())
+  name        String
+  domain      String           @unique
+  address     String?
+  phone       String?
+  email       String?
+  logo        String?
+  website     String?
+  isActive    Boolean          @default(true)
+  settings    SchoolSettings?
+  users       User[]
+  classes     Class[]
+  staff       Staff[]
+  students    Student[]
+  parents     Parent[]
+  subjects    Subject[]
+  assignments Assignment[]
+  exams       Exam[]
+  events      Event[]
+  inventory   InventoryItem[]
+  transports  Transport[]
+  libraries   Library[]
+  forums      Forum[]
+  groups      Group[]
+  analytics   Analytics[]
+  plugins     Plugin[]
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+}
+
+model User {
+  id               Int            @id @default(autoincrement())
+  email            String         @unique
+  password         String
+  firstName        String
+  lastName         String
+  role             String         // 'admin', 'teacher', 'student', 'parent', 'staff'
+  phone            String?
+  avatar           String?
+  isActive         Boolean        @default(true)
+  lastLogin        DateTime?
+  schoolId         Int?
+  school           School?        @relation(fields: [schoolId], references: [id])
+  staff            Staff?
+  student          Student?
+  parent           Parent?
+  notifications    Notification[]
+  sentMessages     Message[]      @relation("SentMessages")
+  receivedMessages Message[]      @relation("ReceivedMessages")
+  createdEvents    Event[]
+  createdGroups    Group[]
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  
+  @@index([email])
+  @@index([role])
+  @@index([schoolId])
+}
+
+model Class {
+  id          Int         @id @default(autoincrement())
+  name        String
+  section     String?
+  schoolId    Int
+  school      School      @relation(fields: [schoolId], references: [id])
+  students    Student[]
+  subjects    Subject[]
+  assignments Assignment[]
+  exams       Exam[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  
+  @@index([schoolId])
+}
+
+model Staff {
+  id          Int         @id @default(autoincrement())
+  userId      Int         @unique
+  user        User        @relation(fields: [userId], references: [id])
+  staffId     String      @unique
+  department  String?
+  position    String?
+  hireDate    DateTime?
+  salary      Float?
+  schoolId    Int
+  school      School      @relation(fields: [schoolId], references: [id])
+  subjects    Subject[]
+  classes     Class[]
+  assignments Assignment[]
+  exams       Exam[]
+  events      Event[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  
+  @@index([schoolId])
+  @@index([staffId])
+}
+
+model Student {
+  id                Int             @id @default(autoincrement())
+  userId            Int             @unique
+  user              User            @relation(fields: [userId], references: [id])
+  admissionNo       String          @unique
+  dateOfBirth       DateTime?
+  gender            String?
+  bloodGroup        String?
+  religion          String?
+  address           String?
+  classId           Int?
+  class             Class?          @relation(fields: [classId], references: [id])
+  parentId          Int?
+  parent            Parent?         @relation(fields: [parentId], references: [id])
+  schoolId          Int
+  school            School          @relation(fields: [schoolId], references: [id])
+  attendances       Attendance[]
+  grades            Grade[]
+  assignments       AssignmentSubmission[]
+  examResults       ExamResult[]
+  libraryMemberships LibraryMember[]
+  transport         TransportPassenger[]
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  
+  @@index([schoolId])
+  @@index([classId])
+  @@index([parentId])
+  @@index([admissionNo])
+}
+
+model Parent {
+  id           Int       @id @default(autoincrement())
+  userId       Int       @unique
+  user         User      @relation(fields: [userId], references: [id])
+  occupation   String?
+  address      String?
+  children     Student[]
+  schoolId     Int
+  school       School    @relation(fields: [schoolId], references: [id])
+  notifications Notification[]
+  messages     Message[]
+  payments     Payment[]
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  
+  @@index([schoolId])
+}
+
+model Subject {
+  id           Int         @id @default(autoincrement())
+  name         String
+  code         String?
+  description  String?
+  classId      Int
+  class        Class       @relation(fields: [classId], references: [id])
+  teacherId    Int?
+  teacher      Staff?      @relation(fields: [teacherId], references: [id])
+  schoolId     Int
+  school       School      @relation(fields: [schoolId], references: [id])
+  grades       Grade[]
+  assignments  Assignment[]
+  exams        Exam[]
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  
+  @@index([schoolId])
+  @@index([classId])
+  @@index([teacherId])
+}

@@ -28,12 +28,18 @@ const CBTExtra = () => {
   const [loading, setLoading] = useState(true);
 
   // Form states
-  const [questionForm, setQuestionForm] = useState({
+  const [questionForm, setQuestionForm] = useState<{
+    text: string;
+    options: string[];
+    correctAnswer: number;
+    subject: string;
+    difficulty: 'easy' | 'medium' | 'hard';
+  }>({
     text: '',
     options: ['', '', '', ''],
     correctAnswer: 0,
     subject: '',
-    difficulty: 'medium' as const,
+    difficulty: 'medium',
   });
 
   const [subjectForm, setSubjectForm] = useState({

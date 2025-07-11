@@ -1,0 +1,197 @@
+// Analytics and Settings Models
+
+model AnalyticsEvent {
+  id              Int               @id @default(autoincrement())
+  eventType       String            // 'page_view', 'login', 'download', 'api_call', etc.
+  eventData       String?           @db.Text // JSON string with event data
+  ipAddress       String?
+  userAgent       String?           @db.Text
+  referrer        String?           @db.Text
+  url             String?           @db.Text
+  userId          Int?
+  user            User?             @relation(fields: [userId], references: [id])
+  schoolId        Int
+  school          School            @relation(fields: [schoolId], references: [id])
+  createdAt       DateTime          @default(now())
+  
+  @@index([eventType])
+  @@index([userId])
+  @@index([schoolId])
+  @@index([createdAt])
+}
+
+model Report {
+  id              Int               @id @default(autoincrement())
+  name            String
+  description     String?           @db.Text
+  type            String            // 'custom', 'system', 'scheduled'
+  query           String            @db.Text // JSON string with query parameters
+  format          String            @default("json") // 'json', 'csv', 'pdf', 'excel'
+  status          String            @default("pending") // 'pending', 'processing', 'completed', 'failed'
+  fileUrl         String?           @db.Text
+  generatedById   Int?
+  generatedBy     User?             @relation("GeneratedReports", fields: [generatedById], references: [id])
+  schoolId        Int
+  school          School            @relation(fields: [schoolId], references: [id])
+  scheduleId      Int?
+  schedule        ReportSchedule?   @relation(fields: [scheduleId], references: [id])
+  executions      ReportExecution[]
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  
+  @@index([schoolId])
+  @@index([type])
+  @@index([status])
+  @@index([scheduleId])
+  @@index([createdAt])
+}
+
+model ReportSchedule {
+  id              Int               @id @default(autoincrement())
+  name            String
+  description     String?           @db.Text
+  frequency       String            // 'daily', 'weekly', 'monthly', 'custom'
+  cronExpression  String?
+  isActive        Boolean           @default(true)
+  lastRunAt       DateTime?
+  nextRunAt       DateTime?
+  reportId        Int
+  report          Report            @relation(fields: [reportId], references: [id])
+  schoolId        Int
+  school          School            @relation(fields: [schoolId], references: [id])
+  createdById     Int
+  createdBy       User              @relation("CreatedReportSchedules", fields: [createdById], references: [id])
+  updatedById     Int?
+  updatedBy       User?             @relation("UpdatedReportSchedules", fields: [updatedById], references: [id])
+  executions      ReportExecution[]
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  
+  @@unique([reportId])
+  @@index([schoolId])
+  @@index([isActive])
+  @@index([nextRunAt])
+  @@index([createdById])
+  @@index([updatedById])
+}
+
+model ReportExecution {
+  id              Int               @id @default(autoincrement())
+  status          String            @default("pending") // 'pending', 'processing', 'completed', 'failed'
+  startedAt       DateTime?         @default(now())
+  completedAt     DateTime?
+  duration        Int?              // in milliseconds
+  resultCount     Int?              // number of records returned
+  fileUrl         String?           @db.Text
+  error           String?           @db.Text
+  reportId        Int
+  report          Report            @relation(fields: [reportId], references: [id])
+  scheduleId      Int?
+  schedule        ReportSchedule?   @relation(fields: [scheduleId], references: [id])
+  initiatedById   Int?
+  initiatedBy     User?             @relation("InitiatedReportExecutions", fields: [initiatedById], references: [id])
+  schoolId        Int
+  school          School            @relation(fields: [schoolId], references: [id])
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  
+  @@index([reportId])
+  @@index([scheduleId])
+  @@index([schoolId])
+  @@index([status])
+  @@index([startedAt])
+  @@index([completedAt])
+}
+
+model AnalyticsSettings {
+  id                      Int       @id @default(autoincrement())
+  googleAnalyticsEnabled  Boolean   @default(false)
+  googleAnalyticsId       String?   
+  gtmEnabled             Boolean   @default(false)
+  gtmId                  String?   
+  facebookPixelEnabled   Boolean   @default(false)
+  facebookPixelId        String?   
+  hotjarEnabled          Boolean   @default(false)
+  hotjarId               String?   
+  mixpanelEnabled        Boolean   @default(false)
+  mixpanelToken          String?   
+  matomoEnabled          Boolean   @default(false)
+  matomoUrl              String?   
+  matomoSiteId           String?   
+  customJs               String?   @db.Text
+  customCss              String?   @db.Text
+  headScripts            String?   @db.Text
+  bodyScripts            String?   @db.Text
+  schoolId               Int       @unique
+  school                 School    @relation(fields: [schoolId], references: [id])
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
+  
+  @@index([schoolId])
+}
+
+model SystemSettings {
+  id                      Int       @id @default(autoincrement())
+  maintenanceMode         Boolean   @default(false)
+  maintenanceMessage      String?   @db.Text
+  registrationEnabled     Boolean   @default(true)
+  emailVerificationRequired Boolean @default(true)
+  passwordResetEnabled    Boolean   @default(true)
+  twoFactorAuthRequired   Boolean   @default(false)
+  sessionTimeout          Int       @default(30) // in minutes
+  maxLoginAttempts        Int       @default(5)
+  passwordMinLength       Int       @default(8)
+  passwordRequireUppercase Boolean   @default(true)
+  passwordRequireLowercase Boolean   @default(true)
+  passwordRequireNumber   Boolean   @default(true)
+  passwordRequireSpecial  Boolean   @default(true)
+  passwordExpiryDays      Int?      // null means never expires
+  passwordReuseLimit      Int       @default(5)
+  captchaEnabled          Boolean   @default(false)
+  captchaType             String?   // 'recaptcha', 'hcaptcha', 'turnstile'
+  captchaSiteKey          String?   
+  captchaSecretKey        String?   
+  schoolId                Int       @unique
+  school                  School    @relation(fields: [schoolId], references: [id])
+  createdAt               DateTime  @default(now())
+  updatedAt               DateTime  @updatedAt
+  
+  @@index([schoolId])
+}
+
+model NotificationSettings {
+  id                      Int       @id @default(autoincrement())
+  emailEnabled            Boolean   @default(true)
+  smsEnabled              Boolean   @default(false)
+  pushEnabled             Boolean   @default(true)
+  defaultEmailTemplate    String?   @db.Text
+  defaultSMSTemplate      String?   @db.Text
+  defaultPushTemplate     String?   @db.Text
+  schoolId                Int       @unique
+  school                  School    @relation(fields: [schoolId], references: [id])
+  createdAt               DateTime  @default(now())
+  updatedAt               DateTime  @updatedAt
+  
+  @@index([schoolId])
+}
+
+model SEOSettings {
+  id                Int       @id @default(autoincrement())
+  siteTitle         String?
+  siteDescription   String?   @db.Text
+  metaKeywords      String?   @db.Text
+  googleAnalyticsId String?
+  facebookPixelId   String?
+  twitterCard       Boolean   @default(true)
+  openGraph         Boolean   @default(true)
+  schemaMarkup      String?   @db.Text
+  robotsTxt         String?   @db.Text
+  sitemapEnabled    Boolean   @default(true)
+  canonicalUrl      String?
+  schoolId          Int       @unique
+  school            School    @relation(fields: [schoolId], references: [id])
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  
+  @@index([schoolId])
+}
