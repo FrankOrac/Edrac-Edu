@@ -1,4 +1,3 @@
-
 import { Router, Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
 const router = Router();
@@ -40,11 +39,11 @@ router.get('/question/:questionId', async (req: Request, res: Response) => {
 // Add a comment to a question
 router.post('/', auth, async (req: Request, res: Response) => {
   const { questionId, text, author } = req.body;
-  
+
   if (!questionId || !text) {
     return res.status(400).json({ error: 'questionId and text are required' });
   }
-  
+
   try {
     // For demo purposes, return success
     const comment = {
@@ -55,7 +54,7 @@ router.post('/', auth, async (req: Request, res: Response) => {
       timestamp: new Date().toISOString(),
       replies: []
     };
-    
+
     res.status(201).json(comment);
   } catch (error) {
     res.status(500).json({ error: 'Failed to add comment' });
@@ -65,7 +64,7 @@ router.post('/', auth, async (req: Request, res: Response) => {
 // Generate AI response to a comment
 router.post('/ai-response', auth, async (req: Request, res: Response) => {
   const { questionId, comment, question } = req.body;
-  
+
   try {
     // Mock AI response - in production, this would integrate with OpenAI
     const responses = [
@@ -75,9 +74,9 @@ router.post('/ai-response', auth, async (req: Request, res: Response) => {
       "Let me break this down step by step for better understanding...",
       "This question tests your understanding of fundamental concepts. Here's the explanation..."
     ];
-    
+
     const aiResponse = responses[Math.floor(Math.random() * responses.length)];
-    
+
     res.json({
       response: aiResponse,
       timestamp: new Date().toISOString(),

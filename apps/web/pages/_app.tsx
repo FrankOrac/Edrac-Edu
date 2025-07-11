@@ -1,23 +1,21 @@
-import '../styles/globals.css';
-import type { AppProps } from 'next/app';
+import '../styles/globals.css'
+import type { AppProps } from 'next/app'
+import { useEffect } from 'react'
 import ErrorBoundary from '../components/ErrorBoundary';
-import { useEffect } from 'react';
 
-function MyApp({ Component, pageProps }: AppProps) {
+export default function App({ Component, pageProps }: AppProps) {
   useEffect(() => {
-    // Ensure DOM is ready
+    // Prevent React hydration issues
     if (typeof window !== 'undefined') {
-      console.log('App initialized');
+      console.log('App mounted successfully');
     }
   }, []);
 
   return (
     <ErrorBoundary>
-      <div suppressHydrationWarning>
+      <div suppressHydrationWarning={true}>
         <Component {...pageProps} />
       </div>
     </ErrorBoundary>
-  );
+  )
 }
-
-export default MyApp;
