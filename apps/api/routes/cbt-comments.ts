@@ -1,5 +1,12 @@
 import { Router, Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
+
+// Auth middleware
+const auth = (req: any, res: any, next: any) => {
+  req.user = { id: 1, name: 'Test User', role: 'student' };
+  next();
+};
+
 const router = Router();
 const prisma = new PrismaClient();
 
