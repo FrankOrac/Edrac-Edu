@@ -174,7 +174,7 @@ export default function PaymentsPage() {
             <Users size={16} className="mr-2" />
             Up to {plan.users.toLocaleString()} users
           </div>
-          {plan.features.map((feature, index) => (
+          {plan.features.map((feature: string, index: number) => (
             <div key={index} className="flex items-center text-gray-600">
               <Check size={16} className="mr-2 text-green-600" />
               {feature}

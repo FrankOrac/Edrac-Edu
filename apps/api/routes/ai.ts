@@ -239,11 +239,10 @@ router.post('/generate-questions', auth, async (req: Request, res: Response) => 
 
       let selectedQuestions = [];
 
-      if (baseQuestions[subjectKey] && baseQuestions[subjectKey][topicKey]) {
-        selectedQuestions = baseQuestions[subjectKey][topicKey];
-      } else {
-        // Fallback to general questions for the subject
-        selectedQuestions = Object.values(baseQuestions[subjectKey] || {}).flat();
+      if ((baseQuestions as any)[subjectKey] && (baseQuestions as any)[subjectKey][topicKey]) {
+        selectedQuestions = (baseQuestions as any)[subjectKey][topicKey];
+      } else if ((baseQuestions as any)[subjectKey]) {
+        selectedQuestions = Object.values((baseQuestions as any)[subjectKey] || {}).flat();
       }
 
       // Filter by difficulty if specified

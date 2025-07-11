@@ -94,11 +94,11 @@ router.post('/bulk-upload', auth, requireAdminOrTeacher, async (req: Request, re
   if (!Array.isArray(students)) {
     return res.status(400).json({ error: 'Students array is required' });
   }
-  
+
   try {
     const results = [];
     const errors = [];
-    
+
     for (let i = 0; i < students.length; i++) {
       const student = students[i];
       try {
@@ -112,7 +112,7 @@ router.post('/bulk-upload', auth, requireAdminOrTeacher, async (req: Request, re
             schoolId: student.schoolId ? Number(student.schoolId) : 1
           }
         });
-        
+
         // Create student record
         const studentRecord = await prisma.student.create({
           data: {
@@ -121,14 +121,14 @@ router.post('/bulk-upload', auth, requireAdminOrTeacher, async (req: Request, re
             classId: student.classId ? Number(student.classId) : null
           }
         });
-        
+
         results.push({ row: i + 1, student: studentRecord });
       } catch (error) {
-        errors.push({ row: i + 1, error: error.message });
+        errors.push({ row: i + 1, error: (error as Error).message });
       }
     }
-    
-    res.json({ 
+
+    return res.json({ 
       success: true, 
       created: results.length,
       errors: errors.length,
