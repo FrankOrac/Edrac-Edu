@@ -1,0 +1,813 @@
+PS C:\Users\ANDREW NORBERT\Downloads\Edrac-Edu\Edrac-Edu> .\setup-and-run.ps1
+[INFO] ðŸš€ Starting EduAI Platform Setup...
+[INFO] Installing root dependencies...
+
+up to date, audited 802 packages in 19s
+
+133 packages are looking for funding
+  run `npm fund` for details
+
+4 vulnerabilities (3 moderate, 1 high)
+
+Some issues need review, and may require choosing
+a different dependency.
+
+Run `npm audit` for details.
+[INFO] Installing API dependencies...
+
+up to date, audited 802 packages in 14s
+
+133 packages are looking for funding
+  run `npm fund` for details
+
+1 high severity vulnerability
+
+Some issues need review, and may require choosing
+a different dependency.
+
+Run `npm audit` for details.
+[INFO] Installing Web dependencies...
+
+up to date, audited 802 packages in 14s
+
+133 packages are looking for funding
+  run `npm fund` for details
+
+1 high severity vulnerability
+
+Some issues need review, and may require choosing
+a different dependency.
+
+Run `npm audit` for details.
+[INFO] Setting up database...
+[INFO] Generating Prisma client...
+Environment variables loaded from .env
+Prisma schema loaded from prisma\schema.prisma
+warn Preview feature "filteredRelationCount" is deprecated. The functionality can be used without specifying it as a preview feature.
+Error: Prisma schema validation - (get-dmmf wasm)
+Error code: P1012
+error: The model "Class" cannot be defined because a model with that name already exists.
+  -->  prisma\schema.prisma:1604
+   | 
+1603 | 
+1604 | model Class {
+   | 
+error: The model "Subject" cannot be defined because a model with that name already exists.
+  -->  prisma\schema.prisma:1639
+   | 
+1638 | 
+1639 | model Subject {
+   | 
+error: The model "Assignment" cannot be defined because a model with that name already exists.
+  -->  prisma\schema.prisma:1694
+   | 
+1693 | 
+1694 | model Assignment {
+   | 
+error: The model "AssignmentSubmission" cannot be defined because a model with that name already exists.
+  -->  prisma\schema.prisma:1733
+   | 
+1732 | 
+1733 | model AssignmentSubmission {
+   | 
+error: The model "AssignmentAttachment" cannot be defined because a model with that name already exists.
+  -->  prisma\schema.prisma:1765
+   | 
+1764 | 
+1765 | model AssignmentAttachment {
+   | 
+error: The model "AssignmentSubmissionAttachment" cannot be defined because a model with that name already exists.
+  -->  prisma\schema.prisma:1782
+   | 
+1781 | 
+1782 | model AssignmentSubmissionAttachment {
+   | 
+error: The model "Exam" cannot be defined because a model with that name already exists.
+  -->  prisma\schema.prisma:1799
+   | 
+1798 | 
+1799 | model Exam {
+   | 
+error: The model "ExamResult" cannot be defined because a model with that name already exists.
+  -->  prisma\schema.prisma:1966
+   | 
+1965 | 
+1966 | model ExamResult {
+   | 
+error: The model "Grade" cannot be defined because a model with that name already exists.
+  -->  prisma\schema.prisma:2000
+   | 
+1999 | 
+2000 | model Grade {
+   | 
+error: The model "Attendance" cannot be defined because a model with that name already exists.
+  -->  prisma\schema.prisma:2043
+   | 
+2042 | 
+2043 | model Attendance {
+   | 
+error: The model "Message" cannot be defined because a model with that name already exists.
+  -->  prisma\schema.prisma:2070
+   | 
+2069 | // Communication Models
+2070 | model Message {
+   | 
+error: The model "MessageAttachment" cannot be defined because a model with that name already exists.
+  -->  prisma\schema.prisma:2106
+   | 
+2105 | 
+2106 | model MessageAttachment {
+   | 
+error: The model "Notification" cannot be defined because a model with that name already exists.
+  -->  prisma\schema.prisma:2123
+   | 
+2122 | 
+2123 | model Notification {
+   | 
+error: The model "Event" cannot be defined because a model with that name already exists.
+  -->  prisma\schema.prisma:2230
+   | 
+2229 | 
+2230 | model Event {
+   | 
+error: The model "EventAttendee" cannot be defined because a model with that name already exists.
+  -->  prisma\schema.prisma:2265
+   | 
+2264 | 
+2265 | model EventAttendee {
+   | 
+error: The model "Staff" cannot be defined because a model with that name already exists.
+  -->  prisma\schema.prisma:2307
+   | 
+2306 | // User Profile Models
+2307 | model Staff {
+   | 
+error: The model "Student" cannot be defined because a model with that name already exists.
+  -->  prisma\schema.prisma:2340
+   | 
+2339 | 
+2340 | model Student {
+   | 
+error: The model "Parent" cannot be defined because a model with that name already exists.
+  -->  prisma\schema.prisma:2379
+   | 
+2378 | 
+2379 | model Parent {
+   | 
+
+Validation Error Count: 18
+[Context: getDmmf]
+
+Prisma CLI Version : 5.22.0
+[INFO] Creating database and running migrations...
+Environment variables loaded from .env
+Prisma schema loaded from prisma\schema.prisma
+Datasource "db": SQLite database
+
+Error: Prisma schema validation - (get-config wasm)
+Error code: P1012
+error: Error validating datasource `db`: the URL must start with the protocol `file:`.
+  -->  prisma\schema.prisma:14
+   |
+13 |   provider = "sqlite"
+14 |   url      = env("DATABASE_URL") // Use environment variable for database URL
+   |
+
+Validation Error Count: 1
+[Context: getConfig]
+
+Prisma CLI Version : 5.22.0
+[INFO] Seeding database with initial data...
+Environment variables loaded from .env
+Running seed command `ts-node prisma/seed.ts` ...
+🌱 Starting seed...
+🏫 School created: EDRAC School
+👤 User created: System Administrator (ADMIN)
+👤 User created: Super Administrator (SUPERADMIN)
+👤 User created: John Teacher (TEACHER)
+👤 User created: Jane Student (STUDENT)
+👤 User created: Robert Parent (PARENT)
+✅ Seed completed successfully!
+
+The seed command has been executed.
+[INFO] Building applications...
+[INFO] Building API...
+
+> edu-ai-api@0.1.0 build
+> tsc
+
+routes/advertising.ts:10:35 - error TS2339: Property 'advertisingSettings' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+
+10     const settings = await prisma.advertisingSettings.findFirst();
+                                     ~~~~~~~~~~~~~~~~~~~
+
+routes/advertising.ts:51:35 - error TS2339: Property 'advertisingSettings' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+
+51     const settings = await prisma.advertisingSettings.upsert({
+                                     ~~~~~~~~~~~~~~~~~~~
+
+routes/ai.ts:242:11 - error TS7053: Element implicitly has an 'any' type because expression of type 'string' can't be used to index type '{ mathematics: { algebra: { text: string; difficulty: string; }[]; geometry: { text: string; difficulty: string; }[]; calculus: { text: string; difficulty: string; }[]; }; science: { physics: { text: string; difficulty: string; }[]; chemistry: { ...; }[]; biology: { ...; }[]; }; english: { ...; }; history: { ...; }; }'.
+  No index signature with a parameter of type 'string' was found on type '{ mathematics: { algebra: { text: string; difficulty: string; }[]; geometry: { text: string; difficulty: string; }[]; calculus: { text: string; difficulty: string; }[]; }; science: { physics: { text: string; difficulty: string; }[]; chemistry: { ...; }[]; biology: { ...; }[]; }; english: { ...; }; history: { ...; }; }'.
+
+242       if (baseQuestions[subjectKey] && baseQuestions[subjectKey][topicKey]) {
+              ~~~~~~~~~~~~~~~~~~~~~~~~~
+
+routes/ai.ts:242:40 - error TS7053: Element implicitly has an 'any' type because expression of type 'string' can't be used to index type '{ mathematics: { algebra: { text: string; difficulty: string; }[]; geometry: { text: string; difficulty: string; }[]; calculus: { text: string; difficulty: string; }[]; }; science: { physics: { text: string; difficulty: string; }[]; chemistry: { ...; }[]; biology: { ...; }[]; }; english: { ...; }; history: { ...; }; }'.
+  No index signature with a parameter of type 'string' was found on type '{ mathematics: { algebra: { text: string; difficulty: string; }[]; geometry: { text: string; difficulty: string; }[]; calculus: { text: string; difficulty: string; }[]; }; science: { physics: { text: string; difficulty: string; }[]; chemistry: { ...; }[]; biology: { ...; }[]; }; english: { ...; }; history: { ...; }; }'.
+
+242       if (baseQuestions[subjectKey] && baseQuestions[subjectKey][topicKey]) {
+                                           ~~~~~~~~~~~~~~~~~~~~~~~~~
+
+routes/ai.ts:243:29 - error TS7053: Element implicitly has an 'any' type because expression of type 'string' can't be used to index type '{ mathematics: { algebra: { text: string; difficulty: string; }[]; geometry: { text: string; difficulty: string; }[]; calculus: { text: string; difficulty: string; }[]; }; science: { physics: { text: string; difficulty: string; }[]; chemistry: { ...; }[]; biology: { ...; }[]; }; english: { ...; }; history: { ...; }; }'.
+  No index signature with a parameter of type 'string' was found on type '{ mathematics: { algebra: { text: string; difficulty: string; }[]; geometry: { text: string; difficulty: string; }[]; calculus: { text: string; difficulty: string; }[]; }; science: { physics: { text: string; difficulty: string; }[]; chemistry: { ...; }[]; biology: { ...; }[]; }; english: { ...; }; history: { ...; }; }'.
+
+243         selectedQuestions = baseQuestions[subjectKey][topicKey];
+                                ~~~~~~~~~~~~~~~~~~~~~~~~~
+
+routes/ai.ts:246:43 - error TS7053: Element implicitly has an 'any' type because expression of type 'string' can't be used to index type '{ mathematics: { algebra: { text: string; difficulty: string; }[]; geometry: { text: string; difficulty: string; }[]; calculus: { text: string; difficulty: string; }[]; }; science: { physics: { text: string; difficulty: string; }[]; chemistry: { ...; }[]; biology: { ...; }[]; }; english: { ...; }; history: { ...; }; }'.
+  No index signature with a parameter of type 'string' was found on type '{ mathematics: { algebra: { text: string; difficulty: string; }[]; geometry: { text: string; difficulty: string; }[]; calculus: { text: string; difficulty: string; }[]; }; science: { physics: { text: string; difficulty: string; }[]; chemistry: { ...; }[]; biology: { ...; }[]; }; english: { ...; }; history: { ...; }; }'.
+
+246         selectedQuestions = Object.values(baseQuestions[subjectKey] || {}).flat();
+                                              ~~~~~~~~~~~~~~~~~~~~~~~~~
+
+routes/ai.ts:251:54 - error TS7006: Parameter 'q' implicitly has an 'any' type.
+
+251         selectedQuestions = selectedQuestions.filter(q => q.difficulty === difficulty);
+                                                         ~
+
+routes/ai.ts:255:52 - error TS7006: Parameter 'q' implicitly has an 'any' type.
+
+255       return selectedQuestions.slice(0, count).map(q => ({
+                                                       ~
+
+routes/ai.ts:324:41 - error TS2353: Object literal may only specify known properties, and 'mode' does not exist in type 'StringFilter<"CbtSubject">'.
+
+324       where: { name: { equals: subject, mode: 'insensitive' } }
+                                            ~~~~
+
+routes/aiendpoints.ts:15:36 - error TS2339: Property 'aiEndpoint' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+
+15     const endpoints = await prisma.aiEndpoint.findMany();
+                                      ~~~~~~~~~~
+
+routes/aiendpoints.ts:29:35 - error TS2339: Property 'aiEndpoint' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+
+29     const endpoint = await prisma.aiEndpoint.create({
+                                     ~~~~~~~~~~
+
+routes/aiendpoints.ts:48:35 - error TS2339: Property 'aiEndpoint' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+
+48     const endpoint = await prisma.aiEndpoint.findUnique({ where: { id } });
+                                     ~~~~~~~~~~
+
+routes/aiendpoints.ts:62:35 - error TS2339: Property 'aiEndpoint' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+
+62     const endpoint = await prisma.aiEndpoint.update({
+                                     ~~~~~~~~~~
+
+routes/aiendpoints.ts:82:18 - error TS2339: Property 'aiEndpoint' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+
+82     await prisma.aiEndpoint.delete({ where: { id } });
+                    ~~~~~~~~~~
+
+routes/alumni.ts:31:9 - error TS2353: Object literal may only specify known properties, and 'name' does not exist in type '(Without<AlumniCreateInput, AlumniUncheckedCreateInput> & AlumniUncheckedCreateInput) | (Without<...> & AlumniCreateInput)'.
+
+31         name,
+           ~~~~
+
+  ../../node_modules/.prisma/client/index.d.ts:13899:5
+    13899     data: XOR<AlumniCreateInput, AlumniUncheckedCreateInput>
+              ~~~~
+    The expected type comes from property 'data' which is declared here on type '{ select?: AlumniSelect<DefaultArgs> | null | undefined; include?: AlumniInclude<DefaultArgs> | null | undefined; data: (Without<...> & AlumniUncheckedCreateInput) | (Without<...> & AlumniCreateInput); }'
+
+routes/alumni.ts:66:9 - error TS2353: Object literal may only specify known properties, and 'name' does not exist in type '(Without<AlumniUpdateInput, AlumniUncheckedUpdateInput> & AlumniUncheckedUpdateInput) | (Without<...> & AlumniUpdateInput)'.
+
+66         name,
+           ~~~~
+
+  ../../node_modules/.prisma/client/index.d.ts:13945:5
+    13945     data: XOR<AlumniUpdateInput, AlumniUncheckedUpdateInput>
+              ~~~~
+    The expected type comes from property 'data' which is declared here on type '{ select?: AlumniSelect<DefaultArgs> | null | undefined; include?: AlumniInclude<DefaultArgs> | null | undefined; data: (Without<...> & AlumniUncheckedUpdateInput) | (Without<...> & AlumniUpdateInput); where: AlumniWhereUniqueInput; }'
+
+routes/analytics.ts:15:34 - error TS2339: Property 'analyticsReport' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+
+15     const reports = await prisma.analyticsReport.findMany();
+                                    ~~~~~~~~~~~~~~~
+
+routes/analytics.ts:29:33 - error TS2339: Property 'analyticsReport' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+
+29     const report = await prisma.analyticsReport.create({
+                                   ~~~~~~~~~~~~~~~
+
+routes/analytics.ts:43:33 - error TS2339: Property 'analyticsReport' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+
+43     const report = await prisma.analyticsReport.findUnique({ where: { id } });
+                                   ~~~~~~~~~~~~~~~
+
+routes/analytics.ts:57:33 - error TS2339: Property 'analyticsReport' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+
+57     const report = await prisma.analyticsReport.update({
+                                   ~~~~~~~~~~~~~~~
+
+routes/analytics.ts:77:18 - error TS2339: Property 'analyticsReport' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+
+77     await prisma.analyticsReport.delete({ where: { id } });
+                    ~~~~~~~~~~~~~~~
+
+routes/attendance.ts:66:9 - error TS2353: Object literal may only specify known properties, and 'remarks' does not exist in type 'Without<AttendanceCreateInput, AttendanceUncheckedCreateInput> & AttendanceUncheckedCreateInput'.
+
+66         remarks
+           ~~~~~~~
+
+  ../../node_modules/.prisma/client/index.d.ts:14880:5
+    14880     data: XOR<AttendanceCreateInput, AttendanceUncheckedCreateInput>
+              ~~~~
+    The expected type comes from property 'data' which is declared here on type '{ select?: AttendanceSelect<DefaultArgs> | null | undefined; include?: AttendanceInclude<DefaultArgs> | null | undefined; data: (Without<...> & AttendanceUncheckedCreateInput) | (Without<...> & AttendanceCreateInput); }'
+
+routes/attendance.ts:93:9 - error TS2353: Object literal may only specify known properties, and 'remarks' does not exist in type '(Without<AttendanceUpdateInput, AttendanceUncheckedUpdateInput> & AttendanceUncheckedUpdateInput) | (Without<...> & AttendanceUpdateInput)'.        
+
+93         remarks
+           ~~~~~~~
+
+  ../../node_modules/.prisma/client/index.d.ts:14926:5
+    14926     data: XOR<AttendanceUpdateInput, AttendanceUncheckedUpdateInput>
+              ~~~~
+    The expected type comes from property 'data' which is declared here on type '{ select?: AttendanceSelect<DefaultArgs> | null | undefined; include?: AttendanceInclude<DefaultArgs> | null | undefined; data: (Without<...> & AttendanceUncheckedUpdateInput) | (Without<...> & AttendanceUpdateInput); where: AttendanceWhereUniqueInput; }'
+
+routes/certificates.ts:30:15 - error TS2353: Object literal may only specify known properties, and 'recipient' does not exist in type '(Without<CertificateCreateInput, CertificateUncheckedCreateInput> & CertificateUncheckedCreateInput) | (Without<...> & CertificateCreateInput)'.
+
+30       data: { recipient, type, issuedAt: new Date(issuedAt), description },
+                 ~~~~~~~~~
+
+  ../../node_modules/.prisma/client/index.d.ts:28700:5
+    28700     data: XOR<CertificateCreateInput, CertificateUncheckedCreateInput>
+              ~~~~
+    The expected type comes from property 'data' which is declared here on type '{ select?: CertificateSelect<DefaultArgs> | null | undefined; include?: CertificateInclude<DefaultArgs> | null | undefined; data: (Without<...> & CertificateUncheckedCreateInput) | (Without<...> & CertificateCreateInput); }'
+
+routes/certificates.ts:60:9 - error TS2353: Object literal may only specify known properties, and 'recipient' does not exist in type '(Without<CertificateUpdateInput, CertificateUncheckedUpdateInput> & CertificateUncheckedUpdateInput) | (Without<...> & CertificateUpdateInput)'.
+
+60         recipient,
+           ~~~~~~~~~
+
+  ../../node_modules/.prisma/client/index.d.ts:28746:5
+    28746     data: XOR<CertificateUpdateInput, CertificateUncheckedUpdateInput>
+              ~~~~
+    The expected type comes from property 'data' which is declared here on type '{ select?: CertificateSelect<DefaultArgs> | null | undefined; include?: CertificateInclude<DefaultArgs> | null | undefined; data: (Without<...> & CertificateUncheckedUpdateInput) | (Without<...> & CertificateUpdateInput); where: CertificateWhereUniqueInput; }'
+
+routes/device-tracking.ts:40:56 - error TS2339: Property 'user' does not exist on type 'Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>'.
+
+40     const recentSessions = await getRecentSessions(req.user.id);
+                                                          ~~~~
+
+routes/device-tracking.ts:50:19 - error TS2339: Property 'user' does not exist on type 'Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>'.
+
+50       userId: req.user.id,
+                     ~~~~
+
+routes/device-tracking.ts:80:21 - error TS2339: Property 'user' does not exist on type 'Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>'.
+
+80         userId: req.user.id,
+                       ~~~~
+
+routes/events.ts:30:7 - error TS2322: Type '{ title: any; description: any; date: Date; location: any; }' is not assignable to type '(Without<EventCreateInput, EventUncheckedCreateInput> & EventUncheckedCreateInput) | (Without<...> & EventCreateInput)'.
+  Type '{ title: any; description: any; date: Date; location: any; }' is not assignable to type 'Without<EventUncheckedCreateInput, EventCreateInput> & EventCreateInput'.
+    Property 'school' is missing in type '{ title: any; description: any; date: Date; location: any; }' but required in type 'EventCreateInput'.
+
+30       data: { title, description, date: new Date(date), location },
+         ~~~~
+
+  ../../node_modules/.prisma/client/index.d.ts:38163:5
+    38163     school: SchoolCreateNestedOneWithoutEventsInput
+              ~~~~~~
+    'school' is declared here.
+  ../../node_modules/.prisma/client/index.d.ts:19881:5
+    19881     data: XOR<EventCreateInput, EventUncheckedCreateInput>
+              ~~~~
+    The expected type comes from property 'data' which is declared here on type '{ select?: EventSelect<DefaultArgs> | null | undefined; include?: EventInclude<DefaultArgs> | null | undefined; data: (Without<...> & EventUncheckedCreateInput) | (Without<...> & EventCreateInput); }'
+
+routes/forums.ts:30:7 - error TS2322: Type '{ title: any; description: any; }' is not assignable to type '(Without<ForumCreateInput, ForumUncheckedCreateInput> & ForumUncheckedCreateInput) | (Without<...> & ForumCreateInput)'.
+  Type '{ title: any; description: any; }' is not assignable to type 'Without<ForumUncheckedCreateInput, ForumCreateInput> & ForumCreateInput'.
+    Property 'school' is missing in type '{ title: any; description: any; }' but required in type 'ForumCreateInput'.
+
+30       data: { title, description },
+         ~~~~
+
+  ../../node_modules/.prisma/client/index.d.ts:38384:5
+    38384     school: SchoolCreateNestedOneWithoutForumsInput
+              ~~~~~~
+    'school' is declared here.
+  ../../node_modules/.prisma/client/index.d.ts:23801:5
+    23801     data: XOR<ForumCreateInput, ForumUncheckedCreateInput>
+              ~~~~
+    The expected type comes from property 'data' which is declared here on type '{ select?: ForumSelect<DefaultArgs> | null | undefined; include?: ForumInclude<DefaultArgs> | null | undefined; data: (Without<...> & ForumUncheckedCreateInput) | (Without<...> & ForumCreateInput); }'
+
+routes/gamification.ts:15:32 - error TS2551: Property 'gamificationItem' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'gamification'?
+
+15     const items = await prisma.gamificationItem.findMany();
+                                  ~~~~~~~~~~~~~~~~
+
+  ../../node_modules/.prisma/client/index.d.ts:518:7
+    518   get gamification(): Prisma.GamificationDelegate<ExtArgs>;
+              ~~~~~~~~~~~~
+    'gamification' is declared here.
+
+routes/gamification.ts:29:31 - error TS2551: Property 'gamificationItem' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'gamification'?
+
+29     const item = await prisma.gamificationItem.create({
+                                 ~~~~~~~~~~~~~~~~
+
+  ../../node_modules/.prisma/client/index.d.ts:518:7
+    518   get gamification(): Prisma.GamificationDelegate<ExtArgs>;
+              ~~~~~~~~~~~~
+    'gamification' is declared here.
+
+routes/gamification.ts:49:31 - error TS2551: Property 'gamificationItem' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'gamification'?
+
+49     const item = await prisma.gamificationItem.findUnique({ where: { id } });
+                                 ~~~~~~~~~~~~~~~~
+
+  ../../node_modules/.prisma/client/index.d.ts:518:7
+    518   get gamification(): Prisma.GamificationDelegate<ExtArgs>;
+              ~~~~~~~~~~~~
+    'gamification' is declared here.
+
+routes/gamification.ts:63:31 - error TS2551: Property 'gamificationItem' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'gamification'?
+
+63     const item = await prisma.gamificationItem.update({
+                                 ~~~~~~~~~~~~~~~~
+
+  ../../node_modules/.prisma/client/index.d.ts:518:7
+    518   get gamification(): Prisma.GamificationDelegate<ExtArgs>;
+              ~~~~~~~~~~~~
+    'gamification' is declared here.
+
+routes/gamification.ts:84:18 - error TS2551: Property 'gamificationItem' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'gamification'?
+
+84     await prisma.gamificationItem.delete({ where: { id } });
+                    ~~~~~~~~~~~~~~~~
+
+  ../../node_modules/.prisma/client/index.d.ts:518:7
+    518   get gamification(): Prisma.GamificationDelegate<ExtArgs>;
+              ~~~~~~~~~~~~
+    'gamification' is declared here.
+
+routes/google-auth.ts:3:30 - error TS2307: Cannot find module 'google-auth-library' or its corresponding type declarations.
+
+3 import { OAuth2Client } from 'google-auth-library';
+                               ~~~~~~~~~~~~~~~~~~~~~
+
+routes/groups.ts:32:9 - error TS2353: Object literal may only specify known properties, and 'description' does not exist in type '(Without<GroupCreateInput, GroupUncheckedCreateInput> & GroupUncheckedCreateInput) | (Without<...> & GroupCreateInput)'.
+
+32         description,
+           ~~~~~~~~~~~
+
+  ../../node_modules/.prisma/client/index.d.ts:29655:5
+    29655     data: XOR<GroupCreateInput, GroupUncheckedCreateInput>
+              ~~~~
+    The expected type comes from property 'data' which is declared here on type '{ select?: GroupSelect<DefaultArgs> | null | undefined; include?: GroupInclude<DefaultArgs> | null | undefined; data: (Without<...> & GroupUncheckedCreateInput) | (Without<...> & GroupCreateInput); }'
+
+routes/groups.ts:65:9 - error TS2353: Object literal may only specify known properties, and 'description' does not exist in type '(Without<GroupUpdateInput, GroupUncheckedUpdateInput> & GroupUncheckedUpdateInput) | (Without<...> & GroupUpdateInput)'.
+
+65         description,
+           ~~~~~~~~~~~
+
+  ../../node_modules/.prisma/client/index.d.ts:29701:5
+    29701     data: XOR<GroupUpdateInput, GroupUncheckedUpdateInput>
+              ~~~~
+    The expected type comes from property 'data' which is declared here on type '{ select?: GroupSelect<DefaultArgs> | null | undefined; include?: GroupInclude<DefaultArgs> | null | undefined; data: (Without<...> & GroupUncheckedUpdateInput) | (Without<...> & GroupUpdateInput); where: GroupWhereUniqueInput; }'
+
+routes/inventory.ts:15:32 - error TS2551: Property 'inventoryItem' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'inventory'?
+
+15     const items = await prisma.inventoryItem.findMany();
+                                  ~~~~~~~~~~~~~
+
+  ../../node_modules/.prisma/client/index.d.ts:458:7
+    458   get inventory(): Prisma.InventoryDelegate<ExtArgs>;
+              ~~~~~~~~~
+    'inventory' is declared here.
+
+routes/inventory.ts:29:31 - error TS2551: Property 'inventoryItem' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'inventory'?
+
+29     const item = await prisma.inventoryItem.create({
+                                 ~~~~~~~~~~~~~
+
+  ../../node_modules/.prisma/client/index.d.ts:458:7
+    458   get inventory(): Prisma.InventoryDelegate<ExtArgs>;
+              ~~~~~~~~~
+    'inventory' is declared here.
+
+routes/inventory.ts:43:31 - error TS2551: Property 'inventoryItem' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'inventory'?
+
+43     const item = await prisma.inventoryItem.findUnique({ where: { id } });
+                                 ~~~~~~~~~~~~~
+
+  ../../node_modules/.prisma/client/index.d.ts:458:7
+    458   get inventory(): Prisma.InventoryDelegate<ExtArgs>;
+              ~~~~~~~~~
+    'inventory' is declared here.
+
+routes/inventory.ts:57:31 - error TS2551: Property 'inventoryItem' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'inventory'?
+
+57     const item = await prisma.inventoryItem.update({
+                                 ~~~~~~~~~~~~~
+
+  ../../node_modules/.prisma/client/index.d.ts:458:7
+    458   get inventory(): Prisma.InventoryDelegate<ExtArgs>;
+              ~~~~~~~~~
+    'inventory' is declared here.
+
+routes/inventory.ts:78:18 - error TS2551: Property 'inventoryItem' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'inventory'?
+
+78     await prisma.inventoryItem.delete({ where: { id } });
+                    ~~~~~~~~~~~~~
+
+  ../../node_modules/.prisma/client/index.d.ts:458:7
+    458   get inventory(): Prisma.InventoryDelegate<ExtArgs>;
+              ~~~~~~~~~
+    'inventory' is declared here.
+
+routes/library.ts:15:32 - error TS2339: Property 'libraryItem' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+
+15     const items = await prisma.libraryItem.findMany();
+                                  ~~~~~~~~~~~
+
+routes/library.ts:29:31 - error TS2339: Property 'libraryItem' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+
+29     const item = await prisma.libraryItem.create({
+                                 ~~~~~~~~~~~
+
+routes/library.ts:43:31 - error TS2339: Property 'libraryItem' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+
+43     const item = await prisma.libraryItem.findUnique({ where: { id } });
+                                 ~~~~~~~~~~~
+
+routes/library.ts:57:31 - error TS2339: Property 'libraryItem' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+
+57     const item = await prisma.libraryItem.update({
+                                 ~~~~~~~~~~~
+
+routes/library.ts:78:18 - error TS2339: Property 'libraryItem' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+
+78     await prisma.libraryItem.delete({ where: { id } });
+                    ~~~~~~~~~~~
+
+routes/notification-settings.ts:10:35 - error TS2339: Property 'notificationSettings' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+
+10     const settings = await prisma.notificationSettings.findFirst();
+                                     ~~~~~~~~~~~~~~~~~~~~
+
+routes/notification-settings.ts:52:35 - error TS2339: Property 'notificationSettings' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+
+52     const settings = await prisma.notificationSettings.upsert({
+                                     ~~~~~~~~~~~~~~~~~~~~
+
+routes/notifications.ts:30:15 - error TS2353: Object literal may only specify known properties, and 'title' does not exist in type '(Without<NotificationCreateInput, NotificationUncheckedCreateInput> & NotificationUncheckedCreateInput) | (Without<...> & NotificationCreateInput)'.
+
+30       data: { title, message, recipientId: recipientId ? Number(recipientId) : undefined, type },
+                 ~~~~~
+
+  ../../node_modules/.prisma/client/index.d.ts:18894:5
+    18894     data: XOR<NotificationCreateInput, NotificationUncheckedCreateInput>
+              ~~~~
+    The expected type comes from property 'data' which is declared here on type '{ select?: NotificationSelect<DefaultArgs> | null | undefined; include?: NotificationInclude<DefaultArgs> | null | undefined; data: (Without<...> & NotificationUncheckedCreateInput) | (Without<...> & NotificationCreateInput); }'
+
+routes/notifications.ts:60:9 - error TS2353: Object literal may only specify known properties, and 'title' does not exist in type '(Without<NotificationUpdateInput, NotificationUncheckedUpdateInput> & NotificationUncheckedUpdateInput) | (Without<...> & NotificationUpdateInput)'.
+
+60         title,
+           ~~~~~
+
+  ../../node_modules/.prisma/client/index.d.ts:18940:5
+    18940     data: XOR<NotificationUpdateInput, NotificationUncheckedUpdateInput>
+              ~~~~
+    The expected type comes from property 'data' which is declared here on type '{ select?: NotificationSelect<DefaultArgs> | null | undefined; include?: NotificationInclude<DefaultArgs> | null | undefined; data: (Without<...> & NotificationUncheckedUpdateInput) | (Without<...> & NotificationUpdateInput); where: NotificationWhereUniqueInput; }'
+
+routes/payments.ts:11:3 - error TS2322: Type '"2024-06-20"' is not assignable to type '"2025-06-30.basil"'.
+
+11   apiVersion: '2024-06-20',
+     ~~~~~~~~~~
+
+routes/payments.ts:113:25 - error TS2339: Property 'user' does not exist on type 'Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>'.
+
+113             userId: req.user.id.toString(),
+                            ~~~~
+
+routes/payments.ts:135:25 - error TS2339: Property 'user' does not exist on type 'Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>'.
+
+135             userId: req.user.id,
+                            ~~~~
+
+routes/payments.ts:160:23 - error TS2339: Property 'user' does not exist on type 'Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>'.
+
+160             name: req.user.name || 'User'
+                          ~~~~
+
+routes/payments.ts:163:25 - error TS2339: Property 'user' does not exist on type 'Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>'.
+
+163             userId: req.user.id,
+                            ~~~~
+
+routes/payments.ts:184:25 - error TS2339: Property 'user' does not exist on type 'Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>'.
+
+184             userId: req.user.id,
+                            ~~~~
+
+routes/payments.ts:286:92 - error TS2339: Property 'user' does not exist on type 'Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>'.
+
+286           userId: paymentData.metadata?.userId ? Number(paymentData.metadata.userId) : req.user.id,
+                                                                                               ~~~~
+
+routes/payments.ts:297:60 - error TS2339: Property 'user' does not exist on type 'Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>'.
+
+297         console.log(`Subscription activated for user ${req.user.id}`);
+                                                               ~~~~
+
+routes/plugins.ts:32:9 - error TS2353: Object literal may only specify known properties, and 'description' does not exist in type '(Without<PluginCreateInput, PluginUncheckedCreateInput> & PluginUncheckedCreateInput) | (Without<...> & PluginCreateInput)'.
+
+32         description,
+           ~~~~~~~~~~~
+
+  ../../node_modules/.prisma/client/index.d.ts:30664:5
+    30664     data: XOR<PluginCreateInput, PluginUncheckedCreateInput>
+              ~~~~
+    The expected type comes from property 'data' which is declared here on type '{ select?: PluginSelect<DefaultArgs> | null | undefined; include?: PluginInclude<DefaultArgs> | null | undefined; data: (Without<...> & PluginUncheckedCreateInput) | (Without<...> & PluginCreateInput); }'
+
+routes/plugins.ts:65:9 - error TS2353: Object literal may only specify known properties, and 'description' does not exist in type '(Without<PluginUpdateInput, PluginUncheckedUpdateInput> & PluginUncheckedUpdateInput) | (Without<...> & PluginUpdateInput)'.
+
+65         description,
+           ~~~~~~~~~~~
+
+  ../../node_modules/.prisma/client/index.d.ts:30710:5
+    30710     data: XOR<PluginUpdateInput, PluginUncheckedUpdateInput>
+              ~~~~
+    The expected type comes from property 'data' which is declared here on type '{ select?: PluginSelect<DefaultArgs> | null | undefined; include?: PluginInclude<DefaultArgs> | null | undefined; data: (Without<...> & PluginUncheckedUpdateInput) | (Without<...> & PluginUpdateInput); where: PluginWhereUniqueInput; }'
+
+routes/results.ts:18:12 - error TS2339: Property 'user' does not exist on type 'Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>'.
+
+18   if (!req.user || (req.user.role !== 'admin' && req.user.role !== 'teacher')) {
+              ~~~~
+
+routes/results.ts:18:25 - error TS2339: Property 'user' does not exist on type 'Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>'.
+
+18   if (!req.user || (req.user.role !== 'admin' && req.user.role !== 'teacher')) {
+                           ~~~~
+
+routes/results.ts:18:54 - error TS2339: Property 'user' does not exist on type 'Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>'.
+
+18   if (!req.user || (req.user.role !== 'admin' && req.user.role !== 'teacher')) {
+                                                        ~~~~
+
+routes/seo.ts:10:35 - error TS2339: Property 'seoSettings' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+
+10     const settings = await prisma.seoSettings.findFirst();
+                                     ~~~~~~~~~~~
+
+routes/seo.ts:44:35 - error TS2339: Property 'seoSettings' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+
+44     const settings = await prisma.seoSettings.upsert({
+                                     ~~~~~~~~~~~
+
+routes/students.ts:42:15 - error TS2353: Object literal may only specify known properties, and 'name' does not exist in type 'Without<StudentCreateInput, StudentUncheckedCreateInput> & StudentUncheckedCreateInput'.
+
+42       data: { name, email, classId: Number(classId) },
+                 ~~~~
+
+  ../../node_modules/.prisma/client/index.d.ts:9634:5
+    9634     data: XOR<StudentCreateInput, StudentUncheckedCreateInput>
+             ~~~~
+    The expected type comes from property 'data' which is declared here on type '{ select?: StudentSelect<DefaultArgs> | null | undefined; include?: StudentInclude<DefaultArgs> | null | undefined; data: (Without<...> & StudentUncheckedCreateInput) | (Without<...> & StudentCreateInput); }'
+
+routes/students.ts:71:15 - error TS2353: Object literal may only specify known properties, and 'name' does not exist in type '(Without<StudentUpdateInput, StudentUncheckedUpdateInput> & StudentUncheckedUpdateInput) | (Without<...> & StudentUpdateInput)'.
+
+71       data: { name, email, classId: classId ? Number(classId) : undefined },
+                 ~~~~
+
+  ../../node_modules/.prisma/client/index.d.ts:9680:5
+    9680     data: XOR<StudentUpdateInput, StudentUncheckedUpdateInput>
+             ~~~~
+    The expected type comes from property 'data' which is declared here on type '{ select?: StudentSelect<DefaultArgs> | null | undefined; include?: StudentInclude<DefaultArgs> | null | undefined; data: (Without<...> & StudentUncheckedUpdateInput) | (Without<...> & StudentUpdateInput); where: StudentWhereUniqueInput; }'
+
+routes/students.ts:127:42 - error TS18046: 'error' is of type 'unknown'.
+
+127         errors.push({ row: i + 1, error: error.message });
+                                             ~~~~~
+
+routes/students.ts:136:7 - error TS1117: An object literal cannot have multiple properties with the same name.
+
+136       errors
+          ~~~~~~
+
+routes/teachers.ts:31:34 - error TS2339: Property 'teacher' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+
+31     const teacher = await prisma.teacher.findUnique({ where: { id } });
+                                    ~~~~~~~
+
+routes/transport.ts:30:30 - error TS2353: Object literal may only specify known properties, and 'vehicle' does not exist in type '(Without<TransportCreateInput, TransportUncheckedCreateInput> & TransportUncheckedCreateInput) | (Without<...> & TransportCreateInput)'.
+
+30       data: { route, driver, vehicle, capacity: Number(capacity), available: available !== undefined ? Boolean(available) : true },     
+                                ~~~~~~~
+
+  ../../node_modules/.prisma/client/index.d.ts:20864:5
+    20864     data: XOR<TransportCreateInput, TransportUncheckedCreateInput>
+              ~~~~
+    The expected type comes from property 'data' which is declared here on type '{ select?: TransportSelect<DefaultArgs> | null | undefined; include?: TransportInclude<DefaultArgs> | null | undefined; data: (Without<...> & TransportUncheckedCreateInput) | (Without<...> & TransportCreateInput); }'
+
+routes/transport.ts:62:9 - error TS2353: Object literal may only specify known properties, and 'vehicle' does not exist in type '(Without<TransportUpdateInput, TransportUncheckedUpdateInput> & TransportUncheckedUpdateInput) | (Without<...> & TransportUpdateInput)'.
+
+62         vehicle,
+           ~~~~~~~
+
+  ../../node_modules/.prisma/client/index.d.ts:20910:5
+    20910     data: XOR<TransportUpdateInput, TransportUncheckedUpdateInput>
+              ~~~~
+    The expected type comes from property 'data' which is declared here on type '{ select?: TransportSelect<DefaultArgs> | null | undefined; include?: TransportInclude<DefaultArgs> | null | undefined; data: (Without<...> & TransportUncheckedUpdateInput) | (Without<...> & TransportUpdateInput); where: TransportWhereUniqueInput; }'
+
+routes/web-analytics.ts:10:35 - error TS2339: Property 'analyticsSettings' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+
+10     const settings = await prisma.analyticsSettings.findFirst();
+                                     ~~~~~~~~~~~~~~~~~
+
+routes/web-analytics.ts:42:35 - error TS2339: Property 'analyticsSettings' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+
+42     const settings = await prisma.analyticsSettings.upsert({
+                                     ~~~~~~~~~~~~~~~~~
+
+tests/auth.test.ts:1:21 - error TS2307: Cannot find module 'supertest' or its corresponding type declarations.
+
+1 import request from 'supertest';
+                      ~~~~~~~~~~~
+
+
+Found 77 errors in 26 files.
+
+Errors  Files
+     2  routes/advertising.ts:10
+     7  routes/ai.ts:242
+     5  routes/aiendpoints.ts:15
+     2  routes/alumni.ts:31
+     5  routes/analytics.ts:15
+     2  routes/attendance.ts:66
+     2  routes/certificates.ts:30
+     3  routes/device-tracking.ts:40
+     1  routes/events.ts:30
+     1  routes/forums.ts:30
+     5  routes/gamification.ts:15
+     1  routes/google-auth.ts:3
+     2  routes/groups.ts:32
+     5  routes/inventory.ts:15
+     5  routes/library.ts:15
+     2  routes/notification-settings.ts:10
+     2  routes/notifications.ts:30
+     8  routes/payments.ts:11
+     2  routes/plugins.ts:32
+     3  routes/results.ts:18
+     2  routes/seo.ts:10
+     4  routes/students.ts:42
+     1  routes/teachers.ts:31
+     2  routes/transport.ts:30
+     2  routes/web-analytics.ts:10
+     1  tests/auth.test.ts:1
+npm ERR! Lifecycle script `build` failed with error: 
+npm ERR! Error: command failed
+npm ERR!   in workspace: edu-ai-api@0.1.0
+npm ERR!   at location: C:\Users\ANDREW NORBERT\Downloads\Edrac-Edu\Edrac-Edu\apps\api
+[INFO] Building Web application...
+
+> edu-ai-web@0.1.0 build
+> next build
+
+  ▲ Next.js 14.2.30
+
+   Linting and checking validity of types  ..Failed to compile.
+
+   Linting and checking validity of types  ..../pages/payments.tsx:177:31
+Type error: Parameter 'feature' implicitly has an 'any' type.
+
+  175 |             Up to {plan.users.toLocaleString()} users
+  176 |           </div>
+> 177 |           {plan.features.map((feature, index) => (
+      |                               ^
+  178 |             <div key={index} className="flex items-center text-gray-600">
+  179 |               <Check size={16} className="mr-2 text-green-600" />
+  180 |               {feature}
+Next.js build worker exited with code: 1 and signal: null
+   Linting and checking validity of types  .npm ERR! Lifecycle script `build` failed with error: 
+npm ERR! Error: command failed
+npm ERR!   in workspace: edu-ai-web@0.1.0
+npm ERR!   at location: C:\Users\ANDREW NORBERT\Downloads\Edrac-Edu\Edrac-Edu\apps\web 
+[INFO] Starting applications...
+[INFO] Cleaning up existing processes...
+[INFO] Starting API server on port 5000...
+[INFO] Starting Web server on port 3000...
+[INFO] âœ… Setup complete!
+
+ðŸŒ Frontend: http://localhost:3000
+ðŸ § API: http://localhost:5000 -ForegroundColor Cyan
+    Write-Host ðŸš API Documentation: http://localhost:5000/api/docs
+
+Default login credentials:
+  Admin: admin@edrac.edu / password123
+  Teacher: teacher@edrac.edu / password123
+  Student: student@edrac.edu / password123
+
+Press Ctrl+C to stop both servers
